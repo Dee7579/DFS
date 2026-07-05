@@ -1,0 +1,107 @@
+import sqlite3
+from pathlib import Path
+
+from dfs.ship import Ship, Weapon
+
+
+class Database:
+    def __init__(self, db_path: Path):
+        self.db_path = db_path
+
+    def connect(self):
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        return conn
+
+    def get_ship(self, ship_name: str) -> Ship | None:
+        with self.connect() as conn:
+            cur = conn.cursor()
+
+            cur.execute(
+                """
+                SELECT
+                    ap.profile_id,
+                    s.ship_name,
+                    s.ship_class,
+                    f.name AS faction,
+                    fl.name AS fleet,
+                    ap.priority_level,
+                    ap.speed,
+                    ap.turn,
+                    ap.hull,
+                    ap.damage,
+                    ap.crew,
+                    ap.troops,
+                    ap.craft,
+                    ap.initiative,
+                    ap.in_service
+                FROM ships s
+                JOIN factions f ON s.faction_id = f.faction_id
+                JOIN acta_profiles ap ON s.ship_id = ap.ship_id
+                JOIN fleet_lists fl ON ap.fleet_list_id = fl.fleet_list_id
+                WHERE s.ship_name = ?;
+                """,
+                (ship_name,),
+            )
+
+            row = cur.fetchone()
+
+            if row is None:
+                return None
+
+            traits = self._get_traits(cur, row["profile_id"])
+            weapons = self._get_weapons(cur, row["profile_id"])
+
+            return Ship(
+                name=row["ship_name"],
+                ship_class=row["ship_class"],
+                faction=row["faction"],
+                fleet=row["fleet"],
+                priority=row["priority_level"],
+                speed=row["speed"],
+                turn=row["turn"],
+                hull=row["hull"],
+                damage=row["damage"],
+                crew=row["crew"],
+                troops=row["troops"],
+                craft=row["craft"],
+                initiative=row["initiative"],
+                in_service=row["in_service"],
+                traits=traits,
+                weapons=weapons,
+            )
+
+    def _get_traits(self, cur, profile_id: int) -> list[str]:
+        cur.execute(
+            """
+            SELECT trait
+            FROM traits
+            WHERE profile_id = ?
+            ORDER BY sort_order;
+            """,
+            (profile_id,),
+        )
+
+        return [row["trait"] for row in cur.fetchall()]
+
+    def _get_weapons(self, cur, profile_id: int) -> list[Weapon]:
+        cur.execute(
+            """
+            SELECT name, range_value, arc, attack_dice, traits
+            FROM weapons
+            WHERE profile_id = ?
+            ORDER BY sort_order;
+            """,
+            (profile_id,),
+        )
+
+        return [
+            Weapon(
+                name=row["name"],
+                range=row["range_value"],
+                arc=row["arc"],
+                attack_dice=row["attack_dice"],
+                traits=row["traits"],
+            )
+            for row in cur.fetchall()
+        ]
