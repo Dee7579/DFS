@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from dfs.database import Database
-from dfs.pdf_generator import PDFGenerator
+from dfs.pdf import ACTAClassicGenerator
 
 
 DB_PATH = Path(__file__).resolve().parents[2] / "Database" / "Data" / "dfs.db"
@@ -17,7 +17,7 @@ def main():
         print("Ship not found.")
         return
 
-    generator = PDFGenerator(OUTPUT_PATH)
+    generator = ACTAClassicGenerator(OUTPUT_PATH)
     generator.generate_ship_sheet(ship)
 
     print(f"Generated: {OUTPUT_PATH}")
