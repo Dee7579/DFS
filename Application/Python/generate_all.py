@@ -34,6 +34,33 @@ def clean_era_name(faction, fleet):
     return era or "General"
 
 
+def faction_code(faction):
+    codes = {
+        "Earth Alliance": "EA",
+        "Centauri Republic": "CR",
+        "Narn Regime": "NR",
+        "Minbari Federation": "MF",
+        "Vorlons": "VO",
+        "Shadows": "SH",
+        "League of Non-Aligned Worlds": "LN",
+        "Drakh": "DR",
+        "Raiders": "RA",
+    }
+
+    return codes.get(faction, "XX")
+
+
+def era_code(era):
+    codes = {
+        "Early Years": "EY",
+        "Third Age": "3A",
+        "Crusade Era": "CE",
+        "General": "GN",
+    }
+
+    return codes.get(era, "XX")
+
+
 def main():
     db = Database(DB_PATH)
 
@@ -42,13 +69,21 @@ def main():
     print(f"Generating {len(ships)} ship sheet(s)...")
 
     for ship in ships:
+
+        era = clean_era_name(ship.faction, ship.fleet)
+
         faction_folder = safe_filename(ship.faction)
-        era_folder = safe_filename(clean_era_name(ship.faction, ship.fleet))
+        era_folder = safe_filename(era)
 
         output_folder = OUTPUT_DIR / faction_folder / era_folder
         output_folder.mkdir(parents=True, exist_ok=True)
 
-        filename = output_folder / f"{safe_filename(ship.name)}.pdf"
+        prefix = f"{faction_code(ship.faction)}-{era_code(era)}"
+
+        filename = (
+            output_folder
+            / f"{prefix}_{safe_filename(ship.name)}.pdf"
+        )
 
         generator = ACTAClassicGenerator(filename)
         generator.generate_ship_sheet(ship)
