@@ -15,11 +15,13 @@ def draw_weapon_table(d, ship, x, y, width):
 
     d.rect(x, y, width, header_h, fill=MID_GREY)
 
+    # ARC | WEAPON | RANGE | AD | TRAITS
+
     columns = [
         (x, 40, "ARC"),
         (x + 40, 205, "WEAPON"),
-        (x + 245, 42, "AD"),
-        (x + 287, 58, "RANGE"),
+        (x + 245, 58, "RANGE"),
+        (x + 303, 42, "AD"),
         (x + 345, width - 345, "TRAITS"),
     ]
 
@@ -53,8 +55,14 @@ def draw_weapon_table(d, ship, x, y, width):
 
         d.text(x + 20, y + 9, arc, 7.6, False, "middle")
         d.text(x + 44, y + 9, weapon.name, 7.6)
-        d.text(x + 266, y + 9, weapon.attack_dice, 7.6, False, "middle")
-        d.text(x + 316, y + 9, weapon.range, 7.6, False, "middle")
+
+        # RANGE
+        d.text(x + 274, y + 9, weapon.range, 7.6, False, "middle")
+
+        # AD
+        d.text(x + 324, y + 9, weapon.attack_dice, 7.6, False, "middle")
+
+        # TRAITS
         d.text(x + 349, y + 9, weapon.traits, 6.8)
 
         y += row_h

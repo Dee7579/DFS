@@ -1,7 +1,7 @@
 from pathlib import Path
 import sqlite3
-
-from platform_data.olympus import SHIP_NAME, SHIP_CLASS, FACTION_NAME, PROFILES
+import sys
+import importlib
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -13,6 +13,7 @@ def get_id(cursor, table, id_column, name_column, name):
         f"SELECT {id_column} FROM {table} WHERE {name_column} = ?;",
         (name,),
     )
+
     row = cursor.fetchone()
 
     if row is None:
@@ -22,7 +23,11 @@ def get_id(cursor, table, id_column, name_column, name):
 
 
 def delete_existing_ship(cursor, ship_name):
-    cursor.execute("SELECT ship_id FROM ships WHERE ship_name = ?;", (ship_name,))
+    cursor.execute(
+        "SELECT ship_id FROM ships WHERE ship_name = ?;",
+        (ship_name,),
+    )
+
     row = cursor.fetchone()
 
     if row is None:
@@ -30,38 +35,104 @@ def delete_existing_ship(cursor, ship_name):
 
     ship_id = row[0]
 
-    cursor.execute("SELECT profile_id FROM acta_profiles WHERE ship_id = ?;", (ship_id,))
+    cursor.execute(
+        "SELECT profile_id FROM acta_profiles WHERE ship_id = ?;",
+        (ship_id,),
+    )
+
     profile_ids = [r[0] for r in cursor.fetchall()]
 
     for profile_id in profile_ids:
-        cursor.execute("DELETE FROM weapons WHERE profile_id = ?;", (profile_id,))
-        cursor.execute("DELETE FROM traits WHERE profile_id = ?;", (profile_id,))
-        cursor.execute("DELETE FROM profile_fleet_lists WHERE profile_id = ?;", (profile_id,))
+        cursor.execute(
+            "DELETE FROM weapons WHERE profile_id = ?;",
+            (profile_id,),
+        )
 
-    cursor.execute("DELETE FROM acta_profiles WHERE ship_id = ?;", (ship_id,))
-    cursor.execute("DELETE FROM ships WHERE ship_id = ?;", (ship_id,))
+        cursor.execute(
+            "DELETE FROM traits WHERE profile_id = ?;",
+            (profile_id,),
+        )
+
+        cursor.execute(
+            "DELETE FROM profile_fleet_lists WHERE profile_id = ?;",
+            (profile_id,),
+        )
+
+    cursor.execute(
+        "DELETE FROM acta_profiles WHERE ship_id = ?;",
+        (ship_id,),
+    )
+
+    cursor.execute(
+        "DELETE FROM ships WHERE ship_id = ?;",
+        (ship_id,),
+    )
 
 
 def main():
+
+    if len(sys.argv) != 2:
+        print()
+        print("Usage:")
+        print("    python add_ship.py olympus")
+        print("    python add_ship.py nova")
+        print("    python add_ship.py marathon")
+        print()
+        return
+
+    module_name = sys.argv[1].lower()
+
+    try:
+        ship_module = importlib.import_module(f"platform_data.{module_name}")
+    except ModuleNotFoundError:
+        print(f"Could not find platform_data/{module_name}.py")
+        return
+
+    SHIP_NAME = ship_module.SHIP_NAME
+    SHIP_CLASS = ship_module.SHIP_CLASS
+    FACTION_NAME = ship_module.FACTION_NAME
+    PROFILES = ship_module.PROFILES
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    faction_id = get_id(cursor, "factions", "faction_id", "name", FACTION_NAME)
+    faction_id = get_id(
+        cursor,
+        "factions",
+        "faction_id",
+        "name",
+        FACTION_NAME,
+    )
 
     delete_existing_ship(cursor, SHIP_NAME)
 
     cursor.execute(
         """
-        INSERT INTO ships (faction_id, ship_name, ship_class)
+        INSERT INTO ships (
+            faction_id,
+            ship_name,
+            ship_class
+        )
         VALUES (?, ?, ?);
         """,
-        (faction_id, SHIP_NAME, SHIP_CLASS),
+        (
+            faction_id,
+            SHIP_NAME,
+            SHIP_CLASS,
+        ),
     )
 
     ship_id = cursor.lastrowid
 
     for profile in PROFILES:
-        fleet_id = get_id(cursor, "fleet_lists", "fleet_list_id", "name", profile["fleet"])
+
+        fleet_id = get_id(
+            cursor,
+            "fleet_lists",
+            "fleet_list_id",
+            "name",
+            profile["fleet"],
+        )
 
         cursor.execute(
             """
@@ -99,7 +170,11 @@ def main():
 
         cursor.execute(
             """
-            INSERT INTO profile_fleet_lists (profile_id, fleet_list_id, notes)
+            INSERT INTO profile_fleet_lists (
+                profile_id,
+                fleet_list_id,
+                notes
+            )
             VALUES (?, ?, ?);
             """,
             (
@@ -110,15 +185,25 @@ def main():
         )
 
         for sort_order, trait in enumerate(profile["traits"], start=1):
+
             cursor.execute(
                 """
-                INSERT INTO traits (profile_id, trait, sort_order)
+                INSERT INTO traits (
+                    profile_id,
+                    trait,
+                    sort_order
+                )
                 VALUES (?, ?, ?);
                 """,
-                (profile_id, trait, sort_order),
+                (
+                    profile_id,
+                    trait,
+                    sort_order,
+                ),
             )
 
         for sort_order, weapon in enumerate(profile["weapons"], start=1):
+
             name, range_value, arc, attack_dice, traits = weapon
 
             cursor.execute(
@@ -148,7 +233,10 @@ def main():
     conn.commit()
     conn.close()
 
-    print(f"Added {SHIP_NAME} with {len(PROFILES)} profile(s).")
+    print()
+    print(f"Added {SHIP_NAME}")
+    print(f"Profiles imported: {len(PROFILES)}")
+    print()
 
 
 if __name__ == "__main__":
