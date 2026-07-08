@@ -43,37 +43,34 @@ def delete_existing_ship(cursor, ship_name):
     profile_ids = [r[0] for r in cursor.fetchall()]
 
     for profile_id in profile_ids:
-        cursor.execute(
-            "DELETE FROM weapons WHERE profile_id = ?;",
-            (profile_id,),
-        )
-
-        cursor.execute(
-            "DELETE FROM traits WHERE profile_id = ?;",
-            (profile_id,),
-        )
-
+        cursor.execute("DELETE FROM weapons WHERE profile_id = ?;", (profile_id,))
+        cursor.execute("DELETE FROM traits WHERE profile_id = ?;", (profile_id,))
         cursor.execute(
             "DELETE FROM profile_fleet_lists WHERE profile_id = ?;",
             (profile_id,),
         )
 
-    cursor.execute(
-        "DELETE FROM acta_profiles WHERE ship_id = ?;",
-        (ship_id,),
-    )
+    cursor.execute("DELETE FROM acta_profiles WHERE ship_id = ?;", (ship_id,))
+    cursor.execute("DELETE FROM ships WHERE ship_id = ?;", (ship_id,))
 
-    cursor.execute(
-        "DELETE FROM ships WHERE ship_id = ?;",
-        (ship_id,),
-    )
+
+def format_notes(notes):
+    if not notes:
+        return None
+
+    cleaned_notes = [str(note).strip() for note in notes if str(note).strip()]
+
+    if not cleaned_notes:
+        return None
+
+    return "\n".join(cleaned_notes)
 
 
 def main():
-
     if len(sys.argv) != 2:
         print()
         print("Usage:")
+        print("    python add_ship.py hyperion")
         print("    python add_ship.py olympus")
         print("    python add_ship.py nova")
         print("    python add_ship.py marathon")
@@ -88,10 +85,12 @@ def main():
         print(f"Could not find platform_data/{module_name}.py")
         return
 
-    SHIP_NAME = ship_module.SHIP_NAME
-    SHIP_CLASS = ship_module.SHIP_CLASS
-    FACTION_NAME = ship_module.FACTION_NAME
-    PROFILES = ship_module.PROFILES
+    ship_name = ship_module.SHIP_NAME
+    ship_class = ship_module.SHIP_CLASS
+    file_name = getattr(ship_module, "FILE_NAME", ship_name)
+    faction_name = ship_module.FACTION_NAME
+    profiles = ship_module.PROFILES
+    legacy_ship_names = getattr(ship_module, "LEGACY_SHIP_NAMES", [])
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -101,31 +100,35 @@ def main():
         "factions",
         "faction_id",
         "name",
-        FACTION_NAME,
+        faction_name,
     )
 
-    delete_existing_ship(cursor, SHIP_NAME)
+    for legacy_name in legacy_ship_names:
+        delete_existing_ship(cursor, legacy_name)
+
+    delete_existing_ship(cursor, ship_name)
 
     cursor.execute(
         """
         INSERT INTO ships (
             faction_id,
             ship_name,
-            ship_class
+            ship_class,
+            file_name
         )
-        VALUES (?, ?, ?);
+        VALUES (?, ?, ?, ?);
         """,
         (
             faction_id,
-            SHIP_NAME,
-            SHIP_CLASS,
+            ship_name,
+            ship_class,
+            file_name,
         ),
     )
 
     ship_id = cursor.lastrowid
 
-    for profile in PROFILES:
-
+    for profile in profiles:
         fleet_id = get_id(
             cursor,
             "fleet_lists",
@@ -147,9 +150,10 @@ def main():
                 crew,
                 troops,
                 craft,
-                in_service
+                in_service,
+                notes
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (
                 ship_id,
@@ -163,6 +167,7 @@ def main():
                 profile["troops"],
                 profile["craft"],
                 profile["in_service"],
+                format_notes(profile.get("notes", [])),
             ),
         )
 
@@ -180,12 +185,11 @@ def main():
             (
                 profile_id,
                 fleet_id,
-                f"{SHIP_NAME} available in {profile['fleet']}",
+                f"{ship_name} available in {profile['fleet']}",
             ),
         )
 
         for sort_order, trait in enumerate(profile["traits"], start=1):
-
             cursor.execute(
                 """
                 INSERT INTO traits (
@@ -203,7 +207,6 @@ def main():
             )
 
         for sort_order, weapon in enumerate(profile["weapons"], start=1):
-
             name, range_value, arc, attack_dice, traits = weapon
 
             cursor.execute(
@@ -234,8 +237,8 @@ def main():
     conn.close()
 
     print()
-    print(f"Added {SHIP_NAME}")
-    print(f"Profiles imported: {len(PROFILES)}")
+    print(f"Added {ship_name}")
+    print(f"Profiles imported: {len(profiles)}")
     print()
 
 

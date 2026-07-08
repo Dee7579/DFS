@@ -1,7 +1,10 @@
 from pathlib import Path
 
 from dfs.database import Database
-from dfs.pdf import ACTAClassicGenerator
+from dfs.pdf import (
+    ACTAClassicGenerator,
+    ACTAFighterGenerator,
+)
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -61,6 +64,13 @@ def era_code(era):
     return codes.get(era, "XX")
 
 
+def is_fighter_sheet(ship):
+    return (
+        "Fighter" in ship.traits
+        or "Breaching Pod" in ship.traits
+    )
+
+
 def main():
     db = Database(DB_PATH)
 
@@ -69,7 +79,6 @@ def main():
     print(f"Generating {len(ships)} ship sheet(s)...")
 
     for ship in ships:
-
         era = clean_era_name(ship.faction, ship.fleet)
 
         faction_folder = safe_filename(ship.faction)
@@ -82,10 +91,14 @@ def main():
 
         filename = (
             output_folder
-            / f"{prefix}_{safe_filename(ship.name)}.pdf"
+            / f"{prefix}_{safe_filename(ship.file_name)}.pdf"
         )
 
-        generator = ACTAClassicGenerator(filename)
+        if is_fighter_sheet(ship):
+            generator = ACTAFighterGenerator(filename)
+        else:
+            generator = ACTAClassicGenerator(filename)
+
         generator.generate_ship_sheet(ship)
 
         print(f"Generated: {filename}")

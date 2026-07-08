@@ -77,14 +77,7 @@ class ACTAClassicGenerator:
     def draw_frame(self, d, page_height):
         d.rect(18, 18, 576, page_height - 36, line_width=0.8)
 
-        d.rect(
-            18,
-            18,
-            576,
-            13,
-            fill=RED,
-            stroke=RED,
-        )
+        d.rect(18, 18, 576, 13, fill=RED, stroke=RED)
 
         d.text(
             24,
@@ -145,6 +138,8 @@ class ACTAClassicGenerator:
 
     def draw_traits_notes(self, d, ship, y):
         box_h = 62
+        notes_top = y + 24
+        notes_bottom = y + box_h - 8
 
         d.rect(22, y, 196, box_h, line_width=0.5)
         d.rect(22, y, 196, 12, fill=LIGHT_GREY)
@@ -164,8 +159,26 @@ class ACTAClassicGenerator:
         d.rect(226, y, 364, 12, fill=LIGHT_GREY)
         d.text(230, y + 8.3, "NOTES", 7.3, True)
 
-        for line_y in [y + 27, y + 40, y + 53]:
+        notes_y = notes_top
+
+        if ship.notes:
+            for note in ship.notes:
+                notes_y = self.wrapped_text(
+                    d,
+                    234,
+                    notes_y,
+                    note,
+                    344,
+                    6.8,
+                    9,
+                )
+                notes_y += 2
+
+        line_y = max(notes_y + 3, notes_top + 3)
+
+        while line_y <= notes_bottom:
             d.line(234, line_y, 582, line_y)
+            line_y += 13
 
         return y + box_h + 10
 
@@ -188,6 +201,9 @@ class ACTAClassicGenerator:
 
         if line:
             d.text(x, y, line, size)
+            y += line_gap
+
+        return y
 
     def draw_footer(self, d, page_height):
         d.text(

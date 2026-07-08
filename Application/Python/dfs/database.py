@@ -43,6 +43,7 @@ class Database:
                 SELECT
                     s.ship_name,
                     s.ship_class,
+                    s.file_name,
                     f.name AS faction,
                     fl.name AS fleet,
                     fl.initiative,
@@ -55,7 +56,8 @@ class Database:
                     ap.crew,
                     ap.troops,
                     ap.craft,
-                    ap.in_service
+                    ap.in_service,
+                    ap.notes
                 FROM acta_profiles ap
                 JOIN ships s ON ap.ship_id = s.ship_id
                 JOIN fleet_lists fl ON ap.fleet_list_id = fl.fleet_list_id
@@ -87,8 +89,10 @@ class Database:
                 in_service=row["in_service"],
             )
 
+            ship.file_name = row["file_name"] if row["file_name"] else row["ship_name"]
             ship.traits = self.get_traits(profile_id)
             ship.weapons = self.get_weapons(profile_id)
+            ship.notes = self.parse_notes(row["notes"])
 
             return ship
 
@@ -176,3 +180,13 @@ class Database:
                 )
 
             return weapons
+
+    def parse_notes(self, notes_text):
+        if not notes_text:
+            return []
+
+        return [
+            line.strip()
+            for line in str(notes_text).splitlines()
+            if line.strip()
+        ]

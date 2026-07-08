@@ -32,3 +32,4 @@ class Ship:
 
     traits: list[str] = field(default_factory=list)
     weapons: list[Weapon] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
