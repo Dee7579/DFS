@@ -2,6 +2,7 @@ from reportlab.lib import colors
 
 
 THRESHOLD_FILL = colors.HexColor("#F2D2D2")
+LIGHT_GREY = colors.HexColor("#F4F4F4")
 
 BOX_SIZE = 6.0
 BOX_SPACING = 3.0
@@ -17,13 +18,15 @@ def parse_track(value):
     return total, threshold
 
 
-def draw_track(d, x, y, label, value):
+def track_rows(total, threshold):
+    normal_count = total - threshold
+    visual_total = ((normal_count + PER_GROUP - 1) // PER_GROUP) * PER_GROUP + threshold
+    return (visual_total + PER_ROW - 1) // PER_ROW
+
+
+def draw_track_boxes(d, x, y, value):
     total, threshold = parse_track(value)
     normal_count = total - threshold
-
-    d.text(x, y, f"{label} {value}", 8.8, True)
-
-    start_y = y + 16
     spacing = BOX_SIZE + BOX_SPACING
 
     for i in range(total):
@@ -39,20 +42,66 @@ def draw_track(d, x, y, label, value):
         group = col // PER_GROUP
 
         px = x + col * spacing + group * GROUP_GAP
-        py = start_y + row * spacing
+        py = y + row * spacing
 
         fill = THRESHOLD_FILL if i >= normal_count else None
-
         d.rect(px, py, BOX_SIZE, BOX_SIZE, fill=fill, line_width=0.33)
 
-    visual_total = ((normal_count + PER_GROUP - 1) // PER_GROUP) * PER_GROUP + threshold
-    rows = (visual_total + PER_ROW - 1) // PER_ROW
 
-    return start_y + rows * spacing + 8
+def draw_track_panel(d, x, y, w, label, value):
+    total, threshold = parse_track(value)
+    rows = track_rows(total, threshold)
+
+    header_h = 13
+    body_h = 12 + rows * (BOX_SIZE + BOX_SPACING)
+
+    d.rect(x, y, w, header_h + body_h, line_width=0.5)
+    d.rect(x, y, w, header_h, fill=LIGHT_GREY, line_width=0.5)
+    d.text(x + 5, y + 9, f"{label.upper()} {value}", 7.4, True)
+
+    draw_track_boxes(d, x + 7, y + header_h + 8, value)
+
+    return y + header_h + body_h
 
 
 def draw_damage_and_crew(d, ship, x, y):
-    damage_bottom = draw_track(d, x, y, "Damage", ship.damage)
-    crew_bottom = draw_track(d, x + 288, y, "Crew", ship.crew)
+    gap = 8
+    half_w = (568 - gap) / 2
 
-    return max(damage_bottom, crew_bottom) + 12
+    damage_bottom = draw_track_panel(
+        d,
+        x,
+        y,
+        half_w,
+        "Damage",
+        ship.damage,
+    )
+
+    crew_bottom = draw_track_panel(
+        d,
+        x + half_w + gap,
+        y,
+        half_w,
+        "Crew",
+        ship.crew,
+    )
+
+    current_bottom = max(damage_bottom, crew_bottom)
+
+    if hasattr(ship, "shields") and ship.shields:
+        current_bottom += 8
+
+        draw_track_panel(
+            d,
+            x,
+            current_bottom,
+            568,
+            "Shields",
+            ship.shields,
+        )
+
+        shield_total, shield_threshold = parse_track(ship.shields)
+        shield_rows = track_rows(shield_total, shield_threshold)
+        current_bottom += 13 + 12 + shield_rows * (BOX_SIZE + BOX_SPACING)
+
+    return current_bottom + 12

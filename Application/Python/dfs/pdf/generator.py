@@ -76,7 +76,6 @@ class ACTAClassicGenerator:
 
     def draw_frame(self, d, page_height):
         d.rect(18, 18, 576, page_height - 36, line_width=0.8)
-
         d.rect(18, 18, 576, 13, fill=RED, stroke=RED)
 
         d.text(
@@ -107,7 +106,7 @@ class ACTAClassicGenerator:
             header_text = ship.faction.upper()
 
         d.text(24, y, header_text, 11.2, True)
-        d.text(24, y + 21, ship.name.upper(), 18, True)
+        self.draw_smart_title(d, 24, y + 21, ship.name)
 
         d.text(588, y, ship.priority.upper(), 11.5, True, "end")
         d.text(588, y + 21, f"Initiative: {ship.initiative}", 8.7, True, "end")
@@ -120,6 +119,52 @@ class ACTAClassicGenerator:
         d.line(18, y + 55, 594, y + 55)
 
         return y + 65
+
+    def draw_smart_title(self, d, x, y, title):
+        title = str(title).upper()
+
+        main_text = title
+        variant_text = ""
+
+        if "(" in title and title.endswith(")"):
+            main_text = title[: title.rfind("(")].strip()
+            variant_text = title[title.rfind("("):].strip()
+
+        max_width = 430
+        main_size = 18
+        variant_size = 11.5
+
+        c = d.c
+
+        while main_size > 13:
+            c.setFont("Helvetica-Bold", main_size)
+            main_width = c.stringWidth(main_text, "Helvetica-Bold", main_size)
+
+            c.setFont("Helvetica-Bold", variant_size)
+            variant_width = (
+                c.stringWidth("  " + variant_text, "Helvetica-Bold", variant_size)
+                if variant_text
+                else 0
+            )
+
+            if main_width + variant_width <= max_width:
+                break
+
+            main_size -= 0.5
+
+        d.text(x, y, main_text, main_size, True)
+
+        if variant_text:
+            c.setFont("Helvetica-Bold", main_size)
+            main_width = c.stringWidth(main_text, "Helvetica-Bold", main_size)
+
+            d.text(
+                x + main_width + 8,
+                y,
+                variant_text,
+                variant_size,
+                True,
+            )
 
     def draw_stat_boxes(self, d, ship, y):
         self.stat_box(d, 22, y, 52, "Speed", ship.speed)

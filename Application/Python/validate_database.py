@@ -49,14 +49,20 @@ def main():
             """,
         ),
         (
-            "Every profile has at least one weapon",
-            """
-            SELECT ap.profile_id
-            FROM acta_profiles ap
-            LEFT JOIN weapons w ON ap.profile_id = w.profile_id
-            WHERE w.weapon_id IS NULL;
-            """,
-        ),
+    "Every combat profile has at least one weapon",
+    """
+    SELECT ap.profile_id
+    FROM acta_profiles ap
+    LEFT JOIN weapons w
+        ON ap.profile_id = w.profile_id
+    WHERE w.weapon_id IS NULL
+      AND ap.profile_id NOT IN (
+            SELECT DISTINCT profile_id
+            FROM traits
+            WHERE trait = 'Breaching Pod'
+      );
+    """,
+),
         (
             "Every profile belongs to at least one fleet list",
             """
