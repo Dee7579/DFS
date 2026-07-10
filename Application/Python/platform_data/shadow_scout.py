@@ -18,12 +18,7 @@ PROFILES = [
         'craft': '-',
         'in_service': 'Until 2261',
         'traits': ['Atmospheric', 'Dodge 6+', 'Scout', 'Self-Repair 1', 'Shields 5/5', 'Stealth 5+'],
-        'notes': [
-            'Fleet Rules: Hyperspace Mastery, Redundant Systems, Crew, Special Actions, Superior Technology, Superb Manoeuvrability.',
-            'FAQ: Shadow critical hits repair in the End Phase after the turn they were inflicted.',
-            'P&P: Anti-Fighter Defences, Merging, and Mind Scream may apply.',
-            'Mind Scream: enemy ships with Psychic Crew lose 1 Crew when this vessel moves within 6 inches.',
-        ],
+        'notes': [],
         'weapons': [
             ('Phasing Pulse Cannon', '8', 'F', 6, 'Accurate, Double Damage, Super AP'),
         ],

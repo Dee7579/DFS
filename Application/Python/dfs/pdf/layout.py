@@ -48,6 +48,37 @@ def sorted_weapons(weapons):
     return sorted(weapons, key=arc_sort_key)
 
 
+def has_track(value):
+    value = str(value).strip()
+    return value not in ["", "-", "None", "none"]
+
+
+def track_total(value):
+    if not has_track(value):
+        return 0
+
+    return int(str(value).split("/")[0])
+
+
+def track_rows(value):
+    total = track_total(value)
+
+    if total <= 0:
+        return 1
+
+    return (total + 24) // 25
+
+
+def get_shields_from_traits(ship):
+    for trait in ship.traits:
+        trait = str(trait).strip()
+
+        if trait.startswith("Shields"):
+            return trait.replace("Shields", "").strip()
+
+    return None
+
+
 def estimate_page_height(ship):
     weapon_rows = len(ship.weapons)
     weapon_height = 12 + 13 + (weapon_rows * 13.3)
@@ -55,15 +86,26 @@ def estimate_page_height(ship):
     header_stats_height = 120
     traits_notes_height = 72
 
-    damage_total = int(str(ship.damage).split("/")[0])
-    crew_total = int(str(ship.crew).split("/")[0])
+    damage_rows = track_rows(ship.damage)
+    crew_rows = track_rows(ship.crew)
 
-    damage_rows = (damage_total + 29) // 30
-    crew_rows = (crew_total + 29) // 30
-    track_rows = max(damage_rows, crew_rows)
+    track_row_count = max(damage_rows, crew_rows)
+    track_height = 28 + (track_row_count * 10)
 
-    track_height = 20 + (track_rows * 8)
+    shields = get_shields_from_traits(ship)
 
-    needed = 18 + 13 + header_stats_height + weapon_height + traits_notes_height + track_height + 40
+    if shields:
+        shield_rows = track_rows(shields)
+        track_height += 8 + 28 + (shield_rows * 10)
+
+    needed = (
+        18
+        + 13
+        + header_stats_height
+        + weapon_height
+        + traits_notes_height
+        + track_height
+        + 40
+    )
 
     return max(BASE_PAGE_HEIGHT, needed)

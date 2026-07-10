@@ -21,13 +21,7 @@ PROFILES = [
         'craft': '2 Shadow Fighter flights',
         'in_service': 'Until 2261',
         'traits': ['Atmospheric', 'Self-Repair 2D6', 'Shields 10/5'],
-        'notes': [
-            'Fleet Rules: Hyperspace Mastery, Redundant Systems, Crew, Special Actions, Superior Technology, Superb Manoeuvrability.',
-            'FAQ: Shadow critical hits repair in the End Phase after the turn they were inflicted.',
-            'P&P: Anti-Fighter Defences, Merging, and Mind Scream may apply.',
-            'Mind Scream: enemy ships with Psychic Crew lose 1D6 Crew when this vessel moves within 6 inches.',
-            'Fighter Dispersal Tube: carries Shadow Fighters as part of the ship cost.',
-        ],
+        'notes': [],
         'weapons': [
             ('Molecular Slicer Beam', '24', 'F', 6, 'Beam, Precise, Triple Damage'),
             ('Fighter Dispersal Tube', '30', 'F', '-', ''),

@@ -24,8 +24,6 @@ PROFILES = [
         'notes': [
             'Dogfight: +0',
             'Wing of Two Flights',
-            'FAQ: Shadow Fighters cannot be jammed.',
-            'P&P: Shadow Fighter Shields work against Anti-Fighter/Advanced Anti-Fighter and in dogfights.',
         ],
         'weapons': [
             ('Polarity Cannon', '2', 'T', 3, 'AP, Double Damage'),

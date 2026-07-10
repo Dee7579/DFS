@@ -44,7 +44,7 @@ def faction_code(faction):
         "Narn Regime": "NR",
         "Minbari Federation": "MF",
         "Vorlons": "VO",
-        "Shadows": "SH",
+        "The Shadows": "SH",
         "League of Non-Aligned Worlds": "LN",
         "Drakh": "DR",
         "Raiders": "RA",
