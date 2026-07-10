@@ -39,15 +39,25 @@ def clean_era_name(faction, fleet):
 
 def faction_code(faction):
     codes = {
-        "Earth Alliance": "EA",
-        "Centauri Republic": "CR",
-        "Narn Regime": "NR",
-        "Minbari Federation": "MF",
-        "Vorlons": "VO",
-        "The Shadows": "SH",
-        "League of Non-Aligned Worlds": "LN",
-        "Drakh": "DR",
-        "Raiders": "RA",
+    	"Earth Alliance": "EA",
+    	"Dilgar Imperium": "DI",
+    	"Minbari Federation": "MF",
+    	"Narn Regime": "NR",
+    	"Centauri Republic": "CR",
+    	"Interstellar Alliance": "ISA",
+    	"Abbai Matriarchy": "AM",
+    	"Brakiri Syndicracy": "BS",
+    	"Drazi Freehold": "DF",
+    	"Gaim Intelligence": "GI",
+    	"pak'ma'ra": "PM",
+    	"Vree Conglomerate": "VC",
+    	"Raiders": "RA",
+    	"Vorlon Empire": "VE",
+    	"The Shadows": "SH",
+    	"The Ancients": "AN",
+    	"The Drakh": "DR",
+    	"Psi Corps": "PC",
+    	"Other Craft": "OC",
     }
 
     return codes.get(faction, "XX")
