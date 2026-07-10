@@ -22,7 +22,16 @@ def parse_track(value):
 
     parts = str(value).split("/")
     total = int(parts[0])
-    threshold = int(parts[1]) if len(parts) > 1 else 0
+    threshold = 0
+
+    if len(parts) > 1:
+        try:
+            threshold = int(parts[1])
+        except ValueError:
+            # Shield recharge values such as 1D6 or 2D6 are not
+            # damage thresholds. Preserve them in the displayed
+            # value, but do not use them for box shading/layout.
+            threshold = 0
 
     return total, threshold
 
