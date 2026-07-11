@@ -1,6 +1,6 @@
 """
 DFS Babylon 5 ACTA Codex
-Version 1.1
+Version 1.3
 
 Primary Sources
 ---------------
@@ -1157,7 +1157,92 @@ FLEET_RULES = {'Abbai Matriarchy': [],
                         'see_also': ['Fighter', 'Fleet Carrier'],
                         'category': 'Fleet Rule'}],
  'Hurr': [],
- 'Interstellar Alliance': [],
+ 'Interstellar Alliance': [{'title': 'Allied Fleets',
+                            'text': 'An ISA fleet may spend 1 Fleet Allocation Point from '
+                                    'its allowance on ships from one of the following '
+                                    'fleet lists: Earth Alliance (Third Age or Crusade '
+                                    'Era), Narn Regime, Minbari Federation, or any League '
+                                    'fleet. In campaign games, allied ships are limited to '
+                                    'a maximum of 1 Battle-level Fleet Allocation Point at '
+                                    'any one time.',
+                            'source': 'B5 ACTA Fleet Lists, The Interstellar Alliance, p. '
+                                      '82',
+                            'keywords': ['Allied Fleets',
+                                         'Fleet Rule',
+                                         'allies',
+                                         'Earth Alliance',
+                                         'Narn',
+                                         'Minbari',
+                                         'League',
+                                         'Fleet Allocation'],
+                            'see_also': [],
+                            'category': 'Fleet Rule'},
+                           {'title': 'In Service Dates',
+                            'text': 'The Interstellar Alliance fleet list may not be used '
+                                    'in scenarios set before 2262, even though some '
+                                    'individual ships existed earlier.',
+                            'source': 'B5 ACTA Fleet Lists, The Interstellar Alliance, p. '
+                                      '82',
+                            'keywords': ['In Service Dates',
+                                         'Fleet Rule',
+                                         '2262',
+                                         'scenario date',
+                                         'fleet availability'],
+                            'see_also': [],
+                            'category': 'Fleet Rule'},
+                           {'title': 'Rangers',
+                            'text': 'All ISA ships receive +1 Crew Quality, to a maximum '
+                                    'score of 6.',
+                            'source': 'B5 ACTA Fleet Lists, The Interstellar Alliance, p. '
+                                      '82',
+                            'keywords': ['Rangers',
+                                         'Fleet Rule',
+                                         'Crew Quality',
+                                         'bonus',
+                                         'maximum 6'],
+                            'see_also': [],
+                            'category': 'Fleet Rule'},
+                           {'title': 'Skin Dancing',
+                            'text': 'Blue Stars, White Stars, White Star IIs, White Star '
+                                    'Fighters, and all Minbari fighters may attempt Skin '
+                                    'Dancing. Move into contact with the target; close '
+                                    'escorts may intercept normally. Ships must pass a '
+                                    'Crew Quality check of 9, while fighters must roll 5+. '
+                                    'On a failure, the attacker is destroyed and the '
+                                    'target suffers a Double Damage attack: 1 AD for a '
+                                    "fighter, or AD equal to the ship's starting Damage "
+                                    'for a ship. On success, the attacker may attack only '
+                                    'that target for the rest of the turn, may use all '
+                                    'weapons regardless of fire arc, and ignores '
+                                    'Interceptors. The target may not fire back; other '
+                                    'enemies may target the skin-dancing craft only with '
+                                    'Accurate or Precise weapons.',
+                            'source': 'B5 ACTA Fleet Lists, The Interstellar Alliance, pp. '
+                                      '82-83',
+                            'keywords': ['Skin Dancing',
+                                         'Fleet Rule',
+                                         'White Star',
+                                         'Blue Star',
+                                         'Minbari fighters',
+                                         'Crew Quality',
+                                         'Interceptors',
+                                         'Accurate',
+                                         'Precise'],
+                            'see_also': ['Interceptors', 'Accurate', 'Precise'],
+                            'category': 'Fleet Rule'},
+                           {'title': 'Fighter Replacements',
+                            'text': 'Any ship carrying one or more Starfury flights may '
+                                    'replace any number of them with Thunderbolt Starfury '
+                                    'flights.',
+                            'source': 'B5 ACTA Fleet Lists, The Interstellar Alliance, p. '
+                                      '82',
+                            'keywords': ['Fighter Replacements',
+                                         'Fleet Rule',
+                                         'Starfury',
+                                         'Thunderbolt',
+                                         'replacement'],
+                            'see_also': ['Fighter'],
+                            'category': 'Fleet Rule'}],
  'Ipsha': [],
  'Lumati': [],
  'Minbari Federation': [{'title': 'Skin Dancing',
@@ -1291,7 +1376,75 @@ FLEET_RULES = {'Abbai Matriarchy': [],
               'see_also': ['Breaching Pod', 'Fighter'],
               'category': 'Fleet Rule'}],
  'Techno Mages': [],
- 'The Ancients': [],
+ 'The Ancients': [{'title': 'Priority Level',
+                   'text': 'Ancient is a Priority Level above Armageddon. One Ancient ship '
+                           'is equivalent to 2 Armageddon, 4 War, 8 Battle, 12 Raid, 18 '
+                           'Skirmish, or 30 Patrol ships. Fleet Allocation Points may be '
+                           'split normally.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Priority Level',
+                                'Fleet Rule',
+                                'Ancient',
+                                'Armageddon',
+                                'Fleet Allocation',
+                                'Patrol',
+                                'Skirmish',
+                                'Raid',
+                                'Battle',
+                                'War'],
+                   'see_also': []},
+                  {'title': 'Initiative',
+                   'text': 'A fleet consisting of Ancients has an Initiative score of +4.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Initiative', 'Fleet Rule', 'Ancients', '+4'],
+                   'see_also': []},
+                  {'title': 'Crew Quality',
+                   'text': 'All Ancients are considered to have Crew Quality 7.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Crew Quality', 'Fleet Rule', 'Ancients', '7'],
+                   'see_also': []},
+                  {'title': 'Stealth Penetration',
+                   'text': 'Ancient vessels ignore the Stealth score of every target.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Stealth Penetration',
+                                'Fleet Rule',
+                                'Ancients',
+                                'Stealth',
+                                'ignore'],
+                   'see_also': ['Stealth']},
+                  {'title': 'Redundant Systems',
+                   'text': 'Ancient vessels take damage normally, but every Critical Hit '
+                           'is automatically repaired in the End Phase of the following '
+                           'turn. Critical Hits to Vital Systems are repaired at the same '
+                           'time.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Redundant Systems',
+                                'Fleet Rule',
+                                'Ancients',
+                                'Critical Hits',
+                                'Vital Systems',
+                                'repair',
+                                'End Phase'],
+                   'see_also': ['Self-Repairing']},
+                  {'title': 'Crew',
+                   'text': 'Ancient vessels have no Crew or Troops score. They cannot be '
+                           'boarded or initiate boarding actions and are immune to '
+                           'Critical Hits that affect Crew.',
+                   'source': 'B5 ACTA Fleet Lists, The Ancients, p. 140',
+                   'category': 'Fleet Rule',
+                   'keywords': ['Crew',
+                                'Fleet Rule',
+                                'Ancients',
+                                'Troops',
+                                'boarding',
+                                'Critical Hits',
+                                'immune'],
+                   'see_also': []}],
  'The Drakh': [],
  'The Shadows': [{'title': 'Hyperspace Mastery',
                   'text': 'Shadow vessels enter realspace without deviation, without an '
@@ -1518,7 +1671,52 @@ FLEET_RULES = {'Abbai Matriarchy': [],
                                      'super',
                                      'though'],
                         'see_also': []}],
- "pak'ma'ra": []}
+ "pak'ma'ra": [{'title': 'Redundant Systems',
+                'text': "Whenever a pak'ma'ra ship loses Damage or Crew, roll one die for "
+                        'each point lost. On a 6+, that point is ignored. The special '
+                        'effects of Critical Hits still apply, although Damage and Crew '
+                        'caused by the critical are rolled for normally. If the ship uses '
+                        'Close Blast Doors and Activate Defence Grid!, this roll improves '
+                        'to 5+; it does not receive two separate rolls.',
+                'source': "B5 ACTA Fleet Lists, The pak'ma'ra, p. 116",
+                'category': 'Fleet Rule',
+                'keywords': ['Redundant Systems',
+                             'Fleet Rule',
+                             "pak'ma'ra",
+                             'Damage',
+                             'Crew',
+                             'Critical Hits',
+                             'Close Blast Doors',
+                             'defence'],
+                'see_also': []},
+               {'title': 'Plasma Web',
+                'text': "A squadron of pak'ma'ra ships may target the same point in space "
+                        'with Plasma Cannon and Heavy Plasma Cannon. Combine their AD and '
+                        'halve the total, rounding down; the attack gains Energy Mine. '
+                        'Heavy Plasma Cannon retain Double Damage only if no ordinary '
+                        'Plasma Cannon contribute to the web.',
+                'source': "B5 ACTA Fleet Lists, The pak'ma'ra, p. 117",
+                'category': 'Fleet Rule',
+                'keywords': ['Plasma Web',
+                             'Fleet Rule',
+                             "pak'ma'ra",
+                             'Plasma Cannon',
+                             'Heavy Plasma Cannon',
+                             'Energy Mine',
+                             'Double Damage',
+                             'squadron'],
+                'see_also': ['Energy Mine', 'Double Damage']},
+               {'title': 'Gentle Beings',
+                'text': "All pak'ma'ra ships suffer a -1 penalty to their Crew Quality "
+                        'scores.',
+                'source': "B5 ACTA Fleet Lists, The pak'ma'ra, p. 117",
+                'category': 'Fleet Rule',
+                'keywords': ['Gentle Beings',
+                             'Fleet Rule',
+                             "pak'ma'ra",
+                             'Crew Quality',
+                             'penalty'],
+                'see_also': []}]}
 
 
 _ALIASES = {
