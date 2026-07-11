@@ -1,5 +1,7 @@
 from reportlab.pdfgen import canvas
 
+from dfs.pdf.rules_back import draw_rules_back, estimate_rules_back_height
+
 from dfs.pdf.layout import (
     PAGE_WIDTH,
     estimate_page_height,
@@ -57,7 +59,14 @@ class ACTAClassicGenerator:
         self.filename = filename
 
     def generate_ship_sheet(self, ship):
-        page_height = estimate_page_height(ship)
+        front_height = estimate_page_height(ship)
+        back_height = estimate_rules_back_height(
+            ship,
+            PAGE_WIDTH,
+            include_fleet_rules=True,
+        )
+        page_height = max(front_height, back_height)
+
         c = canvas.Canvas(str(self.filename), pagesize=(PAGE_WIDTH, page_height))
         d = Drawing(c, page_height)
 
@@ -71,6 +80,16 @@ class ACTAClassicGenerator:
         current_y = draw_damage_and_crew(d, ship, CONTENT_X, current_y)
 
         self.draw_footer(d, page_height)
+
+        c.showPage()
+        draw_rules_back(
+            c,
+            ship,
+            page_width=PAGE_WIDTH,
+            include_fleet_rules=True,
+            sheet_type="Ship",
+            page_height=page_height,
+        )
 
         c.save()
 

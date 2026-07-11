@@ -4,6 +4,7 @@ from dfs.database import Database
 from dfs.pdf import (
     ACTAClassicGenerator,
     ACTAFighterGenerator,
+    ACTAAncientGenerator,
 )
 
 
@@ -39,25 +40,25 @@ def clean_era_name(faction, fleet):
 
 def faction_code(faction):
     codes = {
-    	"Earth Alliance": "EA",
-    	"Dilgar Imperium": "DI",
-    	"Minbari Federation": "MF",
-    	"Narn Regime": "NR",
-    	"Centauri Republic": "CR",
-    	"Interstellar Alliance": "ISA",
-    	"Abbai Matriarchy": "AM",
-    	"Brakiri Syndicracy": "BS",
-    	"Drazi Freehold": "DF",
-    	"Gaim Intelligence": "GI",
-    	"pak'ma'ra": "PM",
-    	"Vree Conglomerate": "VC",
-    	"Raiders": "RA",
-    	"Vorlon Empire": "VE",
-    	"The Shadows": "SH",
-    	"The Ancients": "AN",
-    	"The Drakh": "DR",
-    	"Psi Corps": "PC",
-    	"Other Craft": "OC",
+        "Earth Alliance": "EA",
+        "Dilgar Imperium": "DI",
+        "Minbari Federation": "MF",
+        "Narn Regime": "NR",
+        "Centauri Republic": "CR",
+        "Interstellar Alliance": "ISA",
+        "Abbai Matriarchy": "AM",
+        "Brakiri Syndicracy": "BS",
+        "Drazi Freehold": "DF",
+        "Gaim Intelligence": "GI",
+        "pak'ma'ra": "PM",
+        "Vree Conglomerate": "VC",
+        "Raiders": "RA",
+        "Vorlon Empire": "VE",
+        "The Shadows": "SH",
+        "The Ancients": "AN",
+        "The Drakh": "DR",
+        "Psi Corps": "PC",
+        "Other Craft": "OC",
     }
 
     return codes.get(faction, "XX")
@@ -79,6 +80,10 @@ def is_fighter_sheet(ship):
         "Fighter" in ship.traits
         or "Breaching Pod" in ship.traits
     )
+
+
+def is_ancient_sheet(ship):
+    return ship.faction == "The Ancients"
 
 
 def main():
@@ -106,6 +111,8 @@ def main():
 
         if is_fighter_sheet(ship):
             generator = ACTAFighterGenerator(filename)
+        elif is_ancient_sheet(ship):
+            generator = ACTAAncientGenerator(filename)
         else:
             generator = ACTAClassicGenerator(filename)
 

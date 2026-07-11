@@ -1,3 +1,3 @@
 from .generator import ACTAClassicGenerator
-
-from dfs.pdf.fighter_generator import ACTAFighterGenerator
+from .fighter_generator import ACTAFighterGenerator
+from .ancient_generator import ACTAAncientGenerator

@@ -1,0 +1,2470 @@
+{
+  "summary": {
+    "ship_rule_keys": 30,
+    "weapon_rule_keys": 18,
+    "all_unique_rule_keys": 48,
+    "fleet_lists": 25,
+    "platform_notes": 114,
+    "suspicious_ship_traits": 0,
+    "suspicious_weapon_trait_strings": 2
+  },
+  "all_rule_keys": [
+    "Accurate",
+    "Adaptive Armour",
+    "Advanced Anti-Fighter",
+    "Advanced Jump Engine",
+    "Afterburner",
+    "Agile",
+    "Anti-Fighter",
+    "AP",
+    "Atmospheric",
+    "Beam",
+    "Breaching Pod",
+    "Cargo",
+    "Carrier",
+    "Command",
+    "Comms Disruptor",
+    "Dodge",
+    "Double Damage",
+    "Energy Mine",
+    "Escort",
+    "Fighter",
+    "Fleet Carrier",
+    "Flight Computer",
+    "Gravitic Energy Grid",
+    "Gravitic Shifter",
+    "Huge Hangars",
+    "Interceptors",
+    "Jump Engine",
+    "Lumbering",
+    "Mass Driver",
+    "Mini-Beam",
+    "One-Shot",
+    "Orbital Bomb",
+    "Passenger Vessel",
+    "Precise",
+    "Psychic Crew",
+    "Quad Damage",
+    "Scout",
+    "Self-Repair",
+    "Self-Repairing",
+    "Shields",
+    "Shuttles",
+    "Slow-Loading",
+    "Stealth",
+    "Super AP",
+    "Triple Damage",
+    "Twin-Linked",
+    "Unique",
+    "Weak"
+  ],
+  "ship_rules": [
+    {
+      "key": "Adaptive Armour",
+      "occurrences": 15,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Adaptive Armour",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Adaptive Armour",
+          "ship": "Blue Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Adaptive Armour",
+          "ship": "Victory-class Destroyer",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Adaptive Armour",
+          "ship": "White Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Adaptive Armour",
+          "ship": "White Star Carrier",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    },
+    {
+      "key": "Advanced Anti-Fighter",
+      "occurrences": 28,
+      "parameters": {
+        "1": 4,
+        "2": 4,
+        "3": 5,
+        "4": 6,
+        "5": 1,
+        "6": 2,
+        "8": 6
+      },
+      "examples": [
+        {
+          "original": "Advanced Anti-Fighter 1",
+          "ship": "Shantavi-class Heavy Battle Frigate (Tinashi Variant)",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Advanced Anti-Fighter 1",
+          "ship": "Torotha-class Assault Frigate",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Advanced Anti-Fighter 1",
+          "ship": "Vorlon Fighter Flight",
+          "faction": "Vorlon Empire"
+        },
+        {
+          "original": "Advanced Anti-Fighter 1",
+          "ship": "Vorlon Transport",
+          "faction": "Vorlon Empire"
+        },
+        {
+          "original": "Advanced Anti-Fighter 2",
+          "ship": "Tigara-class Attack Cruiser",
+          "faction": "Minbari Federation"
+        }
+      ]
+    },
+    {
+      "key": "Advanced Jump Engine",
+      "occurrences": 53,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Advanced Jump Engine",
+          "ship": "Adira-class Royal Battleship",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Advanced Jump Engine",
+          "ship": "Liati-class Advanced Cruiser",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Advanced Jump Engine",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Advanced Jump Engine",
+          "ship": "Blue Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Advanced Jump Engine",
+          "ship": "Tara’Lin-class Command War Cruiser (Sharlin Variant)",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    },
+    {
+      "key": "Afterburner",
+      "occurrences": 2,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Afterburner",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Afterburner",
+          "ship": "Victory-class Destroyer",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    },
+    {
+      "key": "Agile",
+      "occurrences": 41,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Agile",
+          "ship": "Corvan-class Scout",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Agile",
+          "ship": "Demos-class Warship (Vorchan Variant)",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Agile",
+          "ship": "Haven-class Patrol Boat",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Agile",
+          "ship": "Kutai-class Gunship",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Agile",
+          "ship": "Liati-class Advanced Cruiser",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Anti-Fighter",
+      "occurrences": 159,
+      "parameters": {
+        "1": 25,
+        "10": 2,
+        "2": 54,
+        "3": 14,
+        "4": 27,
+        "5": 2,
+        "6": 25,
+        "8": 10
+      },
+      "examples": [
+        {
+          "original": "Anti-Fighter 1",
+          "ship": "Shyarie-class Jammer Frigate",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Anti-Fighter 1",
+          "ship": "Batrado-class Armed Transport",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Anti-Fighter 1",
+          "ship": "Batrado-class Armed Transport (Avioki Variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Anti-Fighter 1",
+          "ship": "Brikorta-class Light Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Anti-Fighter 1",
+          "ship": "Brikorta-class Light Carrier (Ikorta Variant)",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Atmospheric",
+      "occurrences": 50,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Atmospheric",
+          "ship": "Brikorta-class Light Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Atmospheric",
+          "ship": "Brikorta-class Light Carrier (Ikorta Variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Atmospheric",
+          "ship": "Ikorta-class Light Assault Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Atmospheric",
+          "ship": "Demos-class Warship (Vorchan Variant)",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Atmospheric",
+          "ship": "Haven-class Patrol Boat",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Breaching Pod",
+      "occurrences": 3,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Breaching Pod",
+          "ship": "Centauri Breaching Pod",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Breaching Pod",
+          "ship": "Breaching Pod",
+          "faction": "Raiders"
+        },
+        {
+          "original": "Breaching Pod",
+          "ship": "Atas’da Breaching Pod",
+          "faction": "The Drakh"
+        }
+      ]
+    },
+    {
+      "key": "Cargo",
+      "occurrences": 2,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Cargo",
+          "ship": "Corporate Freighter",
+          "faction": "Others"
+        },
+        {
+          "original": "Cargo",
+          "ship": "Corporate Tanker",
+          "faction": "Others"
+        }
+      ]
+    },
+    {
+      "key": "Carrier",
+      "occurrences": 35,
+      "parameters": {
+        "2": 16,
+        "3": 4,
+        "4": 8,
+        "5": 2,
+        "6": 1,
+        "8": 4
+      },
+      "examples": [
+        {
+          "original": "Carrier 2",
+          "ship": "Brikorta-class Light Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Carrier 2",
+          "ship": "Brikorta-class Light Carrier (Ikorta Variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Carrier 2",
+          "ship": "Brivoki-class Advanced Warship",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Carrier 2",
+          "ship": "Brokados-class Battle Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Carrier 2",
+          "ship": "Adira-class Royal Battleship",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Command",
+      "occurrences": 36,
+      "parameters": {
+        "+1": 16,
+        "+2": 12,
+        "+3": 8
+      },
+      "examples": [
+        {
+          "original": "Command +1",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Command +1",
+          "ship": "Brokados-class Battle Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Command +1",
+          "ship": "Corumai-class Dreadnought",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Command +1",
+          "ship": "Balvarin-class Carrier",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Command +1",
+          "ship": "Ochlavita-Ki class Command Destroyer (Ochlavita Variant)",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Dodge",
+      "occurrences": 67,
+      "parameters": {
+        "2+": 20,
+        "3+": 12,
+        "4+": 12,
+        "5+": 20,
+        "6+": 3
+      },
+      "examples": [
+        {
+          "original": "Dodge 2+",
+          "ship": "Falkosi Light Interceptor",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Dodge 2+",
+          "ship": "Razik Light Fighter Flight",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Dodge 2+",
+          "ship": "Rutarian Strike Fighter",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Dodge 2+",
+          "ship": "Sentri Medium Fighter Flight",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Dodge 2+",
+          "ship": "Thorun Dartfighter",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Escort",
+      "occurrences": 14,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Escort",
+          "ship": "Bimith-class Defender",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Escort",
+          "ship": "Bisaria-class Escort Frigate",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Escort",
+          "ship": "Bisaria-class Escort Frigate (Tiraca Variant)",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Escort",
+          "ship": "Fetula-class Warrant Cutter",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Escort",
+          "ship": "Fetula-class Warrant Cutter (Shyarie variant)",
+          "faction": "Abbai Matriarchy"
+        }
+      ]
+    },
+    {
+      "key": "Fighter",
+      "occurrences": 38,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Fighter",
+          "ship": "Kotha Medium Fighter",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Fighter",
+          "ship": "Falkosi Light Interceptor",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Fighter",
+          "ship": "Pikatos Heavy Fighter Flight",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Fighter",
+          "ship": "Riva Super Heavy Fighter Flight",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Fighter",
+          "ship": "Razik Light Fighter Flight",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Fleet Carrier",
+      "occurrences": 14,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Fleet Carrier",
+          "ship": "Brokados-class Battle Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Fleet Carrier",
+          "ship": "Cidikar-class Heavy Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Fleet Carrier",
+          "ship": "Balvarin-class Carrier",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Fleet Carrier",
+          "ship": "Garasoch-class Heavy Carrier",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Fleet Carrier",
+          "ship": "Avenger-class Heavy Carrier",
+          "faction": "Earth Alliance"
+        }
+      ]
+    },
+    {
+      "key": "Flight Computer",
+      "occurrences": 61,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Flight Computer",
+          "ship": "Adira-class Royal Battleship",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Flight Computer",
+          "ship": "Liati-class Advanced Cruiser",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Flight Computer",
+          "ship": "Marathon-class Advanced Cruiser",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Flight Computer",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Flight Computer",
+          "ship": "Warlock-class Advanced Destroyer",
+          "faction": "Earth Alliance"
+        }
+      ]
+    },
+    {
+      "key": "Gravitic Energy Grid",
+      "occurrences": 11,
+      "parameters": {
+        "1": 4,
+        "2": 2,
+        "3": 3,
+        "4": 2
+      },
+      "examples": [
+        {
+          "original": "Gravitic Energy Grid 1",
+          "ship": "Kama’re Sas Patrol Cruiser",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Gravitic Energy Grid 1",
+          "ship": "Kama’re Scout",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Gravitic Energy Grid 1",
+          "ship": "Ria’stor Heavy Raider",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Gravitic Energy Grid 1",
+          "ship": "Sa’ria’stor Light Raider",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Gravitic Energy Grid 2",
+          "ship": "Ria’vash Strike Cruiser (Cruiser Variant)",
+          "faction": "The Drakh"
+        }
+      ]
+    },
+    {
+      "key": "Huge Hangars",
+      "occurrences": 3,
+      "parameters": {
+        "1": 1,
+        "12": 1,
+        "4": 1
+      },
+      "examples": [
+        {
+          "original": "Huge Hangars 1",
+          "ship": "Ria’vash Strike Cruiser (Cruiser Variant)",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Huge Hangars 12",
+          "ship": "Amu Mothership",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Huge Hangars 4",
+          "ship": "Ma’cu Carrier",
+          "faction": "The Drakh"
+        }
+      ]
+    },
+    {
+      "key": "Interceptors",
+      "occurrences": 89,
+      "parameters": {
+        "1": 20,
+        "2": 37,
+        "3": 12,
+        "4": 7,
+        "5": 6,
+        "6": 7
+      },
+      "examples": [
+        {
+          "original": "Interceptors 1",
+          "ship": "Bimith-class Defender",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Interceptors 1",
+          "ship": "Lakara-class Cruiser",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Interceptors 1",
+          "ship": "Brokados-class Battle Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Interceptors 1",
+          "ship": "Balvarin-class Carrier",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Interceptors 1",
+          "ship": "Corvan-class Scout",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Jump Engine",
+      "occurrences": 114,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Jump Engine",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Jump Engine",
+          "ship": "Lakara-class Cruiser",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Jump Engine",
+          "ship": "Avioki-class Heavy Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Jump Engine",
+          "ship": "Batrado-class Armed Transport",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Jump Engine",
+          "ship": "Batrado-class Armed Transport (Avioki Variant)",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Lumbering",
+      "occurrences": 70,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Lumbering",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Lumbering",
+          "ship": "Lakara-class Cruiser",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Lumbering",
+          "ship": "Avioki-class Heavy Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Lumbering",
+          "ship": "Batrado-class Armed Transport",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Lumbering",
+          "ship": "Batrado-class Armed Transport (Avioki Variant)",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Passenger Vessel",
+      "occurrences": 1,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Passenger Vessel",
+          "ship": "Space Liner",
+          "faction": "Others"
+        }
+      ]
+    },
+    {
+      "key": "Psychic Crew",
+      "occurrences": 4,
+      "parameters": {
+        "4": 2,
+        "5": 1
+      },
+      "examples": [
+        {
+          "original": "Psychic Crew",
+          "ship": "Black Omega Starfury Flight",
+          "faction": "Psi Corps"
+        },
+        {
+          "original": "Psychic Crew 4",
+          "ship": "Fighter Carrier",
+          "faction": "Psi Corps"
+        },
+        {
+          "original": "Psychic Crew 4",
+          "ship": "Shadowcloak-class Escort",
+          "faction": "Psi Corps"
+        },
+        {
+          "original": "Psychic Crew 5",
+          "ship": "Mothership",
+          "faction": "Psi Corps"
+        }
+      ]
+    },
+    {
+      "key": "Scout",
+      "occurrences": 25,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Scout",
+          "ship": "Shyarie-class Jammer Frigate",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Scout",
+          "ship": "Shakara-class Scout Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Scout",
+          "ship": "Corvan-class Scout",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Scout",
+          "ship": "Jashakar Vi-class Scout Ship (Jashakar Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Scout",
+          "ship": "Eyehawk-class Scout Cruiser (Sunhawk Variant)",
+          "faction": "Drazi Freehold"
+        }
+      ]
+    },
+    {
+      "key": "Self-Repair",
+      "occurrences": 5,
+      "parameters": {
+        "1": 1,
+        "1D6": 1,
+        "2": 1,
+        "2D6": 1,
+        "3D6": 1
+      },
+      "examples": [
+        {
+          "original": "Self-Repair 1",
+          "ship": "Shadow Scout",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Self-Repair 1D6",
+          "ship": "Shadow Stalker",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Self-Repair 2",
+          "ship": "Hunter-class Experimental Warship",
+          "faction": "Psi Corps"
+        },
+        {
+          "original": "Self-Repair 2D6",
+          "ship": "Shadow Ship (Young)",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Self-Repair 3D6",
+          "ship": "Shadow Ship (Ancient)",
+          "faction": "The Shadows"
+        }
+      ]
+    },
+    {
+      "key": "Self-Repairing",
+      "occurrences": 19,
+      "parameters": {
+        "1": 4,
+        "1D6": 3,
+        "2": 3,
+        "2D6": 6,
+        "3D6": 2,
+        "4D6": 1
+      },
+      "examples": [
+        {
+          "original": "Self-Repairing 1",
+          "ship": "Blue Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Self-Repairing 1",
+          "ship": "White Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Self-Repairing 1",
+          "ship": "White Star II",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Self-Repairing 1",
+          "ship": "Vorlon Transport",
+          "faction": "Vorlon Empire"
+        },
+        {
+          "original": "Self-Repairing 1D6",
+          "ship": "Shadow Omega-class Advanced Destroyer",
+          "faction": "Psi Corps"
+        }
+      ]
+    },
+    {
+      "key": "Shields",
+      "occurrences": 21,
+      "parameters": {
+        "1/1": 1,
+        "10/10": 1,
+        "10/2": 3,
+        "10/5": 3,
+        "12/2": 1,
+        "20/10": 1,
+        "20/1D6": 1,
+        "20/2D6": 1,
+        "28/2D6": 1,
+        "5/1": 3,
+        "5/5": 1,
+        "8/1": 1,
+        "8/2": 3
+      },
+      "examples": [
+        {
+          "original": "Shields 1/1",
+          "ship": "Shadow Fighter Flight",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Shields 10/10",
+          "ship": "Thoughtforce",
+          "faction": "The Ancients"
+        },
+        {
+          "original": "Shields 10/2",
+          "ship": "Bimith-class Defender",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Shields 10/2",
+          "ship": "Marata-class Diplomatic Transport",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Shields 10/2",
+          "ship": "Marata-class Diplomatic Transport (Milani Variant)",
+          "faction": "Abbai Matriarchy"
+        }
+      ]
+    },
+    {
+      "key": "Shuttles",
+      "occurrences": 23,
+      "parameters": {
+        "2": 15,
+        "3": 1,
+        "4": 6,
+        "8": 1
+      },
+      "examples": [
+        {
+          "original": "Shuttles 2",
+          "ship": "Cidikar-class Heavy Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Shuttles 2",
+          "ship": "Ikorta-class Light Assault Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Shuttles 2",
+          "ship": "Kahtrik-class Assault Ship",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Shuttles 2",
+          "ship": "Mankhat Py-class Bombardment Dreadnought (Mankhat Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Shuttles 2",
+          "ship": "Mishakur-class Dreadnought",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Stealth",
+      "occurrences": 42,
+      "parameters": {
+        "3+": 8,
+        "4+": 11,
+        "5+": 20,
+        "6+": 3
+      },
+      "examples": [
+        {
+          "original": "Stealth 3+",
+          "ship": "Oracle Scout",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Stealth 3+",
+          "ship": "Oracle-class Scout Cruiser",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Stealth 3+",
+          "ship": "Troligan-class Armoured Cruiser",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Stealth 3+",
+          "ship": "Sho’Kar-class Light Scout Cruiser",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "Stealth 3+",
+          "ship": "Fighter Carrier",
+          "faction": "Psi Corps"
+        }
+      ]
+    },
+    {
+      "key": "Unique",
+      "occurrences": 2,
+      "parameters": {},
+      "examples": [
+        {
+          "original": "Unique",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Unique",
+          "ship": "The Liandra Battle Frigate",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    }
+  ],
+  "weapon_rules": [
+    {
+      "key": "Accurate",
+      "occurrences": 13,
+      "examples": [
+        {
+          "original": "Accurate",
+          "weapon": "Molecular Pulsar",
+          "ship": "Blue Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Accurate",
+          "weapon": "Molecular Pulsar",
+          "ship": "White Star",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Accurate",
+          "weapon": "Molecular Pulsar",
+          "ship": "White Star Carrier",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Accurate",
+          "weapon": "Molecular Pulsar",
+          "ship": "White Star Enforcer",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Accurate",
+          "weapon": "Molecular Pulsar",
+          "ship": "White Star Fighter",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    },
+    {
+      "key": "AP",
+      "occurrences": 348,
+      "examples": [
+        {
+          "original": "AP",
+          "weapon": "Graviton Pulsar",
+          "ship": "Avioki-class Heavy Cruiser",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "AP",
+          "weapon": "Graviton Pulsar",
+          "ship": "Batrado-class Armed Transport",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "AP",
+          "weapon": "Graviton Pulsar",
+          "ship": "Batrado-class Armed Transport (Avioki Variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "AP",
+          "weapon": "Graviton Pulsar",
+          "ship": "Brikorta-class Light Carrier",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "AP",
+          "weapon": "Graviton Pulsar",
+          "ship": "Brikorta-class Light Carrier (Ikorta Variant)",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Beam",
+      "occurrences": 175,
+      "examples": [
+        {
+          "original": "Beam",
+          "weapon": "Light Neutron Cannon",
+          "ship": "Sa’ria’stor Light Raider",
+          "faction": "The Drakh"
+        },
+        {
+          "original": "Beam",
+          "weapon": "Particle Cutter",
+          "ship": "Darkhawk-class Missile Cruiser (Sunhawk Variant)",
+          "faction": "Drazi Freehold"
+        },
+        {
+          "original": "Beam",
+          "weapon": "Particle Cannon",
+          "ship": "Firehawk-class Advanced Cruiser",
+          "faction": "Drazi Freehold"
+        },
+        {
+          "original": "Beam",
+          "weapon": "Particle Cannon",
+          "ship": "Fireraptor-class Battleship",
+          "faction": "Drazi Freehold"
+        },
+        {
+          "original": "Beam",
+          "weapon": "Particle Cannon",
+          "ship": "Jumphawk-class Command Cruiser (Sunhawk Variant)",
+          "faction": "Drazi Freehold"
+        }
+      ]
+    },
+    {
+      "key": "Comms Disruptor",
+      "occurrences": 9,
+      "examples": [
+        {
+          "original": "Comms Disruptor",
+          "weapon": "Comms Disruptor",
+          "ship": "Bisaria-class Escort Frigate (Tiraca Variant)",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Comms Disruptor",
+          "weapon": "Comms Disruptor",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Comms Disruptor",
+          "weapon": "Comms Disruptor",
+          "ship": "Shyarie-class Jammer Frigate",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Comms Disruptor",
+          "weapon": "Comms Disruptor",
+          "ship": "Shakara-class Scout Cruiser",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Double Damage",
+      "occurrences": 325,
+      "examples": [
+        {
+          "original": "Double Damage",
+          "weapon": "Matter Cannon",
+          "ship": "Adira-class Royal Battleship",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Double Damage",
+          "weapon": "Matter Cannon",
+          "ship": "Altarian-class Destroyer",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Double Damage",
+          "weapon": "Matter Cannon",
+          "ship": "Amar-class Fast Carrier (Darkner Variant)",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Double Damage",
+          "weapon": "Matter Cannon",
+          "ship": "Balvarin-class Carrier",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Double Damage",
+          "weapon": "Matter Cannon",
+          "ship": "Centurion-class Attack Cruiser",
+          "faction": "Centauri Republic"
+        }
+      ]
+    },
+    {
+      "key": "Energy Mine",
+      "occurrences": 20,
+      "examples": [
+        {
+          "original": "Energy Mine",
+          "weapon": "Photon Bomb",
+          "ship": "Sataaka-class Gunship",
+          "faction": "Gaim Intelligence"
+        },
+        {
+          "original": "Energy Mine",
+          "weapon": "Photon Bomb",
+          "ship": "Shaakak-class Queen Light Cruiser",
+          "faction": "Gaim Intelligence"
+        },
+        {
+          "original": "Energy Mine",
+          "weapon": "Photon Bomb",
+          "ship": "Shrutaa-class Queen Battleship",
+          "faction": "Gaim Intelligence"
+        },
+        {
+          "original": "Energy Mine",
+          "weapon": "Photon Bomb",
+          "ship": "Shuuka-class Queen Light Cruiser",
+          "faction": "Gaim Intelligence"
+        },
+        {
+          "original": "Energy Mine",
+          "weapon": "Photon Bomb",
+          "ship": "Sluuka-class Grand Queen (Shrutaa Variant)",
+          "faction": "Gaim Intelligence"
+        }
+      ]
+    },
+    {
+      "key": "Gravitic Shifter",
+      "occurrences": 8,
+      "examples": [
+        {
+          "original": "Gravitic Shifter",
+          "weapon": "Graviton Shifter",
+          "ship": "Brivoki-class Advanced Warship",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Gravitic Shifter",
+          "weapon": "Gravitic Shifter",
+          "ship": "Haltana-class Gravitic Frigate",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Gravitic Shifter",
+          "weapon": "Gravitic Shifter",
+          "ship": "Haltana-class Gravitic Frigate (Halik variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Gravitic Shifter",
+          "weapon": "Graviton Shifter",
+          "ship": "Tashkat-class Advanced Cruiser",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Mass Driver",
+      "occurrences": 4,
+      "examples": [
+        {
+          "original": "Mass Driver",
+          "weapon": "Mass Driver",
+          "ship": "Mankhat Py-class Bombardment Dreadnought (Mankhat Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Mass Driver",
+          "weapon": "Mass Driver",
+          "ship": "Mishakur-class Dreadnought",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Mass Driver",
+          "weapon": "Mass Driver",
+          "ship": "Wahant-class Heavy Assault Ship",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Mini-Beam",
+      "occurrences": 89,
+      "examples": [
+        {
+          "original": "Mini-Beam",
+          "weapon": "Mini Graviton Beam",
+          "ship": "Pikatos Heavy Fighter Flight",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Mini-Beam",
+          "weapon": "Fusion Cannon",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Mini-Beam",
+          "weapon": "Light Fusion Cannon",
+          "ship": "Flyer Flight",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Mini-Beam",
+          "weapon": "Light Fusion Cannon",
+          "ship": "Shial Heavy Fighter Flight",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Mini-Beam",
+          "weapon": "Fusion Cannon",
+          "ship": "Tara’Lin-class Command War Cruiser (Sharlin Variant)",
+          "faction": "Interstellar Alliance"
+        }
+      ]
+    },
+    {
+      "key": "One-Shot",
+      "occurrences": 3,
+      "examples": [
+        {
+          "original": "One-Shot",
+          "weapon": "Energy Mine",
+          "ship": "Bin’Tak-class Dreadnought",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "One-Shot",
+          "weapon": "Energy Mine",
+          "ship": "G’Quan-class Heavy Cruiser",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "One-Shot",
+          "weapon": "Energy Mine",
+          "ship": "Ka’Tan-class Escort Destroyer (Ka’Toc Variant)",
+          "faction": "Narn Regime"
+        }
+      ]
+    },
+    {
+      "key": "Orbital Bomb",
+      "occurrences": 4,
+      "examples": [
+        {
+          "original": "Orbital Bomb",
+          "weapon": "Virus Bomb Racks",
+          "ship": "Kahtrik-class Assault Ship",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Orbital Bomb",
+          "weapon": "Virus Bomb Racks",
+          "ship": "Mankhat Py-class Bombardment Dreadnought (Mankhat Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Orbital Bomb",
+          "weapon": "Virus Bomb Racks",
+          "ship": "Rohric-class Assault Ship",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Orbital Bomb",
+          "weapon": "Virus Bomb Racks",
+          "ship": "Wahant-class Heavy Assault Ship",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Precise",
+      "occurrences": 150,
+      "examples": [
+        {
+          "original": "Precise",
+          "weapon": "Torpedo Rack",
+          "ship": "Firebolt Starfury Flight",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Precise",
+          "weapon": "Molecular Disruptor",
+          "ship": "Shantavi-class Heavy Battle Frigate (Tinashi Variant)",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Precise",
+          "weapon": "Molecular Disruptor",
+          "ship": "Tigara-class Attack Cruiser",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Precise",
+          "weapon": "Molecular Disruptor",
+          "ship": "Torotha-class Assault Frigate",
+          "faction": "Minbari Federation"
+        },
+        {
+          "original": "Precise",
+          "weapon": "Molecular Disruptor",
+          "ship": "Troligan-class Armoured Cruiser",
+          "faction": "Minbari Federation"
+        }
+      ]
+    },
+    {
+      "key": "Quad Damage",
+      "occurrences": 6,
+      "examples": [
+        {
+          "original": "Quad Damage",
+          "weapon": "Lightning Cannon",
+          "ship": "The Excalibur Destroyer",
+          "faction": "Earth Alliance"
+        },
+        {
+          "original": "Quad Damage",
+          "weapon": "Lightning Cannon",
+          "ship": "Victory-class Destroyer",
+          "faction": "Interstellar Alliance"
+        },
+        {
+          "original": "Quad Damage",
+          "weapon": "Molecular Slicer Beam",
+          "ship": "Shadow Ship (Ancient)",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Quad Damage",
+          "weapon": "Giant Lightning Cannon",
+          "ship": "Vorlon Dreadnought (Heavy Cruiser variant)",
+          "faction": "Vorlon Empire"
+        },
+        {
+          "original": "Quad Damage",
+          "weapon": "Super Lightning Cannon",
+          "ship": "Vorlon Heavy Cruiser",
+          "faction": "Vorlon Empire"
+        }
+      ]
+    },
+    {
+      "key": "Slow-Loading",
+      "occurrences": 99,
+      "examples": [
+        {
+          "original": "Slow-Loading",
+          "weapon": "Anti-Ship Missiles",
+          "ship": "Jashakar Tae-class Torpedo Ship (Jashakar Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Slow-Loading",
+          "weapon": "Anti-Ship Missiles",
+          "ship": "Kahtrik So-class Cruiser (Kahtrik Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Slow-Loading",
+          "weapon": "Anti-Ship Missiles",
+          "ship": "Mankhat Py-class Bombardment Dreadnought (Mankhat Variant)",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Slow-Loading",
+          "weapon": "Anti-Ship Missiles",
+          "ship": "Mishakur-class Dreadnought",
+          "faction": "Dilgar Imperium"
+        },
+        {
+          "original": "Slow-Loading",
+          "weapon": "Anti-Ship Missiles",
+          "ship": "Ochlavita-Ki class Command Destroyer (Ochlavita Variant)",
+          "faction": "Dilgar Imperium"
+        }
+      ]
+    },
+    {
+      "key": "Super AP",
+      "occurrences": 86,
+      "examples": [
+        {
+          "original": "Super AP",
+          "weapon": "Plasma Accelerator",
+          "ship": "Liati-class Advanced Cruiser",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Super AP",
+          "weapon": "Phasing Pulse Cannon",
+          "ship": "Shadow Scout",
+          "faction": "The Shadows"
+        },
+        {
+          "original": "Super AP",
+          "weapon": "Comms Disruptor",
+          "ship": "Bisaria-class Escort Frigate (Tiraca Variant)",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Super AP",
+          "weapon": "Comms Disruptor",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Super AP",
+          "weapon": "Comms Disruptor",
+          "ship": "Shyarie-class Jammer Frigate",
+          "faction": "Abbai Matriarchy"
+        }
+      ]
+    },
+    {
+      "key": "Triple Damage",
+      "occurrences": 71,
+      "examples": [
+        {
+          "original": "Triple Damage",
+          "weapon": "Energy Mine",
+          "ship": "Bin’Tak-class Dreadnought",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "Triple Damage",
+          "weapon": "Energy Mine",
+          "ship": "G’Quan-class Heavy Cruiser",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "Triple Damage",
+          "weapon": "Energy Mine",
+          "ship": "Ka’Tan-class Escort Destroyer (Ka’Toc Variant)",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "Triple Damage",
+          "weapon": "Energy Mine",
+          "ship": "Dag’Kar-class Missile Frigate",
+          "faction": "Narn Regime"
+        },
+        {
+          "original": "Triple Damage",
+          "weapon": "Energy Mine",
+          "ship": "G’Quonth-class Attack Cruiser (G’Quan Variant)",
+          "faction": "Narn Regime"
+        }
+      ]
+    },
+    {
+      "key": "Twin-Linked",
+      "occurrences": 288,
+      "examples": [
+        {
+          "original": "Twin-Linked",
+          "weapon": "Quad Bolters",
+          "ship": "Juyaca-class Dreadnought",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Twin-Linked",
+          "weapon": "Heavy Ion Cannon",
+          "ship": "Secundus-class Battlecruiser (Primus Variant)",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Twin-Linked",
+          "weapon": "Graviton Pulsar",
+          "ship": "Haltana-class Gravitic Frigate",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Twin-Linked",
+          "weapon": "Graviton Pulsar",
+          "ship": "Haltana-class Gravitic Frigate (Halik variant)",
+          "faction": "Brakiri Syndicracy"
+        },
+        {
+          "original": "Twin-Linked",
+          "weapon": "Light Gravitic Bolt",
+          "ship": "Pikatos Heavy Fighter Flight",
+          "faction": "Brakiri Syndicracy"
+        }
+      ]
+    },
+    {
+      "key": "Weak",
+      "occurrences": 10,
+      "examples": [
+        {
+          "original": "Weak",
+          "weapon": "Twin Particle Array",
+          "ship": "Battlewagon",
+          "faction": "Raiders"
+        },
+        {
+          "original": "Weak",
+          "weapon": "Twin-Linked Light Particle Gun",
+          "ship": "Double-V Heavy Fighter",
+          "faction": "Raiders"
+        },
+        {
+          "original": "Weak",
+          "weapon": "Ultra-Light Particle Gun",
+          "ship": "Kotha Medium Fighter",
+          "faction": "Abbai Matriarchy"
+        },
+        {
+          "original": "Weak",
+          "weapon": "Light Particle Gun",
+          "ship": "Razik Light Fighter Flight",
+          "faction": "Centauri Republic"
+        },
+        {
+          "original": "Weak",
+          "weapon": "Particle Beam",
+          "ship": "Claweagle-class Direct Assault Frigate",
+          "faction": "Drazi Freehold"
+        }
+      ]
+    }
+  ],
+  "fleets": [
+    {
+      "faction": "Abbai Matriarchy",
+      "fleet": "Abbai Matriarchy",
+      "initiative": "-2"
+    },
+    {
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy",
+      "initiative": "+0"
+    },
+    {
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic",
+      "initiative": "+3"
+    },
+    {
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium",
+      "initiative": "+2"
+    },
+    {
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold",
+      "initiative": "+1/+2"
+    },
+    {
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era",
+      "initiative": "+2"
+    },
+    {
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years",
+      "initiative": "+0"
+    },
+    {
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age",
+      "initiative": "+1"
+    },
+    {
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence",
+      "initiative": "+3"
+    },
+    {
+      "faction": "Hurr",
+      "fleet": "Hurr",
+      "initiative": "-2"
+    },
+    {
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance",
+      "initiative": "+2"
+    },
+    {
+      "faction": "Ipsha",
+      "fleet": "Ipsha",
+      "initiative": "+3"
+    },
+    {
+      "faction": "Lumati",
+      "fleet": "Lumati",
+      "initiative": "+0"
+    },
+    {
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation",
+      "initiative": "+4"
+    },
+    {
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime",
+      "initiative": "+2"
+    },
+    {
+      "faction": "Others",
+      "fleet": "Others",
+      "initiative": "+0"
+    },
+    {
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps",
+      "initiative": "+3"
+    },
+    {
+      "faction": "Raiders",
+      "fleet": "Raiders",
+      "initiative": "+0"
+    },
+    {
+      "faction": "Techno Mages",
+      "fleet": "Techno Mages",
+      "initiative": "+5"
+    },
+    {
+      "faction": "The Ancients",
+      "fleet": "The Ancients",
+      "initiative": "+4"
+    },
+    {
+      "faction": "The Drakh",
+      "fleet": "The Drakh",
+      "initiative": "+4"
+    },
+    {
+      "faction": "The Shadows",
+      "fleet": "The Shadows",
+      "initiative": "+6"
+    },
+    {
+      "faction": "Vorlon Empire",
+      "fleet": "Vorlon Empire",
+      "initiative": "+4"
+    },
+    {
+      "faction": "Vree Conglomerate",
+      "fleet": "Vree Conglomerate",
+      "initiative": "+0"
+    },
+    {
+      "faction": "pak'ma'ra",
+      "fleet": "pak'ma'ra",
+      "initiative": "-3"
+    }
+  ],
+  "platform_notes": [
+    {
+      "note": "Dogfight: +0",
+      "ship": "Kotha Medium Fighter",
+      "faction": "Abbai Matriarchy",
+      "fleet": "Abbai Matriarchy"
+    },
+    {
+      "note": "Wing of Eight Flights",
+      "ship": "Kotha Medium Fighter",
+      "faction": "Abbai Matriarchy",
+      "fleet": "Abbai Matriarchy"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Falkosi Light Interceptor",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Wing of Six Flights",
+      "ship": "Falkosi Light Interceptor",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Dogfight: -1",
+      "ship": "Pikatos Heavy Fighter Flight",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Pikatos Heavy Fighter Flight",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Dogfight: -1",
+      "ship": "Riva Super Heavy Fighter Flight",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Riva Super Heavy Fighter Flight",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "note": "Dogfight: -",
+      "ship": "Centauri Breaching Pod",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Centauri Breaching Pod",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Two ships per Patrol slot",
+      "ship": "Haven-class Patrol Boat",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "Razik Light Fighter Flight",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Razik Light Fighter Flight",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Rutarian Strike Fighter",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Rutarian Strike Fighter",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Sentri Medium Fighter Flight",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Sentri Medium Fighter Flight",
+      "faction": "Centauri Republic",
+      "fleet": "Centauri Republic"
+    },
+    {
+      "note": "While within a Pentacon, all other ships it leads gain +1 to Crew Quality checks.",
+      "ship": "Ochlavita-Ki class Command Destroyer (Ochlavita Variant)",
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Thorun Dartfighter",
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Thorun Dartfighter",
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Thorun Torpedofighter",
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Thorun Torpedofighter",
+      "faction": "Dilgar Imperium",
+      "fleet": "Dilgar Imperium"
+    },
+    {
+      "note": "Two ships per Patrol point",
+      "ship": "Claweagle-class Direct Assault Frigate",
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold"
+    },
+    {
+      "note": "Dogfight: -1",
+      "ship": "Sky Serpent Heavy Assault Fighter Flight",
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Sky Serpent Heavy Assault Fighter Flight",
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Star Snake Light Attack Fighter Flight",
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold"
+    },
+    {
+      "note": "Wing of Six Flights",
+      "ship": "Star Snake Light Attack Fighter Flight",
+      "faction": "Drazi Freehold",
+      "fleet": "Drazi Freehold"
+    },
+    {
+      "note": "Advanced Missile Racks ignore the Slow-Loading trait unless the Apollo is Crippled.",
+      "ship": "Apollo-class Bombardment Cruiser",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Advanced Missile Racks ignore the Slow-Loading trait unless the Apollo is Crippled.",
+      "ship": "Apollo-class Strike Cruiser (Variant)",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Badger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Badger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Badger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Badger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "The Advanced Missile Racks ignore the Slow-Loading trait unless the Chronos is Crippled.",
+      "ship": "Chronos-class Missile Frigate (Variant)",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "The Delphi has no range limit on the use of its Scout trait, instead of the usual 36\" range.",
+      "ship": "Delphi-class Advanced Scout",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Firebolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Firebolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Missile Variants: The Hermes Transport may not use the missile variants detailed in the Earth Alliance fleet list.",
+      "ship": "Hermes-class Transport",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Missile Variants: The Hermes Transport may not use the missile variants detailed in the Earth Alliance fleet list.",
+      "ship": "Hermes-class Transport",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Missile Variants: The Hermes Transport may not use the missile variants detailed in the Earth Alliance fleet list.",
+      "ship": "Hermes-class Transport",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Advanced Missile Rack ignores the Slow-Loading trait unless the Marathon is Crippled.",
+      "ship": "Marathon-class Advanced Cruiser",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Nova Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Nova Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Two Ships",
+      "ship": "Tethys-class Cutter",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Two Ships",
+      "ship": "Tethys-class Laser Boat (Variant)",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Two Ships",
+      "ship": "Tethys-class Missile Boat (Variant)",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Missile Variants: The Tethys Missile Boat may not use the missile variants detailed in the Earth Alliance fleet list.",
+      "ship": "Tethys-class Missile Boat (Variant)",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "If the Lightning Cannon is fired, the Excalibur may not fire any other weapons and will be moved forward 4\" next turn. It cannot do anything else until after the End Phase of the next turn.",
+      "ship": "The Excalibur Destroyer",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Thunderbolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Thunderbolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Thunderbolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Thunderbolt Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Tiger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Wing of Six Flights",
+      "ship": "Tiger Starfury Flight",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - The Early Years"
+    },
+    {
+      "note": "Advanced Missile Rack ignores the Slow-Loading trait unless the Warlock is Crippled.",
+      "ship": "Warlock-class Advanced Destroyer",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Third Age"
+    },
+    {
+      "note": "Advanced Missile Rack ignores the Slow-Loading trait unless the Warlock is Crippled.",
+      "ship": "Warlock-class Advanced Destroyer",
+      "faction": "Earth Alliance",
+      "fleet": "Earth Alliance - Crusade Era"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Klikkita Light Fighter",
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence"
+    },
+    {
+      "note": "Wing of Six Flights",
+      "ship": "Klikkita Light Fighter",
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Klikkitak Crewed Missile",
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence"
+    },
+    {
+      "note": "On contact with an enemy ship, launches a 1 AD suicide attack with Double Damage, Precise and Super AP; ignores Interceptors, then is removed from play.",
+      "ship": "Klikkitak Crewed Missile",
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence"
+    },
+    {
+      "note": "Against enemy fighter flights, dogfights normally and may not act as an Interceptor.",
+      "ship": "Klikkitak Crewed Missile",
+      "faction": "Gaim Intelligence",
+      "fleet": "Gaim Intelligence"
+    },
+    {
+      "note": "Dogfight: +2",
+      "ship": "Aurora Starfury Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Aurora Starfury Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "The Blue Star may create up to two jump points in a battle, though these must be an entry into hyperspace and an exit out; it may not create two entries or two exits in the same battle.",
+      "ship": "Blue Star",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Flyer Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Flyer Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "Shial Heavy Fighter Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Shial Heavy Fighter Flight",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "If the Lightning Cannon is fired, the Victory may not fire any other weapons and will be moved forward 4” next turn. It then cannot do anything else except take damage until after the End Phase of the next turn.",
+      "ship": "Victory-class Destroyer",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "White Star Fighter",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "White Star Fighter",
+      "faction": "Interstellar Alliance",
+      "fleet": "Interstellar Alliance"
+    },
+    {
+      "note": "Scout has no range limit instead of usual 36 inches. When using Scout trait, reduces target Stealth to 1+ instead of lowering by one.",
+      "ship": "Leshath-class Heavy Scout",
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "Nial Heavy Fighter Flight",
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Nial Heavy Fighter Flight",
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation"
+    },
+    {
+      "note": "Dogfight: +4",
+      "ship": "Tishat Medium Fighter Flight",
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Tishat Medium Fighter Flight",
+      "faction": "Minbari Federation",
+      "fleet": "Minbari Federation"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Frazi Flight",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Frazi Flight",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Gorith Flight",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Gorith Flight",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "Two ships per Patrol slot",
+      "ship": "Sho’Kos-class Patrol Cutter",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "Two ships per Patrol slot",
+      "ship": "Sho’Kov-class Torpedo Cutter (Sho’Kos Variant)",
+      "faction": "Narn Regime",
+      "fleet": "Narn Regime"
+    },
+    {
+      "note": "For every point of damage suffered, roll a die; on 5+ it is ignored. Critical hits are ignored on a further roll of 6+.",
+      "ship": "Ipsha War Globe",
+      "faction": "Others",
+      "fleet": "Others"
+    },
+    {
+      "note": "May enter or leave a jump point in the turn it was created.",
+      "ship": "Lumati Transport",
+      "faction": "Others",
+      "fleet": "Others"
+    },
+    {
+      "note": "Dreamers and Shapers As a Special Action, a Techno Mage ship can do one of the following.",
+      "ship": "Techno Mage Pinnace",
+      "faction": "Others",
+      "fleet": "Others"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "Black Omega Starfury Flight",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Black Omega Starfury Flight",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "HEL track array: +1 to attempts to break through a target’s Stealth.",
+      "ship": "Nemesis-class Advanced Destroyer",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "Advanced Missile Rack ignores Slow-Loading unless the Nemesis is Crippled.",
+      "ship": "Nemesis-class Advanced Destroyer",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "Dogfight: +4",
+      "ship": "Shadowfury Flight",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Shadowfury Flight",
+      "faction": "Psi Corps",
+      "fleet": "Psi Corps"
+    },
+    {
+      "note": "Dogfight: –",
+      "ship": "Breaching Pod",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Breaching Pod",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Delta-V Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Wing of Eight Flights",
+      "ship": "Delta-V Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Delta-V2 Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Delta-V2 Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Dogfight: -1",
+      "ship": "Double-V Heavy Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Wing of Five Flights",
+      "ship": "Double-V Heavy Fighter",
+      "faction": "Raiders",
+      "fleet": "Raiders"
+    },
+    {
+      "note": "Power Drain Field: A ship approaching within 10 inches immediately acts as if Crippled and Skeleton Crewed, including rolling to see if traits are lost. All effects are immediately reversed once it moves farther than 10 inches from the Traveller.",
+      "ship": "The Traveller",
+      "faction": "The Ancients",
+      "fleet": "The Ancients"
+    },
+    {
+      "note": "Hyperplasma Cutters: For each Hyperplasma Cutter that attacks the same target in a turn, add 2 AD.",
+      "ship": "The Triumviron",
+      "faction": "The Ancients",
+      "fleet": "The Ancients"
+    },
+    {
+      "note": "Hyperspace Mastery: The Triumviron may enter realspace from hyperspace at any point without risk of deviation. It may move, attack, and otherwise act normally during the turn it leaves hyperspace, and no Jump Point counter is placed. It must use Initiate Jump Engine! to enter hyperspace; instead of placing a Jump Point counter, remove it into hyperspace at the beginning of its next turn.",
+      "ship": "The Triumviron",
+      "faction": "The Ancients",
+      "fleet": "The Ancients"
+    },
+    {
+      "note": "Dogfight: -",
+      "ship": "Atas’da Breaching Pod",
+      "faction": "The Drakh",
+      "fleet": "The Drakh"
+    },
+    {
+      "note": "Wing of Four Flights",
+      "ship": "Atas’da Breaching Pod",
+      "faction": "The Drakh",
+      "fleet": "The Drakh"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Shadow Fighter Flight",
+      "faction": "The Shadows",
+      "fleet": "The Shadows"
+    },
+    {
+      "note": "Wing of Two Flights",
+      "ship": "Shadow Fighter Flight",
+      "faction": "The Shadows",
+      "fleet": "The Shadows"
+    },
+    {
+      "note": "Dogfight: +0",
+      "ship": "Vorlon Fighter Flight",
+      "faction": "Vorlon Empire",
+      "fleet": "Vorlon Empire"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Vorlon Fighter Flight",
+      "faction": "Vorlon Empire",
+      "fleet": "Vorlon Empire"
+    },
+    {
+      "note": "Dogfight: +1",
+      "ship": "Tzymm Heavy Fighter",
+      "faction": "Vree Conglomerate",
+      "fleet": "Vree Conglomerate"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Tzymm Heavy Fighter",
+      "faction": "Vree Conglomerate",
+      "fleet": "Vree Conglomerate"
+    },
+    {
+      "note": "Dogfight: +3",
+      "ship": "Zorth Light Fighter Flight",
+      "faction": "Vree Conglomerate",
+      "fleet": "Vree Conglomerate"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Zorth Light Fighter Flight",
+      "faction": "Vree Conglomerate",
+      "fleet": "Vree Conglomerate"
+    },
+    {
+      "note": "Dogfight: -1",
+      "ship": "Porfatis System Patrol Boat",
+      "faction": "pak'ma'ra",
+      "fleet": "pak'ma'ra"
+    },
+    {
+      "note": "Wing of Three Flights",
+      "ship": "Porfatis System Patrol Boat",
+      "faction": "pak'ma'ra",
+      "fleet": "pak'ma'ra"
+    }
+  ],
+  "suspicious_ship_traits": [],
+  "suspicious_weapon_traits": [
+    {
+      "trait_string": "AP C a mpaign s : R e f its an d O t h er D u t i e s (rounding up) +1. range, halve the number of AD used (rounding down). applied once per weapon system. be applied once.",
+      "weapon": "Graviton Pulsar",
+      "ship": "Takata-class Mine Cruiser",
+      "faction": "Brakiri Syndicracy",
+      "fleet": "Brakiri Syndicracy"
+    },
+    {
+      "trait_string": "Twin-Linked C a m p a ign s : R e f it s a n d O t h er D u t i e s 2d6 Refit",
+      "weapon": "Quad Particle Array",
+      "ship": "Bisaria-class Escort Frigate",
+      "faction": "Abbai Matriarchy",
+      "fleet": "Abbai Matriarchy"
+    }
+  ],
+  "codex_validation": {
+    "codex_found": true,
+    "missing_rules": [],
+    "stale_rules": [],
+    "missing_fleets": [],
+    "stale_fleets": [],
+    "is_complete": true
+  },
+  "codex_path": "D:\\GitHub\\DFS\\Application\\Python\\dfs\\codex\\b5_acta_codex.py"
+}
