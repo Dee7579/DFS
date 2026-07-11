@@ -1,0 +1,13 @@
+The Ancients full profile corrections
+
+All five official Ancient platforms were rebuilt from Fleet Lists pages 140-142.
+Faction and fleet names both use 'The Ancients'.
+No fleet-wide Ancient rules were copied into individual notes or traits.
+Traveller and Triumviron retain only their platform-specific special rules.
+Weapon order follows DFS arc order while preserving printed order within each arc.
+
+the_dark_knife.py
+the_lordship.py
+the_traveller.py
+the_triumviron.py
+thoughtforce.py
