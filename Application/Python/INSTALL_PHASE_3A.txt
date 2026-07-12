@@ -1,0 +1,10 @@
+DFS Application Phase 3A
+
+1. Close DFS if it is running.
+2. Extract this ZIP directly into the existing Python folder.
+3. Allow Windows to merge folders and replace the listed existing files.
+4. Launch as before:
+
+   py dfs_desktop.py
+
+This update does not alter the database, importer, validator, platform data, PDF generators, or generated PDFs.
