@@ -18,6 +18,12 @@ QLabel#appName {
     font-weight: 700;
     padding: 14px 8px;
 }
+QLabel#appTagline {
+    color: #94a3b8;
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 0 8px 14px 8px;
+}
 QLabel#databaseLabel {
     color: #9ca3af;
     font-size: 8pt;
@@ -44,7 +50,7 @@ QLabel#dashboardTitle {
     font-size: 30pt;
     font-weight: 700;
 }
-QLabel#dashboardSubtitle, QLabel#pageSubtitle, QLabel#platformSubtitle {
+QLabel#dashboardSubtitle, QLabel#pageSubtitle, QLabel#platformSubtitle, QLabel#aboutSubtitle {
     color: #6b7280;
 }
 QLabel#pageTitle {
@@ -123,5 +129,32 @@ QSplitter::handle {
 }
 QSplitter::handle:hover {
     background: #cbd5e1;
+}
+QLabel#dashboardStats {
+    color: #475569;
+    font-size: 11pt;
+    font-weight: 600;
+    padding-top: 8px;
+}
+QLabel#aboutTitle {
+    font-size: 24pt;
+    font-weight: 700;
+}
+QLabel#aboutCaption {
+    color: #64748b;
+    font-weight: 600;
+    padding-right: 18px;
+}
+QLabel#aboutCredit {
+    color: #475569;
+    padding: 8px;
+}
+QListView {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    outline: none;
+}
+QListView::item {
+    border: none;
 }
 """
