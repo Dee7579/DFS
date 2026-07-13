@@ -1,44 +1,42 @@
-"""Top-level DFS desktop window, game-system selector and module navigation."""
-
+"""Top-level DFS desktop window and shared application framework shell."""
 from __future__ import annotations
 
-from PySide6.QtCore import QSettings, Qt
-from PySide6.QtGui import QAction, QCloseEvent, QKeySequence, QStandardItemModel
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
 from PySide6.QtWidgets import (
-    QComboBox,
-    QHBoxLayout,
-    QLabel,
-    QListWidget,
-    QListWidgetItem,
-    QMainWindow,
-    QStackedWidget,
-    QVBoxLayout,
-    QWidget,
+    QComboBox, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QMainWindow,
+    QMessageBox, QStackedWidget, QVBoxLayout, QWidget,
 )
 
-from dfs.bootstrap import ApplicationServices
+from dfs.bootstrap import ApplicationContext
+from dfs.framework.notification_service import Notification
+from dfs.domain.catalog import PlatformFilter
 from dfs.ui.about_dialog import AboutDialog
 from dfs.ui.dashboard import DashboardPage
 from dfs.ui.platform_explorer.page import PlatformExplorerPage
+from dfs.ui.settings.page import SettingsPage
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, services: ApplicationServices, database_label: str) -> None:
+    PAGE_DASHBOARD = 0
+    PAGE_EXPLORER = 1
+    PAGE_SETTINGS = 2
+
+    def __init__(self, context: ApplicationContext, database_label: str) -> None:
         super().__init__()
-        self._services = services
+        self._context = context
+        self._services = context  # Compatibility alias for current modules.
         self._database_label = database_label
-        self._settings = QSettings()
+        self._settings = context.settings
         self.setWindowTitle("Dee's Fighting Ships — Tactical Reference System")
         self.resize(1500, 900)
         self.setMinimumSize(1100, 700)
 
         self.system_combo = QComboBox()
         self.system_combo.setObjectName("gameSystemSelector")
-        selected_id = self._settings.value(
-            "application/game_system", services.game_systems.default_id, type=str
-        )
+        selected_id = self._settings.default_game_system
         selected_index = 0
-        for index, system in enumerate(services.game_systems.list_systems()):
+        for index, system in enumerate(context.game_systems.list_systems()):
             label = system.short_name if system.enabled else f"{system.short_name} — Coming Soon"
             self.system_combo.addItem(label, system.id)
             item = self.system_combo.model().item(index)
@@ -53,24 +51,22 @@ class MainWindow(QMainWindow):
         self.navigation.setObjectName("navigation")
         self.navigation.setFixedWidth(190)
         for text in (
-            "Dashboard",
-            "Platform Explorer",
-            "Fleet Builder",
-            "Codex Browser",
-            "Campaign Manager",
-            "Platform Editor",
+            "Dashboard", "Platform Explorer", "Fleet Builder", "Game Mode",
+            "Codex Browser", "Campaign Manager", "Platform Editor", "Settings",
         ):
             item = QListWidgetItem(text)
-            if text not in ("Dashboard", "Platform Explorer"):
+            if text not in ("Dashboard", "Platform Explorer", "Settings"):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
             self.navigation.addItem(item)
 
         self.pages = QStackedWidget()
-        self.dashboard = DashboardPage(services)
-        self.platform_explorer = PlatformExplorerPage(services)
+        self.dashboard = DashboardPage(context)
+        self.platform_explorer = PlatformExplorerPage(context)
+        self.settings_page = SettingsPage(context)
         self.ship_viewer = self.platform_explorer
         self.pages.addWidget(self.dashboard)
         self.pages.addWidget(self.platform_explorer)
+        self.pages.addWidget(self.settings_page)
 
         app_name = QLabel("DFS")
         app_name.setObjectName("appName")
@@ -104,6 +100,8 @@ class MainWindow(QMainWindow):
         self.dashboard.open_platform_explorer.connect(lambda: self.navigation.setCurrentRow(1))
         self.dashboard.open_platform.connect(self._open_platform_from_dashboard)
         self._build_menu()
+        self._build_status_bar()
+        context.notifications.published.connect(self._show_notification)
 
         geometry = self._settings.value("main_window/geometry")
         state = self._settings.value("main_window/state")
@@ -111,7 +109,14 @@ class MainWindow(QMainWindow):
             self.restoreGeometry(geometry)
         if state:
             self.restoreState(state)
-        self.navigation.setCurrentRow(self._settings.value("main_window/page", 0, type=int))
+
+        saved_page = self._settings.get_int("main_window/page", 0)
+        startup_page = self._settings.startup_page
+        if startup_page == "platform_explorer":
+            saved_page = self.PAGE_EXPLORER
+        elif startup_page == "dashboard":
+            saved_page = self.PAGE_DASHBOARD
+        self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 7) else 0)
 
     def _build_menu(self) -> None:
         view_menu = self.menuBar().addMenu("&View")
@@ -119,6 +124,10 @@ class MainWindow(QMainWindow):
         reset_layout_action.setShortcut(QKeySequence("Ctrl+Shift+0"))
         reset_layout_action.triggered.connect(self._reset_platform_explorer_layout)
         view_menu.addAction(reset_layout_action)
+        settings_action = QAction("&Settings", self)
+        settings_action.setShortcut(QKeySequence("Ctrl+,"))
+        settings_action.triggered.connect(lambda: self.navigation.setCurrentRow(7))
+        view_menu.addAction(settings_action)
 
         help_menu = self.menuBar().addMenu("&Help")
         about_action = QAction("&About Dee's Fighting Ships", self)
@@ -130,10 +139,29 @@ class MainWindow(QMainWindow):
         explorer_action.triggered.connect(lambda: self.navigation.setCurrentRow(1))
         self.addAction(explorer_action)
 
+    def _build_status_bar(self) -> None:
+        system = self._context.game_systems.get(self._settings.default_game_system)
+        platform_count = self._context.catalog.count()
+        profile_count = sum(
+            item.profile_count for item in self._context.catalog.search(PlatformFilter(limit=1000))
+        )
+        self._system_status = QLabel(system.short_name)
+        self._data_status = QLabel(f"{platform_count:,} Platforms  •  {profile_count:,} Profiles")
+        self._message_status = QLabel(self._context.status.message)
+        self.statusBar().addWidget(self._system_status)
+        self.statusBar().addWidget(QLabel("  |  "))
+        self.statusBar().addWidget(self._data_status)
+        self.statusBar().addPermanentWidget(self._message_status)
+        self._context.status.changed.connect(self._message_status.setText)
+
     def _system_changed(self, index: int) -> None:
         system_id = self.system_combo.itemData(index)
         if system_id:
-            self._settings.setValue("application/game_system", system_id)
+            self._settings.set_value("application/game_system", system_id)
+            self._settings.sync()
+            system = self._context.game_systems.get(system_id)
+            self._system_status.setText(system.short_name)
+            self._context.status.set(f"Game system: {system.display_name}")
 
     def _open_platform_from_dashboard(self, ship_id: int) -> None:
         self.navigation.setCurrentRow(1)
@@ -142,17 +170,28 @@ class MainWindow(QMainWindow):
     def _reset_platform_explorer_layout(self) -> None:
         self.navigation.setCurrentRow(1)
         self.platform_explorer.reset_layout()
+        self._context.status.set("Platform Explorer layout reset")
 
     def _show_about(self) -> None:
-        AboutDialog(self._services, self._database_label, self).exec()
+        AboutDialog(self._context, self._database_label, self).exec()
+
+    def _show_notification(self, notification: Notification) -> None:
+        if notification.level == "error":
+            QMessageBox.critical(self, notification.title, notification.message)
+        elif notification.level == "warning":
+            QMessageBox.warning(self, notification.title, notification.message)
+        else:
+            self.statusBar().showMessage(f"{notification.title}: {notification.message}", 3500)
 
     def _navigate(self, row: int) -> None:
-        if row in (0, 1):
-            self.pages.setCurrentIndex(row)
-            self._settings.setValue("main_window/page", row)
+        mapping = {0: self.PAGE_DASHBOARD, 1: self.PAGE_EXPLORER, 7: self.PAGE_SETTINGS}
+        if row in mapping:
+            self.pages.setCurrentIndex(mapping[row])
+            self._settings.set_value("main_window/page", row)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
         self.platform_explorer.save_settings()
-        self._settings.setValue("main_window/geometry", self.saveGeometry())
-        self._settings.setValue("main_window/state", self.saveState())
+        self._settings.set_value("main_window/geometry", self.saveGeometry())
+        self._settings.set_value("main_window/state", self.saveState())
+        self._settings.sync()
         super().closeEvent(event)

@@ -275,3 +275,129 @@ QLabel#codexPopoverMeta {
     padding-bottom: 4px;
 }
 """
+
+
+def build_application_stylesheet(
+    *, mode: str = "system", accent: str = "#0f766e",
+    accent_hover: str = "#115e59", accent_soft: str = "#ccfbf1"
+) -> str:
+    """Build the DFS stylesheet from semantic appearance choices.
+
+    The existing light stylesheet remains the compatibility baseline. Accent
+    tokens are replaced centrally. Dark mode uses a conservative first-pass
+    palette and will be refined during the professional polish sprint.
+    """
+    sheet = APPLICATION_STYLESHEET
+    sheet = sheet.replace("#0f766e", accent)
+    sheet = sheet.replace("#115e59", accent_hover)
+    if mode == "dark":
+        replacements = {
+            "background: #ffffff": "background: #111827",
+            "background: #f8fafc": "background: #1f2937",
+            "background: #f3f4f6": "background: #18212f",
+            "background: #e5e7eb": "background: #374151",
+            "color: #111827": "color: #f9fafb",
+            "color: #374151": "color: #d1d5db",
+            "color: #475569": "color: #cbd5e1",
+            "color: #64748b": "color: #94a3b8",
+            "border: 1px solid #d1d5db": "border: 1px solid #4b5563",
+            "border: 1px solid #dbe3ec": "border: 1px solid #475569",
+            "border: 1px solid #e5e7eb": "border: 1px solid #374151",
+        }
+        for old, new in replacements.items():
+            sheet = sheet.replace(old, new)
+        sheet += """
+QWidget { color: #f3f4f6; background-color: #111827; }
+QTabWidget::pane { border: 1px solid #475569; }
+QTabBar::tab {
+    background: #1f2937;
+    color: #cbd5e1;
+    border: 1px solid #475569;
+    padding: 6px 12px;
+}
+QTabBar::tab:selected {
+    background: #334155;
+    color: #ffffff;
+    border-bottom-color: #334155;
+}
+QLineEdit, QComboBox, QSpinBox {
+    background: #1f2937;
+    color: #f9fafb;
+    border: 1px solid #64748b;
+    border-radius: 4px;
+}
+QPushButton {
+    background: #1f2937;
+    color: #f8fafc;
+    border: 1px solid #64748b;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+QPushButton:hover {
+    background: #334155;
+    border-color: #94a3b8;
+}
+QPushButton:pressed { background: #0f172a; }
+QPushButton:disabled {
+    color: #64748b;
+    background: #18212f;
+    border-color: #334155;
+}
+QDialogButtonBox QPushButton { min-width: 84px; }
+QTableView, QTableWidget, QListWidget, QListView {
+    background: #111827;
+    alternate-background-color: #18212f;
+    color: #f1f5f9;
+    gridline-color: #475569;
+    border: 1px solid #64748b;
+}
+QTableView::item, QTableWidget::item {
+    color: #f1f5f9;
+    border-bottom: 1px solid #334155;
+}
+QTableView::item:selected, QTableWidget::item:selected, QListView::item:selected {
+    background: #164e63;
+    color: #ffffff;
+}
+QHeaderView::section {
+    background: #334155;
+    color: #f8fafc;
+    border-right: 1px solid #64748b;
+    border-bottom: 1px solid #64748b;
+}
+QGroupBox { border: 1px solid #475569; border-radius: 7px; }
+QScrollBar:vertical, QScrollBar:horizontal { background: #111827; }
+QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+    background: #64748b;
+    border-radius: 4px;
+    min-height: 24px;
+    min-width: 24px;
+}
+"""
+    else:
+        sheet += f"\nQTableView::item:selected, QListView::item:selected {{ background: {accent_soft}; color: #111827; }}\n"
+    return sheet
+
+APPLICATION_STYLESHEET += """
+QWidget#settingsPage QGroupBox {
+    background: #ffffff;
+    border: 1px solid #dbe3ec;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 16px;
+}
+QWidget#settingsPage QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 5px;
+}
+QPushButton#primaryAction {
+    background: #0f766e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 650;
+}
+QPushButton#primaryAction:hover { background: #115e59; }
+"""

@@ -1,3 +1,21 @@
+# Changelog
+
+## 2.2.0 Alpha 1 — DFS Application Framework
+
+### Added
+- Shared `ApplicationContext` composition root
+- Central settings, theme, status, notification, logging, command, and resource services
+- Settings workspace with live accent preview
+- Light, dark, and system appearance choices
+- Configurable splash behavior and startup workspace
+- Shared application status bar
+- Application framework, UI, coding, ADR, and roadmap documentation
+
+### Changed
+- Desktop startup now builds the shared application context
+- Main window preferences are routed through `SettingsService`
+- Application version advanced to 2.2.0-alpha1
+
 ## 2.1.0 Alpha 4 — Platform Explorer Interaction Fixes
 
 ### Changed

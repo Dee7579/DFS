@@ -1,17 +1,11 @@
-"""Launch the DFS desktop application.
-
-Run from the project Python folder with::
-
-    python dfs_desktop.py
-"""
-
+"""Launch the DFS desktop application."""
 from __future__ import annotations
 
 import sys
 import time
 
 try:
-    from PySide6.QtCore import Qt, QTimer, QSettings
+    from PySide6.QtCore import Qt, QTimer
     from PySide6.QtGui import QPixmap
     from PySide6.QtWidgets import QApplication, QLabel, QMessageBox, QSplashScreen
 except ModuleNotFoundError as exc:
@@ -21,13 +15,11 @@ except ModuleNotFoundError as exc:
     ) from exc
 
 from dfs.app_paths import DatabaseNotFoundError, find_database_path
-from dfs.bootstrap import build_application_services
+from dfs.bootstrap import build_application_context
+from dfs.framework.settings_service import SettingsService
 from dfs.ui.main_window import MainWindow
-from dfs.ui.theme import APPLICATION_STYLESHEET
 
-
-APP_VERSION = "2.1.0-alpha2"
-MINIMUM_SPLASH_MS = 3000
+APP_VERSION = "2.2.0-alpha1"
 
 
 def _make_splash(system_name: str) -> QSplashScreen:
@@ -38,11 +30,9 @@ def _make_splash(system_name: str) -> QSplashScreen:
         "<div style='text-align:center'>"
         "<div style='font-size:30px;font-weight:700'>Dee's Fighting Ships</div>"
         "<div style='font-size:17px;color:#475569'>Tactical Reference System</div>"
-        "<div style='font-size:14px;color:#64748b;margin-top:14px'>"
-        f"{system_name}</div>"
+        f"<div style='font-size:14px;color:#64748b;margin-top:14px'>{system_name}</div>"
         f"<div style='font-size:11px;color:#94a3b8;margin-top:12px'>Version {APP_VERSION}</div>"
-        "</div>",
-        splash,
+        "</div>", splash,
     )
     label.setGeometry(40, 42, 540, 190)
     label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -54,60 +44,58 @@ def main() -> int:
     app.setApplicationName("Dee's Fighting Ships")
     app.setApplicationVersion(APP_VERSION)
     app.setOrganizationName("DFS")
-    app.setStyleSheet(APPLICATION_STYLESHEET)
 
-    settings = QSettings()
-    selected_system = settings.value("application/game_system", "b5_acta_2e", type=str)
+    settings = SettingsService()
+    selected_system = settings.default_game_system
     system_names = {
         "b5_acta_2e": "Babylon 5: A Call to Arms",
         "victory_at_sea": "Victory at Sea",
     }
     splash = _make_splash(system_names.get(selected_system, ""))
     splash_started = time.monotonic()
-    splash.show()
-    splash.showMessage(
-        "Loading platform database…",
-        Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
-        Qt.GlobalColor.darkGray,
-    )
-    app.processEvents()
+    if settings.show_splash:
+        splash.show()
+        splash.showMessage(
+            "Loading platform database…",
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+            Qt.GlobalColor.darkGray,
+        )
+        app.processEvents()
 
     try:
         database_path = find_database_path()
-        services = build_application_services(database_path)
+        context = build_application_context(database_path, settings)
+        context.theme.apply(app)
+        context.logging.get_logger("startup").info("Starting DFS %s", APP_VERSION)
     except (DatabaseNotFoundError, OSError) as exc:
         splash.close()
         QMessageBox.critical(None, "DFS database not found", str(exc))
         return 1
 
+    window = MainWindow(context, f"Database: {database_path.name}")
+
+    if not settings.show_splash:
+        window.show()
+        return app.exec()
+
     splash.showMessage(
-        "Platform database ready  •  Loading presentation engine…",
+        "Platform database ready  •  Loading application framework…",
         Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
         Qt.GlobalColor.darkGray,
     )
-    app.processEvents()
-    window = MainWindow(services, f"Database: {database_path.name}")
-
-    # Timed status changes make a fast startup readable without delaying a slow one.
-    QTimer.singleShot(
-        900,
-        lambda: splash.showMessage(
-            "Platform database ready  •  Presentation engine ready  •  Loading workspace…",
-            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
-            Qt.GlobalColor.darkGray,
-        ),
-    )
-    QTimer.singleShot(
-        2000,
-        lambda: splash.showMessage(
-            "Ready",
-            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
-            Qt.GlobalColor.darkGray,
-        ),
-    )
+    QTimer.singleShot(1200, lambda: splash.showMessage(
+        "Application framework ready  •  Loading workspace…",
+        Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+        Qt.GlobalColor.darkGray,
+    ))
+    QTimer.singleShot(2200, lambda: splash.showMessage(
+        "Ready",
+        Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter,
+        Qt.GlobalColor.darkGray,
+    ))
 
     elapsed_ms = int((time.monotonic() - splash_started) * 1000)
-    remaining_ms = max(0, MINIMUM_SPLASH_MS - elapsed_ms)
+    remaining_ms = max(0, settings.splash_duration_ms - elapsed_ms)
 
     def reveal_window() -> None:
         window.show()

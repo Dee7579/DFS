@@ -1,0 +1,10 @@
+DFS Sprint 001 Hotfix 3 — Dark Mode Contrast
+
+Updated files:
+- dfs/ui/theme.py
+- dfs/ui/platform_explorer/compare_dialog.py
+
+Fixes:
+- Restores readable comparison-table text and difference highlighting in dark mode.
+- Adds stronger dark-mode borders and backgrounds for buttons, tabs, tables, inputs, and group boxes.
+- Improves hover, pressed, disabled, header, scrollbar, and selection contrast.

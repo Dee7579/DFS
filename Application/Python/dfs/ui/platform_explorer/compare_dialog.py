@@ -4,6 +4,7 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
+    QApplication,
     QAbstractItemView,
     QDialog,
     QDialogButtonBox,
@@ -33,12 +34,11 @@ def _weapon_text(weapon) -> str:
 class PlatformCompareDialog(QDialog):
     """A single scrolling comparison table that emphasizes differences."""
 
-    SECTION_BACKGROUND = QColor("#d9e1ea")
-    DIFFERENCE_BACKGROUND = QColor("#ecfeff")
 
     def __init__(self, left: PlatformDetail, right: PlatformDetail, parent=None) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"Compare — {left.name} and {right.name}")
+        self._configure_colors()
         self.resize(1120, 800)
 
         layout = QVBoxLayout(self)
@@ -61,6 +61,25 @@ class PlatformCompareDialog(QDialog):
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self.accept)
         layout.addWidget(buttons)
+
+
+    def _configure_colors(self) -> None:
+        """Choose comparison colors that remain readable in light and dark modes."""
+        palette = QApplication.palette()
+        base = palette.color(palette.ColorRole.Base)
+        text = palette.color(palette.ColorRole.Text)
+        dark_mode = base.lightness() < 128
+
+        if dark_mode:
+            self.section_background = QColor("#334155")
+            self.difference_background = QColor("#164e63")
+            self.section_foreground = QColor("#f8fafc")
+            self.cell_foreground = QColor("#f1f5f9")
+        else:
+            self.section_background = QColor("#d9e1ea")
+            self.difference_background = QColor("#ecfeff")
+            self.section_foreground = QColor("#111827")
+            self.cell_foreground = text
 
     def _comparison_table(
         self,
@@ -138,7 +157,8 @@ class PlatformCompareDialog(QDialog):
         font = item.font()
         font.setBold(True)
         item.setFont(font)
-        item.setBackground(self.SECTION_BACKGROUND)
+        item.setBackground(self.section_background)
+        item.setForeground(self.section_foreground)
         item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         table.setItem(row, 0, item)
         table.setSpan(row, 0, 1, 3)
@@ -148,10 +168,11 @@ class PlatformCompareDialog(QDialog):
         for column, value in enumerate((label, left, right)):
             item = QTableWidgetItem(value)
             item.setTextAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+            item.setForeground(self.cell_foreground)
             if column == 0:
                 font = item.font()
                 font.setBold(True)
                 item.setFont(font)
             if different and column in (1, 2):
-                item.setBackground(self.DIFFERENCE_BACKGROUND)
+                item.setBackground(self.difference_background)
             table.setItem(row, column, item)
