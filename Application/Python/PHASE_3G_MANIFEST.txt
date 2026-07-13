@@ -1,0 +1,17 @@
+DFS Application Phase 3G — Platform Explorer Final Polish
+
+Updated files:
+- dfs/ui/platform_explorer/compare_dialog.py
+- dfs/ui/platform_explorer/detail_panel.py
+- dfs/ui/theme.py
+- CHANGELOG.md
+
+Added design document:
+- Design Documents/DFS_PLATFORM_EXPLORER_FINAL_POLISH_v2.1-alpha3.md
+
+Changes:
+- Table-based comparison with shaded rows and difference highlighting
+- Separate attribute, trait, and weapon comparison sections
+- Trait Codex popovers
+- Weapon Codex popovers and hover summaries
+- Optional Open in Codex action

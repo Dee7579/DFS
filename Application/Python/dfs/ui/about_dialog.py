@@ -13,7 +13,7 @@ from dfs.bootstrap import ApplicationServices
 from dfs.domain.catalog import PlatformFilter
 
 
-APP_VERSION = "2.0.0-alpha2"
+APP_VERSION = "2.1.0-alpha2"
 
 
 class AboutDialog(QDialog):
@@ -35,7 +35,8 @@ class AboutDialog(QDialog):
         subtitle = QLabel("Tactical Reference System")
         subtitle.setObjectName("aboutSubtitle")
         subtitle.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        game = QLabel("Babylon 5: A Call to Arms")
+        system = services.game_systems.get(services.game_systems.default_id)
+        game = QLabel(system.display_name)
         game.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         stats = QGridLayout()

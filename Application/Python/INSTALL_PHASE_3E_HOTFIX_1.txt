@@ -1,0 +1,10 @@
+DFS Phase 3E Hotfix 1
+
+Fixes startup crash in the Dashboard caused by using DocumentStyle.display_name.
+DocumentStyle exposes the presentation name as .label.
+
+Installation:
+1. Close DFS.
+2. Extract this ZIP into the existing Python folder.
+3. Allow Windows to merge folders and replace dfs/ui/dashboard.py.
+4. Run: py dfs_desktop.py

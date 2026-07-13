@@ -1,0 +1,12 @@
+DFS Application Phase 3H — Comparison and Trait Interaction Fixes
+
+Changed files:
+- dfs/ui/platform_explorer/compare_dialog.py
+- dfs/ui/platform_explorer/detail_panel.py
+- CHANGELOG.md
+
+Changes:
+- One continuously scrolling comparison table
+- Integrated section headers for profile, traits, and weapons
+- Clickable trait controls with anchored Codex popovers
+- Trait hover summaries from the Codex

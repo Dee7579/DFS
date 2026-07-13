@@ -1,0 +1,21 @@
+DFS APPLICATION PHASE 3D — PLATFORM EXPLORER AND PRESENTATION FOUNDATION
+
+1. Close Dee's Fighting Ships.
+2. Extract the ZIP into the existing DFS Python folder.
+3. Allow Windows to merge folders and replace updated files.
+4. Launch normally:
+
+   py dfs_desktop.py
+
+The first launch resets the Platform Explorer splitter layout because the layout
+format changed. Future pane sizes are remembered normally.
+
+Reset the workspace at any time with:
+
+   View > Reset Platform Explorer Layout
+
+or:
+
+   Ctrl+Shift+0
+
+No database migration is required.

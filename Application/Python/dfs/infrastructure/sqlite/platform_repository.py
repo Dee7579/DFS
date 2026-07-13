@@ -14,6 +14,7 @@ from dfs.domain.catalog import (
     WeaponDetail,
 )
 from dfs.infrastructure.sqlite.connection import SQLiteConnectionFactory
+from dfs.domain.weapon_order import order_weapons
 
 
 class SQLitePlatformRepository:
@@ -199,7 +200,7 @@ class SQLitePlatformRepository:
                 in_service=str(row["in_service"] or ""), source_book=str(row["source_book"] or ""),
                 notes=tuple(line.strip() for line in str(row["notes"] or "").splitlines() if line.strip()),
                 traits=tuple(traits_by_profile[row["profile_id"]]),
-                weapons=tuple(weapons_by_profile[row["profile_id"]]),
+                weapons=order_weapons(weapons_by_profile[row["profile_id"]]),
             )
             for row in profile_rows
         )

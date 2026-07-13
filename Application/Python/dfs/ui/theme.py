@@ -126,9 +126,14 @@ QFrame#profileDetails {
 }
 QSplitter::handle {
     background: #e5e7eb;
+    margin: 0 2px;
+    border-left: 1px solid #cbd5e1;
+    border-right: 1px solid #f8fafc;
 }
 QSplitter::handle:hover {
-    background: #cbd5e1;
+    background: #94a3b8;
+    border-left: 1px solid #64748b;
+    border-right: 1px solid #cbd5e1;
 }
 QLabel#dashboardStats {
     color: #475569;
@@ -156,5 +161,117 @@ QListView {
 }
 QListView::item {
     border: none;
+}
+"""
+
+# Splitter handles are intentionally wider than Qt defaults so they are easy
+# to grab on high-resolution displays. The bordered center stripe provides a
+# visible resize affordance without competing with the workspace.
+
+# Phase 3E / 2.1 application-shell additions.
+APPLICATION_STYLESHEET += """
+QLabel#gameSystemCaption {
+    color: #94a3b8;
+    font-size: 8pt;
+    font-weight: 600;
+    padding: 4px 8px 0 8px;
+}
+QComboBox#gameSystemSelector {
+    margin: 0 8px 8px 8px;
+    padding: 5px 8px;
+    background: #111827;
+    color: #f9fafb;
+    border: 1px solid #475569;
+    border-radius: 5px;
+}
+QComboBox#gameSystemSelector QAbstractItemView {
+    background: #ffffff;
+    color: #111827;
+    selection-background-color: #0f766e;
+}
+QFrame#dashboardCard {
+    background: #ffffff;
+    border: 1px solid #dbe3ec;
+    border-radius: 8px;
+    min-height: 190px;
+    padding: 10px;
+}
+QLabel#dashboardCardTitle {
+    color: #111827;
+    font-size: 13pt;
+    font-weight: 700;
+    padding-bottom: 8px;
+}
+QLabel#dashboardCardBody {
+    color: #475569;
+    font-size: 10pt;
+    line-height: 1.35;
+}
+QPushButton#primaryDashboardAction {
+    background: #0f766e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    font-weight: 650;
+}
+QPushButton#primaryDashboardAction:hover {
+    background: #115e59;
+}
+QPushButton#continueButton {
+    text-align: left;
+    padding: 12px;
+    min-height: 56px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-weight: 600;
+}
+QPushButton#recentPlatformButton {
+    text-align: left;
+    padding: 5px 8px;
+    background: transparent;
+    border: none;
+    color: #0f766e;
+}
+QPushButton#recentPlatformButton:hover {
+    text-decoration: underline;
+}
+"""
+
+# Phase 3F / Platform Explorer completion additions.
+APPLICATION_STYLESHEET += """
+QLabel#codexTitle {
+    font-size: 16pt;
+    font-weight: 700;
+    color: #111827;
+}
+QLabel#codexMeta {
+    color: #64748b;
+    padding-bottom: 6px;
+}
+QTextBrowser {
+    background: #ffffff;
+    border: 1px solid #dbe3ec;
+    border-radius: 6px;
+    padding: 10px;
+}
+"""
+
+# Phase 3G / final Platform Explorer polish.
+APPLICATION_STYLESHEET += """
+QDialog#codexPopover {
+    background: #ffffff;
+    border: 1px solid #94a3b8;
+    border-radius: 8px;
+}
+QLabel#codexPopoverTitle {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #111827;
+}
+QLabel#codexPopoverMeta {
+    color: #64748b;
+    padding-bottom: 4px;
 }
 """

@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from PySide6.QtCore import QItemSelection, QSettings, QTimer, Qt
+from PySide6.QtCore import QItemSelection, QSettings, QTimer, Qt, Signal
 from PySide6.QtWidgets import (
     QComboBox,
+    QMessageBox,
     QFrame,
     QGroupBox,
     QHBoxLayout,
@@ -14,6 +15,7 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QSplitter,
     QListView,
+    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -23,16 +25,23 @@ from dfs.domain.catalog import FilterOption, PlatformFilter
 from dfs.ui.shared.error_dialog import show_error
 from dfs.ui.platform_explorer.detail_panel import PlatformDetailPanel
 from dfs.ui.platform_explorer.platform_list_model import PlatformListDelegate, PlatformListModel
+from dfs.ui.platform_explorer.compare_dialog import PlatformCompareDialog
 
 
 class PlatformExplorerPage(QWidget):
+    platform_opened = Signal(int)
     SETTINGS_GROUP = "platform_explorer"
+    LAYOUT_VERSION = 2
 
     def __init__(self, services: ApplicationServices) -> None:
         super().__init__()
         self._services = services
         self._model = PlatformListModel()
         self._settings = QSettings()
+        self._history: list[int] = []
+        self._history_index = -1
+        self._navigating_history = False
+        self._compare_baseline_id: int | None = None
 
         self.search_box = QLineEdit()
         self.search_box.setPlaceholderText("Search platform name or class…")
@@ -54,7 +63,10 @@ class PlatformExplorerPage(QWidget):
         self.clear_button = QPushButton("Clear filters")
 
         filters = QFrame()
+        self.filters_panel = filters
         filters.setObjectName("filterPanel")
+        filters.setMinimumWidth(175)
+        filters.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         filter_layout = QVBoxLayout(filters)
         filter_layout.addWidget(QLabel("Search"))
         filter_layout.addWidget(self.search_box)
@@ -91,40 +103,54 @@ class PlatformExplorerPage(QWidget):
         self.platform_list.setMouseTracking(True)
         self.platform_list.setUniformItemSizes(True)
         self.platform_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.platform_list.setMinimumWidth(220)
+        self.platform_list.setMinimumWidth(190)
+        self.platform_list.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
 
         results = QWidget()
+        self.results_panel = results
+        results.setMinimumWidth(190)
+        results.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         results_layout = QVBoxLayout(results)
         results_layout.setContentsMargins(0, 0, 0, 0)
         results_layout.addWidget(self.result_count)
         results_layout.addWidget(self.platform_list, 1)
 
-        self.detail_panel = PlatformDetailPanel(self._services.documents)
+        self.detail_panel = PlatformDetailPanel(self._services.documents, self._services.codex)
 
         self.center_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.center_splitter.setObjectName("platformExplorerCenterSplitter")
         self.center_splitter.addWidget(results)
         self.center_splitter.addWidget(self.detail_panel)
-        self.center_splitter.setSizes((360, 860))
+        self.center_splitter.setHandleWidth(9)
+        self.center_splitter.setOpaqueResize(True)
         self.center_splitter.setChildrenCollapsible(False)
-        self.center_splitter.setStretchFactor(0, 1)
-        self.center_splitter.setStretchFactor(1, 2)
+        self.center_splitter.setStretchFactor(0, 0)
+        self.center_splitter.setStretchFactor(1, 1)
 
         self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setObjectName("platformExplorerMainSplitter")
         self.main_splitter.addWidget(filters)
         self.main_splitter.addWidget(self.center_splitter)
-        self.main_splitter.setSizes((250, 1250))
+        self.main_splitter.setHandleWidth(9)
+        self.main_splitter.setOpaqueResize(True)
         self.main_splitter.setChildrenCollapsible(False)
         self.main_splitter.setStretchFactor(0, 0)
         self.main_splitter.setStretchFactor(1, 1)
 
         title_row = QHBoxLayout()
+        self.back_button = QPushButton("←")
+        self.back_button.setToolTip("Back")
+        self.back_button.setEnabled(False)
+        self.forward_button = QPushButton("→")
+        self.forward_button.setToolTip("Forward")
+        self.forward_button.setEnabled(False)
         title = QLabel("Platform Explorer")
         title.setObjectName("pageTitle")
         self.active_filter_summary = QLabel("")
         self.active_filter_summary.setObjectName("activeFilterSummary")
         self.active_filter_summary.setAlignment(Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter)
+        title_row.addWidget(self.back_button)
+        title_row.addWidget(self.forward_button)
         title_row.addWidget(title)
         title_row.addStretch(1)
         title_row.addWidget(self.active_filter_summary)
@@ -150,12 +176,19 @@ class PlatformExplorerPage(QWidget):
         self.clear_button.clicked.connect(self.clear_filters)
         self.platform_list.selectionModel().selectionChanged.connect(self._selection_changed)
         self.platform_list.doubleClicked.connect(self._open_selected_result)
+        self.back_button.clicked.connect(self.go_back)
+        self.forward_button.clicked.connect(self.go_forward)
+        self.detail_panel.related_platform_requested.connect(self._open_related_craft)
+        self.detail_panel.favorite_toggled.connect(self._set_favorite)
+        self.detail_panel.compare_requested.connect(self._compare_requested)
         self.main_splitter.splitterMoved.connect(lambda *_: self.save_settings())
         self.center_splitter.splitterMoved.connect(lambda *_: self.save_settings())
         self.advanced_group.toggled.connect(lambda *_: self.save_settings())
 
         self._load_filter_options()
-        self.restore_settings()
+        restored_layout = self.restore_settings()
+        if not restored_layout:
+            QTimer.singleShot(0, self.reset_layout)
         self.refresh_results()
 
     @staticmethod
@@ -284,29 +317,157 @@ class PlatformExplorerPage(QWidget):
         try:
             detail = self._services.platform_details.get(platform.ship_id)
             self.detail_panel.set_platform(detail)
+            self.detail_panel.set_favorite(self._is_favorite(platform.ship_id))
+            if not self._navigating_history:
+                self._push_history(platform.ship_id)
+            self._record_recent_platform(platform.ship_id)
+            self.platform_opened.emit(platform.ship_id)
         except Exception as exc:
             show_error(self, "Unable to load platform", str(exc))
+
+    def _favorite_ids(self) -> list[int]:
+        values = self._settings.value("favorite_platforms/ids", [], type=list) or []
+        return [int(value) for value in values if str(value).isdigit()]
+
+    def _is_favorite(self, ship_id: int) -> bool:
+        return ship_id in self._favorite_ids()
+
+    def _set_favorite(self, ship_id: int, favorite: bool) -> None:
+        ids = self._favorite_ids()
+        ids = [value for value in ids if value != ship_id]
+        if favorite:
+            ids.insert(0, ship_id)
+        self._settings.setValue("favorite_platforms/ids", ids[:50])
+
+    def _push_history(self, ship_id: int) -> None:
+        if self._history_index >= 0 and self._history[self._history_index] == ship_id:
+            return
+        self._history = self._history[: self._history_index + 1]
+        self._history.append(ship_id)
+        self._history_index = len(self._history) - 1
+        self._update_history_buttons()
+
+    def _update_history_buttons(self) -> None:
+        self.back_button.setEnabled(self._history_index > 0)
+        self.forward_button.setEnabled(0 <= self._history_index < len(self._history) - 1)
+
+    def go_back(self) -> None:
+        if self._history_index <= 0:
+            return
+        self._history_index -= 1
+        self._open_history_id(self._history[self._history_index])
+
+    def go_forward(self) -> None:
+        if self._history_index >= len(self._history) - 1:
+            return
+        self._history_index += 1
+        self._open_history_id(self._history[self._history_index])
+
+    def _open_history_id(self, ship_id: int) -> None:
+        self._navigating_history = True
+        try:
+            self.open_platform(ship_id)
+        finally:
+            self._navigating_history = False
+            self._update_history_buttons()
+
+    def _open_related_craft(self, craft_text: str) -> None:
+        import re
+        cleaned = re.sub(r"^\s*\d+\s+", "", craft_text.strip())
+        cleaned = re.sub(r"\bflights?\b", "Flight", cleaned, flags=re.IGNORECASE)
+        queries = [cleaned]
+        if " Flight" in cleaned:
+            queries.append(cleaned.replace(" Flight", ""))
+        matches = []
+        for query in queries:
+            matches = self._services.catalog.search(PlatformFilter(search_text=query, limit=50))
+            if matches:
+                break
+        if not matches:
+            QMessageBox.information(self, "Related Craft", f"No platform matching “{craft_text}” was found.")
+            return
+        exact = next((p for p in matches if p.name.casefold() == cleaned.casefold()), matches[0])
+        self.open_platform(exact.ship_id)
+
+    def _compare_requested(self, ship_id: int) -> None:
+        if self._compare_baseline_id is None:
+            self._compare_baseline_id = ship_id
+            baseline = self._services.platform_details.get(ship_id)
+            self.detail_panel.set_compare_mode(baseline.name)
+            QMessageBox.information(
+                self, "Compare Platforms",
+                "Comparison baseline selected. Open another platform and press Compare again."
+            )
+            return
+        if self._compare_baseline_id == ship_id:
+            self._compare_baseline_id = None
+            self.detail_panel.set_compare_mode(None)
+            return
+        left = self._services.platform_details.get(self._compare_baseline_id)
+        right = self._services.platform_details.get(ship_id)
+        PlatformCompareDialog(left, right, self).exec()
+        self._compare_baseline_id = None
+        self.detail_panel.set_compare_mode(None)
 
     def _open_selected_result(self, *_args) -> None:
         self.detail_panel.setFocus(Qt.FocusReason.OtherFocusReason)
         self.detail_panel.tabs.setCurrentIndex(0)
 
-    def restore_settings(self) -> None:
+    def open_platform(self, ship_id: int) -> None:
+        """Open a platform from another workspace, preserving current filters when possible."""
+        for row in range(self._model.rowCount()):
+            platform = self._model.platform_at(row)
+            if platform is not None and platform.ship_id == ship_id:
+                self.platform_list.setCurrentIndex(self._model.index(row, 0))
+                return
+        # The platform may be hidden by active filters. Clear them and retry.
+        self.clear_filters()
+        for row in range(self._model.rowCount()):
+            platform = self._model.platform_at(row)
+            if platform is not None and platform.ship_id == ship_id:
+                self.platform_list.setCurrentIndex(self._model.index(row, 0))
+                return
+
+    def _record_recent_platform(self, ship_id: int) -> None:
+        ids = self._settings.value("recent_platforms/ids", [], type=list) or []
+        normalized = [int(value) for value in ids if str(value).isdigit()]
+        normalized = [value for value in normalized if value != ship_id]
+        normalized.insert(0, ship_id)
+        self._settings.setValue("recent_platforms/ids", normalized[:10])
+        self._settings.setValue("recent_platforms/last_id", ship_id)
+
+    def restore_settings(self) -> bool:
         self._settings.beginGroup(self.SETTINGS_GROUP)
+        layout_version = self._settings.value("layout_version", 0, type=int)
         main_state = self._settings.value("main_splitter")
         center_state = self._settings.value("center_splitter")
-        if main_state:
-            self.main_splitter.restoreState(main_state)
-        if center_state:
-            self.center_splitter.restoreState(center_state)
+        restored = False
+        if layout_version == self.LAYOUT_VERSION and main_state and center_state:
+            main_ok = self.main_splitter.restoreState(main_state)
+            center_ok = self.center_splitter.restoreState(center_state)
+            restored = bool(main_ok and center_ok)
         self.advanced_group.setChecked(
             self._settings.value("advanced_open", True, type=bool)
         )
         self.year_spin.setValue(self._settings.value("year", 0, type=int))
         self._settings.endGroup()
+        return restored
+
+    def reset_layout(self) -> None:
+        """Restore the recommended 18 / 22 / 60 workspace proportions."""
+
+        total_width = max(self.main_splitter.width(), 1100)
+        filter_width = max(190, int(total_width * 0.18))
+        content_width = max(700, total_width - filter_width)
+        navigator_width = max(220, int(total_width * 0.22))
+        workspace_width = max(420, content_width - navigator_width)
+        self.main_splitter.setSizes((filter_width, content_width))
+        self.center_splitter.setSizes((navigator_width, workspace_width))
+        self.save_settings()
 
     def save_settings(self) -> None:
         self._settings.beginGroup(self.SETTINGS_GROUP)
+        self._settings.setValue("layout_version", self.LAYOUT_VERSION)
         self._settings.setValue("main_splitter", self.main_splitter.saveState())
         self._settings.setValue("center_splitter", self.center_splitter.saveState())
         self._settings.setValue("advanced_open", self.advanced_group.isChecked())

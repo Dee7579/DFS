@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSettings, QSize, Qt, QUrl, Signal
+from PySide6.QtCore import QPoint, QSettings, QSize, Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices, QPainter
 from PySide6.QtPrintSupport import QPrintDialog, QPrinter
 from PySide6.QtWidgets import (
@@ -17,13 +17,17 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
     QListWidget,
+    QListWidgetItem,
+    QTextBrowser,
     QMessageBox,
     QPushButton,
+    QToolButton,
     QTableWidget,
     QTableWidgetItem,
     QTabWidget,
     QVBoxLayout,
     QWidget,
+    QSizePolicy,
 )
 
 try:
@@ -35,6 +39,56 @@ except ImportError:  # pragma: no cover - depends on PySide6 build
 
 from dfs.domain.catalog import PlatformDetail, PlatformProfile
 from dfs.services.document_service import DocumentReference, DocumentService
+from dfs.services.codex_service import CodexEntry, CodexService
+
+
+
+
+class CodexPopover(QDialog):
+    """Small anchored rule viewer that keeps the platform workspace in context."""
+
+    open_in_codex = Signal(str)
+
+    def __init__(self, entry: CodexEntry | None, requested_name: str, parent=None) -> None:
+        super().__init__(parent, Qt.WindowType.Popup)
+        self.setObjectName("codexPopover")
+        self.setMinimumWidth(380)
+        self.setMaximumWidth(520)
+
+        title = QLabel(entry.title if entry else requested_name)
+        title.setObjectName("codexPopoverTitle")
+        title.setWordWrap(True)
+        meta = QLabel(" • ".join(filter(None, (entry.category, entry.source))) if entry else "No Codex entry found")
+        meta.setObjectName("codexPopoverMeta")
+        meta.setWordWrap(True)
+        body = QTextBrowser()
+        body.setOpenExternalLinks(False)
+        body.setMinimumHeight(150)
+        body.setMaximumHeight(300)
+        if entry:
+            body.setPlainText(entry.text)
+        else:
+            body.setPlainText("This item does not currently have a matching Codex rule.")
+
+        open_button = QPushButton("Open in Codex")
+        open_button.setEnabled(entry is not None)
+        open_button.clicked.connect(lambda: self._open(entry.title if entry else requested_name))
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.close)
+        actions = QHBoxLayout()
+        actions.addStretch(1)
+        actions.addWidget(open_button)
+        actions.addWidget(close_button)
+
+        layout = QVBoxLayout(self)
+        layout.addWidget(title)
+        layout.addWidget(meta)
+        layout.addWidget(body)
+        layout.addLayout(actions)
+
+    def _open(self, name: str) -> None:
+        self.open_in_codex.emit(name)
+        self.close()
 
 
 class _StatCard(QFrame):
@@ -55,10 +109,16 @@ class _StatCard(QFrame):
 
 class PlatformDetailPanel(QWidget):
     profile_changed = Signal(int)
+    related_platform_requested = Signal(str)
+    favorite_toggled = Signal(int, bool)
+    compare_requested = Signal(int)
 
-    def __init__(self, documents: DocumentService) -> None:
+    def __init__(self, documents: DocumentService, codex: CodexService) -> None:
         super().__init__()
+        self.setMinimumWidth(380)
+        self.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Expanding)
         self._documents = documents
+        self._codex = codex
         self._platform: PlatformDetail | None = None
         self._document_ref: DocumentReference | None = None
         self._settings = QSettings()
@@ -66,6 +126,16 @@ class PlatformDetailPanel(QWidget):
         self.title = QLabel("Select a platform")
         self.title.setObjectName("platformTitle")
         self.title.setWordWrap(True)
+        self.favorite_button = QPushButton("☆ Favorite")
+        self.favorite_button.setCheckable(True)
+        self.favorite_button.setEnabled(False)
+        self.compare_button = QPushButton("Compare…")
+        self.compare_button.setEnabled(False)
+        header = QHBoxLayout()
+        header.addWidget(self.title, 1)
+        header.addWidget(self.favorite_button)
+        header.addWidget(self.compare_button)
+
         self.subtitle = QLabel("")
         self.subtitle.setObjectName("platformSubtitle")
         self.subtitle.setWordWrap(True)
@@ -78,18 +148,27 @@ class PlatformDetailPanel(QWidget):
         self.weapons_tab = QWidget()
         self.notes_tab = QWidget()
         self.pdf_tab = QWidget()
+        self.codex_tab = QWidget()
+        self.related_tab = QWidget()
         self.tabs.addTab(self.overview_tab, "Profile")
         self.tabs.addTab(self.weapons_tab, "Weapons")
         self.tabs.addTab(self.notes_tab, "Notes")
         self.tabs.addTab(self.pdf_tab, "PDF")
+        self.tabs.addTab(self.codex_tab, "Codex")
+        self.tabs.addTab(self.related_tab, "Related Craft")
 
         self._build_overview()
         self._build_weapons()
         self._build_notes()
         self._build_pdf()
+        self._build_codex()
+        self._build_related()
+
+        self.favorite_button.toggled.connect(self._favorite_changed)
+        self.compare_button.clicked.connect(self._compare)
 
         layout = QVBoxLayout(self)
-        layout.addWidget(self.title)
+        layout.addLayout(header)
         layout.addWidget(self.subtitle)
         layout.addWidget(self.profile_combo)
         layout.addWidget(self.tabs, 1)
@@ -114,13 +193,24 @@ class PlatformDetailPanel(QWidget):
         self.details = QFormLayout(details_frame)
         self.detail_labels: dict[str, QLabel] = {}
         for key, caption in (("fleet", "Fleet / Era"), ("craft", "Craft"),
-                             ("service", "In Service"), ("source", "Source"),
-                             ("traits", "Traits")):
+                             ("service", "In Service"), ("source", "Source")):
             label = QLabel("—")
             label.setWordWrap(True)
-            label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+            label.setTextInteractionFlags(
+                Qt.TextInteractionFlag.TextSelectableByMouse
+                | Qt.TextInteractionFlag.LinksAccessibleByMouse
+            )
+            label.setOpenExternalLinks(False)
+            label.linkActivated.connect(self._link_activated)
             self.detail_labels[key] = label
             self.details.addRow(caption, label)
+
+        self.traits_widget = QWidget()
+        self.traits_layout = QGridLayout(self.traits_widget)
+        self.traits_layout.setContentsMargins(0, 0, 0, 0)
+        self.traits_layout.setHorizontalSpacing(6)
+        self.traits_layout.setVerticalSpacing(4)
+        self.details.addRow("Traits", self.traits_widget)
         overview_layout.addWidget(details_frame)
         overview_layout.addStretch(1)
 
@@ -138,6 +228,10 @@ class PlatformDetailPanel(QWidget):
         header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
         for column in (1, 2, 3):
             header.setSectionResizeMode(column, QHeaderView.ResizeMode.ResizeToContents)
+        self.weapons_table.setMouseTracking(True)
+        self.weapons_table.cellClicked.connect(self._weapon_clicked)
+        self.weapons_table.cellDoubleClicked.connect(self._weapon_double_clicked)
+        self.weapons_table.itemEntered.connect(self._weapon_hovered)
         layout.addWidget(self.weapons_table)
 
     def _build_notes(self) -> None:
@@ -148,7 +242,8 @@ class PlatformDetailPanel(QWidget):
 
     def _build_pdf(self) -> None:
         layout = QVBoxLayout(self.pdf_tab)
-        controls = QHBoxLayout()
+        style_controls = QHBoxLayout()
+        action_controls = QHBoxLayout()
         self.style_combo = QComboBox()
         for style in self._documents.list_styles():
             self.style_combo.addItem(style.label, style.style_id)
@@ -165,17 +260,20 @@ class PlatformDetailPanel(QWidget):
         self.fit_page_button = QPushButton("Fit Page")
         self.open_pdf_button = QPushButton("Open Externally")
         self.print_pdf_button = QPushButton("Print Sheet")
-        controls.addWidget(QLabel("Sheet Style"))
-        controls.addWidget(self.style_combo)
-        controls.addWidget(self.refresh_pdf_button)
-        controls.addStretch(1)
-        controls.addWidget(self.zoom_out_button)
-        controls.addWidget(self.zoom_in_button)
-        controls.addWidget(self.fit_width_button)
-        controls.addWidget(self.fit_page_button)
-        controls.addWidget(self.open_pdf_button)
-        controls.addWidget(self.print_pdf_button)
-        layout.addLayout(controls)
+        style_controls.addWidget(QLabel("Sheet Style"))
+        style_controls.addWidget(self.style_combo, 1)
+        style_controls.addWidget(self.refresh_pdf_button)
+        style_controls.addStretch(1)
+
+        action_controls.addWidget(self.zoom_out_button)
+        action_controls.addWidget(self.zoom_in_button)
+        action_controls.addWidget(self.fit_width_button)
+        action_controls.addWidget(self.fit_page_button)
+        action_controls.addStretch(1)
+        action_controls.addWidget(self.open_pdf_button)
+        action_controls.addWidget(self.print_pdf_button)
+        layout.addLayout(style_controls)
+        layout.addLayout(action_controls)
 
         self.pdf_status = QLabel("Select a platform profile to locate its generated sheet.")
         self.pdf_status.setWordWrap(True)
@@ -207,6 +305,119 @@ class PlatformDetailPanel(QWidget):
         self.print_pdf_button.clicked.connect(self._print_sheet)
         self._set_pdf_buttons(False)
 
+    def _build_codex(self) -> None:
+        layout = QVBoxLayout(self.codex_tab)
+        self.codex_title = QLabel("Select a trait or weapon rule")
+        self.codex_title.setObjectName("codexTitle")
+        self.codex_meta = QLabel("")
+        self.codex_meta.setObjectName("codexMeta")
+        self.codex_text = QTextBrowser()
+        self.codex_text.setOpenExternalLinks(False)
+        self.codex_text.anchorClicked.connect(lambda url: self.show_codex_rule(url.toString()))
+        layout.addWidget(self.codex_title)
+        layout.addWidget(self.codex_meta)
+        layout.addWidget(self.codex_text, 1)
+
+    def _build_related(self) -> None:
+        layout = QVBoxLayout(self.related_tab)
+        intro = QLabel("Carried craft and related platforms are resolved from the selected profile.")
+        intro.setWordWrap(True)
+        self.related_list = QListWidget()
+        self.related_list.itemActivated.connect(
+            lambda item: self.related_platform_requested.emit(str(item.data(Qt.ItemDataRole.UserRole)))
+        )
+        layout.addWidget(intro)
+        layout.addWidget(self.related_list, 1)
+
+    def show_codex_rule(self, name: str) -> None:
+        entry = self._codex.get(name)
+        if entry is None:
+            self.codex_title.setText(name)
+            self.codex_meta.setText("No Codex entry found")
+            self.codex_text.setPlainText("This item does not currently have a matching Codex rule.")
+        else:
+            self._display_codex_entry(entry)
+        self.tabs.setCurrentWidget(self.codex_tab)
+
+    def _display_codex_entry(self, entry: CodexEntry) -> None:
+        self.codex_title.setText(entry.title)
+        self.codex_meta.setText(" • ".join(filter(None, (entry.category, entry.source))))
+        related = ""
+        if entry.see_also:
+            links = " &nbsp; ".join(f'<a href="{name}">{name}</a>' for name in entry.see_also)
+            related = f"<hr><b>See also:</b><br>{links}"
+        self.codex_text.setHtml(f"<p>{entry.text}</p>{related}")
+
+    def _link_activated(self, target: str) -> None:
+        if target.startswith("rule:"):
+            self._show_rule_popover(target[5:])
+        elif target.startswith("craft:"):
+            self.related_platform_requested.emit(target[6:])
+
+    def _show_rule_popover(self, name: str, global_pos: QPoint | None = None) -> None:
+        entry = self._codex.get(name)
+        popup = CodexPopover(entry, name, self)
+        popup.open_in_codex.connect(self.show_codex_rule)
+        popup.adjustSize()
+        target = global_pos or self.mapToGlobal(self.rect().center())
+        popup.move(target + QPoint(12, 12))
+        popup.exec()
+
+    def _weapon_entry(self, row: int) -> tuple[str, CodexEntry | None] | None:
+        profile = self._selected_profile()
+        if profile is None or not (0 <= row < len(profile.weapons)):
+            return None
+        weapon = profile.weapons[row]
+        return weapon.name, self._codex.first_for_weapon(weapon.name, weapon.traits)
+
+    def _weapon_clicked(self, row: int, _column: int) -> None:
+        result = self._weapon_entry(row)
+        if result is None:
+            return
+        name, entry = result
+        popup = CodexPopover(entry, name, self)
+        popup.open_in_codex.connect(self.show_codex_rule)
+        popup.adjustSize()
+        popup.move(self.weapons_table.mapToGlobal(self.weapons_table.visualItemRect(self.weapons_table.item(row, 0)).bottomRight()) + QPoint(8, 8))
+        popup.exec()
+
+    def _weapon_hovered(self, item: QTableWidgetItem) -> None:
+        result = self._weapon_entry(item.row())
+        if result is None:
+            return
+        name, entry = result
+        text = entry.text if entry is not None else "No matching Codex entry."
+        if len(text) > 240:
+            text = text[:237].rstrip() + "…"
+        self.weapons_table.setToolTip(f"{entry.title if entry else name}\n\n{text}")
+
+    def _weapon_double_clicked(self, row: int, _column: int) -> None:
+        result = self._weapon_entry(row)
+        if result is None:
+            return
+        name, entry = result
+        self.show_codex_rule(entry.title if entry is not None else name)
+
+    def _favorite_changed(self, checked: bool) -> None:
+        if self._platform is not None:
+            self.favorite_button.setText("★ Favorite" if checked else "☆ Favorite")
+            self.favorite_toggled.emit(self._platform.ship_id, checked)
+
+    def set_favorite(self, favorite: bool) -> None:
+        self.favorite_button.blockSignals(True)
+        self.favorite_button.setChecked(favorite)
+        self.favorite_button.setText("★ Favorite" if favorite else "☆ Favorite")
+        self.favorite_button.blockSignals(False)
+
+    def set_compare_mode(self, baseline_name: str | None) -> None:
+        self.compare_button.setText(
+            f"Compare with {baseline_name}" if baseline_name else "Compare…"
+        )
+
+    def _compare(self) -> None:
+        if self._platform is not None:
+            self.compare_requested.emit(self._platform.ship_id)
+
     def _set_pdf_buttons(self, enabled: bool) -> None:
         self.open_pdf_button.setEnabled(enabled)
         self.print_pdf_button.setEnabled(enabled)
@@ -221,12 +432,20 @@ class PlatformDetailPanel(QWidget):
         self.title.setText("Select a platform")
         self.subtitle.clear()
         self.profile_combo.clear()
+        self.favorite_button.setEnabled(False)
+        self.compare_button.setEnabled(False)
+        self.set_favorite(False)
         for card in self.stat_cards.values():
             card.value.setText("—")
         for label in self.detail_labels.values():
             label.setText("—")
+        self._set_trait_buttons(())
         self.weapons_table.setRowCount(0)
         self.notes_list.clear()
+        self.related_list.clear()
+        self.codex_title.setText("Select a trait or weapon rule")
+        self.codex_meta.clear()
+        self.codex_text.clear()
         self.pdf_status.setText("Select a platform profile to locate its generated sheet.")
         if self.pdf_document is not None:
             self.pdf_document.close()
@@ -234,6 +453,8 @@ class PlatformDetailPanel(QWidget):
 
     def set_platform(self, platform: PlatformDetail) -> None:
         self._platform = platform
+        self.favorite_button.setEnabled(True)
+        self.compare_button.setEnabled(True)
         self.title.setText(platform.name)
         self.subtitle.setText(f"{platform.ship_class}  •  {platform.faction_name}")
         self.profile_combo.blockSignals(True)
@@ -269,9 +490,14 @@ class PlatformDetailPanel(QWidget):
         for key, card in self.stat_cards.items():
             card.value.setText(values.get(key) or "—")
 
-        detail_values = {"fleet": profile.fleet_name, "craft": profile.craft,
-                         "service": profile.in_service, "source": profile.source_book,
-                         "traits": ", ".join(profile.traits) if profile.traits else "—"}
+        self._set_trait_buttons(profile.traits)
+        craft_value = profile.craft or "—"
+        craft_display = (
+            f'<a href="craft:{craft_value}">{craft_value}</a>'
+            if craft_value not in ("—", "None", "-") else craft_value
+        )
+        detail_values = {"fleet": profile.fleet_name, "craft": craft_display,
+                         "service": profile.in_service, "source": profile.source_book}
         for key, label in self.detail_labels.items():
             label.setText(detail_values.get(key) or "—")
 
@@ -286,7 +512,52 @@ class PlatformDetailPanel(QWidget):
 
         self.notes_list.clear()
         self.notes_list.addItems(profile.notes or ("No platform-specific notes.",))
+        self.related_list.clear()
+        craft = (profile.craft or "").strip()
+        if craft and craft not in ("-", "—", "None"):
+            item = QListWidgetItem(craft)
+            item.setData(Qt.ItemDataRole.UserRole, craft)
+            item.setToolTip("Double-click to locate this craft in Platform Explorer")
+            self.related_list.addItem(item)
+        else:
+            item = QListWidgetItem("No carried craft listed for this profile.")
+            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            self.related_list.addItem(item)
         self._refresh_pdf()
+
+    def _set_trait_buttons(self, traits: tuple[str, ...] | list[str]) -> None:
+        while self.traits_layout.count():
+            item = self.traits_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        if not traits:
+            empty = QLabel("—")
+            self.traits_layout.addWidget(empty, 0, 0)
+            return
+
+        for index, trait in enumerate(traits):
+            button = QToolButton()
+            button.setText(trait)
+            button.setAutoRaise(True)
+            button.setCursor(Qt.CursorShape.PointingHandCursor)
+            button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
+            entry = self._codex.get(trait)
+            if entry is not None:
+                summary = entry.text.strip()
+                if len(summary) > 260:
+                    summary = summary[:257].rstrip() + "…"
+                button.setToolTip(f"{entry.title}\n\n{summary}\n\nClick for full rule.")
+            else:
+                button.setToolTip("No matching Codex entry is currently available.")
+            button.clicked.connect(
+                lambda _checked=False, name=trait, source=button: self._show_rule_popover(
+                    name, source.mapToGlobal(source.rect().bottomLeft())
+                )
+            )
+            self.traits_layout.addWidget(button, index // 3, index % 3, Qt.AlignmentFlag.AlignLeft)
+        self.traits_layout.setColumnStretch(3, 1)
 
     def _style_changed(self) -> None:
         self._settings.setValue("ship_viewer/pdf_style", self.style_combo.currentData())
