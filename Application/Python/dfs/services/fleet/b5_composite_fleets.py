@@ -50,6 +50,23 @@ ARMY_EXACT_NAMES = {
 }
 
 
+class CanonicalDatabaseWriteError(RuntimeError):
+    pass
+
+
+def canonical_database_path() -> Path:
+    return Path(__file__).resolve().parents[5] / "Database" / "Data" / "dfs.db"
+
+
+def _targets_canonical_database(database_path: str | Path) -> bool:
+    target = Path(database_path).resolve()
+    canonical = canonical_database_path().resolve()
+    try:
+        return target.samefile(canonical)
+    except FileNotFoundError:
+        return target == canonical
+
+
 def _army_name_allowed(source_fleet: int, ship_name: str) -> bool:
     if ship_name in ARMY_EXACT_NAMES.get(source_fleet, set()):
         return True
@@ -129,7 +146,14 @@ def _copy_profile(connection: sqlite3.Connection, source_profile_id: int, target
 
 
 def ensure_b5_composite_fleets(database_path: str | Path) -> None:
-    connection = sqlite3.connect(str(database_path))
+    # Generated composite profiles belong only in a disposable runtime database.
+    if _targets_canonical_database(database_path):
+        raise CanonicalDatabaseWriteError(
+            "Refusing to add generated composite-fleet profiles to the certified "
+            "Database/Data/dfs.db. Use dfs.runtime_database.prepare_runtime_database()."
+        )
+
+    connection = sqlite3.connect(str(Path(database_path).resolve()))
     connection.row_factory = sqlite3.Row
     try:
         league_id = _ensure_faction_and_fleet(connection, LEAGUE_FACTION, LEAGUE_FLEET, "+0")

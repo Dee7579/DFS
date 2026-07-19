@@ -16,6 +16,7 @@ echo   1. Validate the canonical database
 echo   2. Create the certification manifest only when it is absent
 echo   3. Verify all certified source hashes
 echo   4. Run the full automated test suite
+echo   5. Verify all certified sources again after the tests
 echo.
 echo Existing certification manifests are never overwritten.
 echo It will not commit or push anything.
@@ -63,6 +64,11 @@ if errorlevel 1 exit /b 1
 echo.
 echo Running full automated test suite...
 python -m pytest -q
+if errorlevel 1 exit /b 1
+
+echo.
+echo Verifying certified sources after the test suite...
+python verify_certified_sources.py
 if errorlevel 1 exit /b 1
 
 exit /b 0
