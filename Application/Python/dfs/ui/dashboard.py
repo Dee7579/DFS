@@ -14,7 +14,6 @@ from PySide6.QtWidgets import (
 )
 
 from dfs.bootstrap import ApplicationServices
-from dfs.domain.catalog import PlatformFilter
 
 
 class _DashboardCard(QFrame):
@@ -46,8 +45,7 @@ class DashboardPage(QWidget):
         self._settings = QSettings()
 
         platform_count = services.catalog.count()
-        platforms = services.catalog.search(PlatformFilter(limit=1000))
-        profile_count = sum(item.profile_count for item in platforms)
+        profile_count = services.catalog.count_profiles()
         faction_count = len(services.catalog.list_factions())
         system = services.game_systems.get(services.game_systems.default_id)
 

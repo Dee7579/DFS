@@ -10,7 +10,6 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, QLabel, QVBoxLayout
 
 from dfs.bootstrap import ApplicationServices
-from dfs.domain.catalog import PlatformFilter
 
 
 APP_VERSION = "2.4.0-alpha23"
@@ -23,9 +22,8 @@ class AboutDialog(QDialog):
         self.setModal(True)
         self.setMinimumWidth(520)
 
-        platforms = services.catalog.search(PlatformFilter(limit=1000))
         platform_count = services.catalog.count()
-        profile_count = sum(item.profile_count for item in platforms)
+        profile_count = services.catalog.count_profiles()
         faction_count = len(services.catalog.list_factions())
         style_count = len(services.documents.list_styles())
 

@@ -18,6 +18,8 @@ from dfs.domain.weapon_order import order_weapons
 
 
 class SQLitePlatformRepository:
+    GENERATED_PROFILE_MARKER = "DFS_SOURCE_PROFILE_ID="
+
     def __init__(self, connections: SQLiteConnectionFactory):
         self._connections = connections
 
@@ -133,6 +135,16 @@ class SQLitePlatformRepository:
             row = connection.execute(
                 f"SELECT COUNT(*) AS total FROM ships s WHERE {where_sql}", params
             ).fetchone()
+        return int(row["total"])
+
+    def count_profiles(self, include_generated: bool = False) -> int:
+        sql = "SELECT COUNT(*) AS total FROM acta_profiles"
+        params: tuple[Any, ...] = ()
+        if not include_generated:
+            sql += " WHERE COALESCE(source_book, '') NOT LIKE ?"
+            params = (f"%{self.GENERATED_PROFILE_MARKER}%",)
+        with self._connections.connect() as connection:
+            row = connection.execute(sql, params).fetchone()
         return int(row["total"])
 
     def get_by_id(self, ship_id: int) -> PlatformDetail | None:
