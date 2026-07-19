@@ -42,7 +42,29 @@ def test_duplicate_rule_ids_are_rejected():
 
 def test_core_rule_library_has_unique_source_backed_rules():
     engine = build_b5_acta_core_rule_engine()
-    assert len(engine.rules()) == 9
+    rules = engine.rules()
+    actual_rule_ids = {rule.rule_id for rule in rules}
+    required_rule_ids = {
+        "CORE_FLEET_LIST_REQUIRED",
+        "CORE_PROFILE_RESOLUTION",
+        "CORE_FLEET_LIST_ELIGIBILITY",
+        "CORE_YEAR_AVAILABILITY",
+        "CORE_SUPPORTED_PRIORITY",
+        "CORE_PRIORITY_BUDGET",
+        "CORE_FIGHTER_REPLACEMENT_ALLOCATION",
+        "CORE_ALLIED_CONTINGENT",
+        "B5-ISA-DATE-002",
+        "B5-FIRST-ONES-DATE-001",
+        "B5-AOL-MIX-003",
+        "B5-LEAGUE-FTR-003",
+        "B5-GROUPED-PURCHASE-001",
+        "B5-GAIM-QUEEN-001",
+        "B5-UNIQUE-TRAIT-001",
+        "B5-ANCIENT-UNQ-001",
+        "B5-GAIM-QUEEN-002",
+    }
+    assert len(actual_rule_ids) == len(rules)
+    assert required_rule_ids <= actual_rule_ids
     diagnostics = engine.diagnostics()
     assert diagnostics.is_valid
     assert all(d.source.title for d in engine.descriptors())

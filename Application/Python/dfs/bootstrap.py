@@ -17,7 +17,7 @@ from dfs.framework import (
 from dfs.game_systems.registry import GameSystemRegistry, build_default_registry
 from dfs.infrastructure.sqlite.connection import SQLiteConnectionFactory
 from dfs.infrastructure.sqlite.platform_repository import SQLitePlatformRepository
-from dfs.services.fleet.b5_composite_fleets import ensure_b5_composite_fleets
+from dfs.runtime_database import prepare_runtime_database
 from dfs.infrastructure.fleet import JSONFleetStore
 from dfs.services.codex_service import CodexService
 from dfs.services.document_service import DocumentService, DocumentStyle
@@ -62,8 +62,8 @@ def build_application_context(
     database_path: str | Path,
     settings: SettingsService | None = None,
 ) -> ApplicationContext:
-    database_path = Path(database_path).resolve()
-    ensure_b5_composite_fleets(database_path)
+    source_database_path = Path(database_path).resolve()
+    database_path = prepare_runtime_database(source_database_path)
     project_root = Path(__file__).resolve().parents[1]
     settings_service = settings or SettingsService()
     connections = SQLiteConnectionFactory(database_path)

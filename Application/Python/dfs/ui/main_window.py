@@ -10,7 +10,6 @@ from PySide6.QtWidgets import (
 
 from dfs.bootstrap import ApplicationContext
 from dfs.framework.notification_service import Notification
-from dfs.domain.catalog import PlatformFilter
 from dfs.ui.about_dialog import AboutDialog
 from dfs.ui.dashboard import DashboardPage
 from dfs.ui.platform_explorer.page import PlatformExplorerPage
@@ -147,9 +146,7 @@ class MainWindow(QMainWindow):
     def _build_status_bar(self) -> None:
         system = self._context.game_systems.get(self._settings.default_game_system)
         platform_count = self._context.catalog.count()
-        profile_count = sum(
-            item.profile_count for item in self._context.catalog.search(PlatformFilter(limit=1000))
-        )
+        profile_count = self._context.catalog.count_profiles()
         self._system_status = QLabel(system.short_name)
         self._data_status = QLabel(f"{platform_count:,} Platforms  •  {profile_count:,} Profiles")
         self._message_status = QLabel(self._context.status.message)

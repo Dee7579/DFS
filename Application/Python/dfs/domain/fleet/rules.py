@@ -66,7 +66,15 @@ class RuleMessage:
         if self.remedies:
             return self.remedies
         if self.remedy:
-            return tuple(part.strip().rstrip(".") + "." for part in self.remedy.split("; or ") if part.strip())
+            items: list[str] = []
+            for index, part in enumerate(self.remedy.split("; or ")):
+                text = part.strip().rstrip(".")
+                if not text:
+                    continue
+                if index > 0:
+                    text = text[:1].upper() + text[1:]
+                items.append(text + ".")
+            return tuple(items)
         return ()
 
 

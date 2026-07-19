@@ -1,0 +1,1441 @@
+{
+  "algorithm": "sha256",
+  "certification_id": "b5-acta-certified-304",
+  "created_utc": "2026-07-19T22:19:10+00:00",
+  "database_counts": {
+    "acta_profiles": 304,
+    "profile_fleet_lists": 304,
+    "ships": 280,
+    "traits": 1069,
+    "weapons": 1099
+  },
+  "files": [
+    {
+      "path": "Application/Python/platform_data/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    {
+      "path": "Application/Python/platform_data/abbai_brivoki_class_advanced_warship.py",
+      "sha256": "a4dfa8c20e736597274b0fbca4d358de1f28fb31f6eff7fa8e4c3b65552de154",
+      "size_bytes": 1280
+    },
+    {
+      "path": "Application/Python/platform_data/adira_class_royal_battleship.py",
+      "sha256": "7f2d6281c42500878d92efedf5cb7bede88cc7e02e487dc6abb9f15efbe37e9f",
+      "size_bytes": 1342
+    },
+    {
+      "path": "Application/Python/platform_data/altarian_class_destroyer.py",
+      "sha256": "226fcf2b2a54c5d2933377de57055e34e7bd7e1b8b9533ef2931e311148259a5",
+      "size_bytes": 925
+    },
+    {
+      "path": "Application/Python/platform_data/amar_class_fast_carrier.py",
+      "sha256": "6affabc93ca68c33e21d87e427f327dd16386cf344dcf1e77b3084143da97841",
+      "size_bytes": 713
+    },
+    {
+      "path": "Application/Python/platform_data/amu_mothership.py",
+      "sha256": "a782ba02e8b26f911d4f9823bc3b7aea139a8430d4c35411f10fe92c2c302a8b",
+      "size_bytes": 1247
+    },
+    {
+      "path": "Application/Python/platform_data/apollo.py",
+      "sha256": "e47e61327d264c7461b6b6f1c3f42b4e5b2b05114cd2ceb65fc33f88aaae4a57",
+      "size_bytes": 1096
+    },
+    {
+      "path": "Application/Python/platform_data/apollo_strike.py",
+      "sha256": "c563cf759171a18772bcab385223a50f2e136e39715c5ad51b1a092ddb7487ba",
+      "size_bytes": 1186
+    },
+    {
+      "path": "Application/Python/platform_data/artemis.py",
+      "sha256": "4e317362d03e8bcc940256f00e640c0ac684b109daa052dfee9e9bdc29278c1c",
+      "size_bytes": 1505
+    },
+    {
+      "path": "Application/Python/platform_data/artemis_escort.py",
+      "sha256": "b4786d2b0b84998bb1712d227130b1026c3f634e6620ac5c59ea1ca7b867f710",
+      "size_bytes": 859
+    },
+    {
+      "path": "Application/Python/platform_data/ashinta_heavy_escort.py",
+      "sha256": "8632f5f6fb9073e55a7151d2fc385ab492f883fc1f9460cfd67925ad6a14f8e7",
+      "size_bytes": 1022
+    },
+    {
+      "path": "Application/Python/platform_data/atasda_breaching_pod.py",
+      "sha256": "8af298aa77dff3fa333318768a3c22f44d333bce92602ba5bcfdc75d659e028b",
+      "size_bytes": 571
+    },
+    {
+      "path": "Application/Python/platform_data/aurora_starfury.py",
+      "sha256": "e998ed08250b6e880ff775329d1cc1ebc269de10c28886790238f1d12f4b9e39",
+      "size_bytes": 1641
+    },
+    {
+      "path": "Application/Python/platform_data/avenger.py",
+      "sha256": "211bbd25e562352700b5f6212e744f1958629a7e832bec1f5d138546fde09618",
+      "size_bytes": 1719
+    },
+    {
+      "path": "Application/Python/platform_data/avioki_class_heavy_cruiser.py",
+      "sha256": "c68e59a90af53cc4bd89d1166a20f9c261147a3b739cb172429678951c262dd6",
+      "size_bytes": 891
+    },
+    {
+      "path": "Application/Python/platform_data/badger_starfury.py",
+      "sha256": "f6de6ac86a2b9a6019a534318bf8c3326170d8ff321d3063109d5d9c4341d41f",
+      "size_bytes": 1265
+    },
+    {
+      "path": "Application/Python/platform_data/balvarin_class_carrier.py",
+      "sha256": "8c847a4e0c6187bb7643b120b797b90dc365f750cae121dee1669ad62f4c5999",
+      "size_bytes": 936
+    },
+    {
+      "path": "Application/Python/platform_data/batrado_class_armed_transport.py",
+      "sha256": "27e48b67fcb71de6d8fd0d95f1ed8739bcef68eaab30e91066637c5b0f781de3",
+      "size_bytes": 887
+    },
+    {
+      "path": "Application/Python/platform_data/battlewagon.py",
+      "sha256": "322e8d0a0ef93611f6afee885063bb3e3ad4b4457c7ec2b6caf14a185a80d3ad",
+      "size_bytes": 758
+    },
+    {
+      "path": "Application/Python/platform_data/bimith_class_defender.py",
+      "sha256": "52b44be740fc6335b57038dc0bdc4fee8e69fccb248d1f1c5a65b10894031237",
+      "size_bytes": 853
+    },
+    {
+      "path": "Application/Python/platform_data/bintak_class_dreadnought.py",
+      "sha256": "e365c18eaaba67c8b7053a2d6bf6ddd84cd8f7f8ab0074cbedb3d2841dda8e2c",
+      "size_bytes": 1443
+    },
+    {
+      "path": "Application/Python/platform_data/bisaria_class_escort_frigate.py",
+      "sha256": "16df08b4b23e831a5337ba094dea85badd78f10197422ba114c8bce3e6a00ada",
+      "size_bytes": 935
+    },
+    {
+      "path": "Application/Python/platform_data/black_omega_starfury_flight.py",
+      "sha256": "1d08f2d0dd2ea099f6ca47e47055ebf7b8496358459332f86186a685ab4047a1",
+      "size_bytes": 664
+    },
+    {
+      "path": "Application/Python/platform_data/brakiri_breaching_pod.py",
+      "sha256": "717f5c690982d174c74ec270be40c11f4d4e7b2f1e7727a005e8f027a9c0a106",
+      "size_bytes": 578
+    },
+    {
+      "path": "Application/Python/platform_data/brakiri_brivoki_class_advanced_warship.py",
+      "sha256": "71fd0456ccd588237525d11f0f9aecf6c9aaeccb3f6806617073e35bb24af4ad",
+      "size_bytes": 1288
+    },
+    {
+      "path": "Application/Python/platform_data/brakiri_halik_class_frigate.py",
+      "sha256": "b1db1f609e8c3fe747666653d90ca0a665baccda27e2aa6ffc3a5e696c816728",
+      "size_bytes": 714
+    },
+    {
+      "path": "Application/Python/platform_data/brikorta_class_light_carrier.py",
+      "sha256": "b263ecfdc737a0cb0e40b6a9216650f6ebfdeb742af099b4b1ef5e550af59f1b",
+      "size_bytes": 937
+    },
+    {
+      "path": "Application/Python/platform_data/brokados_class_battle_carrier.py",
+      "sha256": "731f99769673f074b5fcbecf3881419d2167c5ca49cc11bb6b8fe13677806078",
+      "size_bytes": 961
+    },
+    {
+      "path": "Application/Python/platform_data/centauri_breaching_pod.py",
+      "sha256": "3abcf6ce1e08f49e3b46baddd0fb0d391079bac0842228fa89582ce994ca49f8",
+      "size_bytes": 601
+    },
+    {
+      "path": "Application/Python/platform_data/centurion_class_attack_cruiser.py",
+      "sha256": "352fdb6401c618bc850b7e3e9de28050296e22dc760ded0a81593d63a66230db",
+      "size_bytes": 949
+    },
+    {
+      "path": "Application/Python/platform_data/chronos.py",
+      "sha256": "cc8cccc09b450b7b67223095a631281e38bb6294070ff2aa0355b5b54e41276b",
+      "size_bytes": 942
+    },
+    {
+      "path": "Application/Python/platform_data/chronos_escort.py",
+      "sha256": "e99d4ea27f34244a7e2e3f7439a3e18ca072f3502bcc69c18de3b98c97e104e9",
+      "size_bytes": 710
+    },
+    {
+      "path": "Application/Python/platform_data/chronos_missile.py",
+      "sha256": "b1a2b9c1cb4f297ee47920943bdca104da75d05947329d05372a025de979a9e4",
+      "size_bytes": 1062
+    },
+    {
+      "path": "Application/Python/platform_data/cidikar_class_heavy_carrier.py",
+      "sha256": "0016167122f8ca4104f5d7160a7f5c08e45bf2fc10243a4a9e77150573c97afc",
+      "size_bytes": 979
+    },
+    {
+      "path": "Application/Python/platform_data/claweagle_class_direct_assault_frigate.py",
+      "sha256": "7113e6ac7425d2ddd06703c7eeb77943e57c99502a359122a1fc9c690037dfbf",
+      "size_bytes": 664
+    },
+    {
+      "path": "Application/Python/platform_data/corporate_freighter.py",
+      "sha256": "049ea6a35fb116b2acd1426f60fc740ff432082f23c9aaca2117c19cac74f65a",
+      "size_bytes": 583
+    },
+    {
+      "path": "Application/Python/platform_data/corporate_tanker.py",
+      "sha256": "b5fee5375485c0007fa74f8f088cf58e8e26cfda47b3d0381918ed3e98bd412b",
+      "size_bytes": 724
+    },
+    {
+      "path": "Application/Python/platform_data/corumai_class_dreadnought.py",
+      "sha256": "9761ca88f2cd66e07bf9fd2b708d17ebd2fa67237bbab6851e1e7f6e58caa41f",
+      "size_bytes": 920
+    },
+    {
+      "path": "Application/Python/platform_data/corvan_class_scout.py",
+      "sha256": "84d0702ffe88173431e0848b0b2287ea38c12a6d71b378b2da1a75db20b21c70",
+      "size_bytes": 669
+    },
+    {
+      "path": "Application/Python/platform_data/dagkar_class_missile_frigate.py",
+      "sha256": "3c5d7f1eeccba7e5e771b9177d28a0674df343cc92a3b17e890465f95d0d45fc",
+      "size_bytes": 701
+    },
+    {
+      "path": "Application/Python/platform_data/dargan_class_strike_cruiser.py",
+      "sha256": "cbcfb2eb1a3bc5f8a3034e2eddda779a3b819967d9287cbcf01df9e3c66e39f1",
+      "size_bytes": 957
+    },
+    {
+      "path": "Application/Python/platform_data/darkhawk_class_missile_cruiser.py",
+      "sha256": "3451d1cecaa0a8629bc1a03ff5099f085384bd7dea3fa76c73e5e908df9de814",
+      "size_bytes": 761
+    },
+    {
+      "path": "Application/Python/platform_data/darkner_class_fast_attack_frigate.py",
+      "sha256": "1eeea38b3f2e1c1698c95f550f7f44272668e541d1860ad1ebebdd24be848c72",
+      "size_bytes": 712
+    },
+    {
+      "path": "Application/Python/platform_data/delphi.py",
+      "sha256": "a2a964f277c3bd843b7495478edd361a64d3bd2bcb7cb09a8e118c2692968ed2",
+      "size_bytes": 936
+    },
+    {
+      "path": "Application/Python/platform_data/delta_v2_fighter.py",
+      "sha256": "d4c92538c9b882bcff26e1f0b6cba824fd81baa3fe388d7dcc93b2201d8739d2",
+      "size_bytes": 612
+    },
+    {
+      "path": "Application/Python/platform_data/delta_v_fighter.py",
+      "sha256": "c39347bebfb36c6cc1300adc59a02e7b67e20c020f1962123249708ea52c05c2",
+      "size_bytes": 619
+    },
+    {
+      "path": "Application/Python/platform_data/demos_class_warship.py",
+      "sha256": "4c10ef7a6059cd8c233b016818c20726d093a79f9b71c2b5c49230800973ed41",
+      "size_bytes": 812
+    },
+    {
+      "path": "Application/Python/platform_data/dilgar_breaching_pod.py",
+      "sha256": "80826875a092217607686acaacfd1b8d0bbeddeff2a294a5710e21dfd01d8e04",
+      "size_bytes": 551
+    },
+    {
+      "path": "Application/Python/platform_data/double_v_heavy_fighter.py",
+      "sha256": "671f118d1503bd6503426fa634e5e57607b18b05e2dffddbb4f2c9cf1f3cbf4b",
+      "size_bytes": 695
+    },
+    {
+      "path": "Application/Python/platform_data/dravash_cruiser.py",
+      "sha256": "ee2894d956ee49f172b17c2717b5d64076b6d50d74a47fa7540434055830751d",
+      "size_bytes": 993
+    },
+    {
+      "path": "Application/Python/platform_data/drazi_breaching_pod.py",
+      "sha256": "a140d6147601e9ce77870548969e60a72d6a389ebfd44457205512c950bfabd7",
+      "size_bytes": 560
+    },
+    {
+      "path": "Application/Python/platform_data/drazi_sunhawk_class_battlecruiser.py",
+      "sha256": "09098925f40dca7269471e9a5533d944358b03b2a07a88d2c0f938a26df6a474",
+      "size_bytes": 574
+    },
+    {
+      "path": "Application/Python/platform_data/drazi_warbird_class_cruiser.py",
+      "sha256": "e22fda9b49ad87ec66574f5d7b0692564b42e1b9133cb0718f12c2a2fd730c93",
+      "size_bytes": 575
+    },
+    {
+      "path": "Application/Python/platform_data/ea_breaching_pod.py",
+      "sha256": "0924f2ecf516262fe280ff5970e8a821f6cc44d9dcf6ec4ebdffa488dab51926",
+      "size_bytes": 1416
+    },
+    {
+      "path": "Application/Python/platform_data/elutarian_class_bombardment_destroyer.py",
+      "sha256": "9dd02ede829c9d150a0e77b9a42f7ac2997d000b3ea6a16f4245b729cf15affb",
+      "size_bytes": 1080
+    },
+    {
+      "path": "Application/Python/platform_data/excalibur.py",
+      "sha256": "017bb46bf9dccc1f3305b14620416ebe0bb926a808179b913802bd7b51f87c1f",
+      "size_bytes": 1357
+    },
+    {
+      "path": "Application/Python/platform_data/explorer.py",
+      "sha256": "9d8cb3a2e2ea0d14a17e045aea946e1870392cb0d495969075edfbf4fcb91c1d",
+      "size_bytes": 2508
+    },
+    {
+      "path": "Application/Python/platform_data/eyehawk_class_scout_cruiser.py",
+      "sha256": "d8b724c7fc5198b50743a96953b8264485f2383a69ca84aaa6b30353aff30709",
+      "size_bytes": 687
+    },
+    {
+      "path": "Application/Python/platform_data/falkosi_light_interceptor.py",
+      "sha256": "7cb5587ee74f6bf45d62ccd1e06907ae7c397648c48ec2b08b6db2ea805fd49e",
+      "size_bytes": 651
+    },
+    {
+      "path": "Application/Python/platform_data/fetula_class_warrant_cutter.py",
+      "sha256": "fe687dcf4346b0088e030027ac49be8f0ea2ed02df1264fa680307bde005d620",
+      "size_bytes": 915
+    },
+    {
+      "path": "Application/Python/platform_data/fighter_carrier.py",
+      "sha256": "892517421304bc2358b2e6733a50a24e000515e0d438aad13a0aa30e2b8fb642",
+      "size_bytes": 777
+    },
+    {
+      "path": "Application/Python/platform_data/firebolt_starfury.py",
+      "sha256": "58e5d22dc9e293e9d1c3a45208d6a52a362b9fd2aec43a07853ea9a05cf57194",
+      "size_bytes": 800
+    },
+    {
+      "path": "Application/Python/platform_data/firehawk_class_advanced_cruiser.py",
+      "sha256": "86bd83c05e103bc71482f294a34a95277cee31917f01d61f25e6c5b262f68536",
+      "size_bytes": 712
+    },
+    {
+      "path": "Application/Python/platform_data/fireraptor_class_battleship.py",
+      "sha256": "658f3f445781e3b5891b293f152bd8f9259bbb9f10c24e24bf8bbdc3db0c26e2",
+      "size_bytes": 976
+    },
+    {
+      "path": "Application/Python/platform_data/frazi_flight.py",
+      "sha256": "81066fb5f78211c90e7fa2021500fd219134fbbb97d253d713d7e0e2fae6b223",
+      "size_bytes": 623
+    },
+    {
+      "path": "Application/Python/platform_data/gaim_breaching_pod.py",
+      "sha256": "cf1ca5dd55c45539ef6f4dba914e74d149f75213976e162166bd836b60a0322e",
+      "size_bytes": 565
+    },
+    {
+      "path": "Application/Python/platform_data/garasoch_class_heavy_carrier.py",
+      "sha256": "30e5848cfa19e2e043ccb48e61a4db17b10dd47ffd3ccf95c7d08c5e220eead2",
+      "size_bytes": 904
+    },
+    {
+      "path": "Application/Python/platform_data/gkarith_class_patrol_cruiser.py",
+      "sha256": "5795084a21d6452e523d1637e63a52ca8f6fc8932b842e1d21ef98cbc5e5784d",
+      "size_bytes": 862
+    },
+    {
+      "path": "Application/Python/platform_data/glan_class_mag_cruiser.py",
+      "sha256": "fb60c50970580f7372347ca1cd4eb24d06985ec9e1fc17f3f32413e946169522",
+      "size_bytes": 1239
+    },
+    {
+      "path": "Application/Python/platform_data/gorith_flight.py",
+      "sha256": "984ad9941e673836ff6d29b0952341f3eb21c3d4f2effe961776b8bc238706b6",
+      "size_bytes": 627
+    },
+    {
+      "path": "Application/Python/platform_data/gquan_class_heavy_cruiser.py",
+      "sha256": "2f844224ddfe578ba74e80c8dded5cf7e24a4f31c795e132b85562a7ed35906b",
+      "size_bytes": 1220
+    },
+    {
+      "path": "Application/Python/platform_data/gquonth_class_attack_cruiser.py",
+      "sha256": "954c0c7c294a8a70a89014ca08de18ca88ec55233293357c30fc3ed986487920",
+      "size_bytes": 1335
+    },
+    {
+      "path": "Application/Python/platform_data/gsten_class_war_cruiser.py",
+      "sha256": "2f92ef2dbeb651ecb12a730bf65f616084e4acc3296f406692472cdef1c3bf1f",
+      "size_bytes": 917
+    },
+    {
+      "path": "Application/Python/platform_data/gtal_class_command_cruiser.py",
+      "sha256": "f44f41a91560b3485ee37e532dd6ce632bd7ab1009fef514caab81eb3eea118d",
+      "size_bytes": 1191
+    },
+    {
+      "path": "Application/Python/platform_data/guardhawk_class_battle_escort.py",
+      "sha256": "e7d6f081e811b762347b60f5f0fc773b8dc1caff8a3dd4403c619ab373299394",
+      "size_bytes": 714
+    },
+    {
+      "path": "Application/Python/platform_data/gvrahn_class_fast_cruiser.py",
+      "sha256": "2dc996b0739e911340030ff5756f08ed77e91289a89ff330c8197d78c1bb556d",
+      "size_bytes": 1111
+    },
+    {
+      "path": "Application/Python/platform_data/haltana_class_gravitic_frigate.py",
+      "sha256": "7bebee34222d49c0d0f4c7974152f163fdb2671b979e581bc51a15405e566dc4",
+      "size_bytes": 1066
+    },
+    {
+      "path": "Application/Python/platform_data/haltona_class_frigate.py",
+      "sha256": "634735e64febb5607a6abf5dc3bbf376fb6c13bdd810f9970420833ddceb24c0",
+      "size_bytes": 904
+    },
+    {
+      "path": "Application/Python/platform_data/haven_class_patrol_boat.py",
+      "sha256": "934eb7f79d12db376644cbabd531e31593eac603e0d0286010bd817eab8a202f",
+      "size_bytes": 732
+    },
+    {
+      "path": "Application/Python/platform_data/hermes.py",
+      "sha256": "01512e9e5452f526b9407c9980c08d4d7fd396ff69e0d39b3f2a45163696c83b",
+      "size_bytes": 2182
+    },
+    {
+      "path": "Application/Python/platform_data/hunter_class_experimental_warship.py",
+      "sha256": "58f4649124ca4887be6949957a0d6f387224c50fbadfbb58ecf1802542b82bf7",
+      "size_bytes": 728
+    },
+    {
+      "path": "Application/Python/platform_data/hurr_gunship.py",
+      "sha256": "3535ce2d9fc7070b63ef4b0129ad102c10ad049143c607e4340e1ea51cf8630d",
+      "size_bytes": 912
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion.py",
+      "sha256": "2644103f470d744295442d7393649c9aaaf62f11430d3446d1056e5f8861f74c",
+      "size_bytes": 2708
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion_assault.py",
+      "sha256": "e9478436e626852e099a3a410170f245ae5c5875aceb19544a350e3739ddffac",
+      "size_bytes": 2306
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion_command.py",
+      "sha256": "14a2d97e082ad121a7eaa5193a477b77bb8061bf15beaf6cfd125d2d46b35f54",
+      "size_bytes": 989
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion_missile.py",
+      "sha256": "1030388910374eccd55c29994e56e1c8225a96140325c96a10921b99c5eaf439",
+      "size_bytes": 1074
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion_pulse.py",
+      "sha256": "7d0066d8cb021ff9d2a02bccff9753fbab79adbee3e3f4519a7d5b4e4f617a45",
+      "size_bytes": 1088
+    },
+    {
+      "path": "Application/Python/platform_data/hyperion_rail.py",
+      "sha256": "c2952f5176c7f0f1f2c4af27cac1e7a1db54b03ebfcb958a9539538d223e3f96",
+      "size_bytes": 900
+    },
+    {
+      "path": "Application/Python/platform_data/ikorta_class_armed_merchant.py",
+      "sha256": "cf4d1c03dd6ad08d68673112ba807bc8d7937886dc656e669d041b28e917cb83",
+      "size_bytes": 843
+    },
+    {
+      "path": "Application/Python/platform_data/ikorta_class_light_assault_cruiser.py",
+      "sha256": "4b3e14b6ba5ae5e08c513b4e56368b9d3ab1dff7868ee43cdec60f72de6bb329",
+      "size_bytes": 916
+    },
+    {
+      "path": "Application/Python/platform_data/ipsha_war_globe.py",
+      "sha256": "40e93c526cd67c2fd01a492e9d7cffb0bdbbde047ddec6ebacfa4131174e197e",
+      "size_bytes": 1071
+    },
+    {
+      "path": "Application/Python/platform_data/isa_aurora_starfury.py",
+      "sha256": "5dfbdf0efd71ae26d8095cfbc19e2efebd120e66abb69ffd4978a761e83ee43a",
+      "size_bytes": 706
+    },
+    {
+      "path": "Application/Python/platform_data/isa_blue_star.py",
+      "sha256": "7e6dba115136989ae553ef1855426a4da7773b1dc023023814e697a6299f253f",
+      "size_bytes": 887
+    },
+    {
+      "path": "Application/Python/platform_data/isa_flyer.py",
+      "sha256": "899fa3c71c38107a0fdebe2ff431ddd1af1ffc321cf6b281988f394843f7d795",
+      "size_bytes": 686
+    },
+    {
+      "path": "Application/Python/platform_data/isa_liandra.py",
+      "sha256": "763d4bb65c34a3ecd312d0c2a7e0e8020bd9e9de317d0d1794b6f5b22e8ce3b4",
+      "size_bytes": 927
+    },
+    {
+      "path": "Application/Python/platform_data/isa_nial.py",
+      "sha256": "94c2dc4749b594eed029083ed39cfbec64d40fca6323f555704786a950fe7df6",
+      "size_bytes": 767
+    },
+    {
+      "path": "Application/Python/platform_data/isa_nolotar.py",
+      "sha256": "102643a24f358de94c6e61b60432b7101eab9a8e07cf7e7d75a3db16cdfa2686",
+      "size_bytes": 845
+    },
+    {
+      "path": "Application/Python/platform_data/isa_shial.py",
+      "sha256": "1dedc7ed1b6438e41e99432069b42d65f95f248f8f36a9b9a774e23bf28d47b6",
+      "size_bytes": 774
+    },
+    {
+      "path": "Application/Python/platform_data/isa_tara_lin.py",
+      "sha256": "f21c55d1ef0852ade918a97d640b5f172e7491c01812afb54edb0183df68e264",
+      "size_bytes": 1408
+    },
+    {
+      "path": "Application/Python/platform_data/isa_thunderbolt_starfury.py",
+      "sha256": "f442c69473ac746cac48025191e3e581bece139c82d43fab7a4a0e32d9044f42",
+      "size_bytes": 788
+    },
+    {
+      "path": "Application/Python/platform_data/isa_victory_destroyer.py",
+      "sha256": "c4857112fb5dbb94b90198faa926670429d12d9dff6c13aa4ffde320fd86aaaa",
+      "size_bytes": 1393
+    },
+    {
+      "path": "Application/Python/platform_data/isa_white_star.py",
+      "sha256": "4a80ee9eb760f8c96c187a2583f23e8dec60ba3c343c8c0ce2400138c6561d0a",
+      "size_bytes": 797
+    },
+    {
+      "path": "Application/Python/platform_data/isa_white_star_carrier.py",
+      "sha256": "316957f60841664aeeb6b54fcfb357127817bb163bf2e6cf70be5ede66987592",
+      "size_bytes": 1012
+    },
+    {
+      "path": "Application/Python/platform_data/isa_white_star_fighter.py",
+      "sha256": "f121876fa76919123697d6464e084e2117e0b84232ac26f40505f0341065134e",
+      "size_bytes": 673
+    },
+    {
+      "path": "Application/Python/platform_data/isa_white_star_gunship.py",
+      "sha256": "64a60829731e5856e86dfdacb0feb8ff686bc962e8a7b42ae921b72f3f16390a",
+      "size_bytes": 816
+    },
+    {
+      "path": "Application/Python/platform_data/isa_white_star_ii.py",
+      "sha256": "c00433d4477b89e69e1f23b68a8fc130e37379ad047a9cbda5e589a61e7b7acd",
+      "size_bytes": 806
+    },
+    {
+      "path": "Application/Python/platform_data/jashakar_class_frigate.py",
+      "sha256": "acfa91166fa0cd12b4ddfac68695669e0ab25c85bf1c97405219764365bb6c87",
+      "size_bytes": 735
+    },
+    {
+      "path": "Application/Python/platform_data/jashakar_tae_class_torpedo_ship.py",
+      "sha256": "a204a6d402c4a57a7a7fb5c0e0f61e84b5edd77d77cfa83ade67b31dec321a56",
+      "size_bytes": 803
+    },
+    {
+      "path": "Application/Python/platform_data/jashakar_vi_class_scout_ship.py",
+      "sha256": "2351459f945c7ef6e6ea563276dbfbba2d50351a32d00a6bf2e6c477347b02c3",
+      "size_bytes": 720
+    },
+    {
+      "path": "Application/Python/platform_data/jumphawk_class_command_cruiser.py",
+      "sha256": "c3e730a600e47ef2944573d436b1157af0c8d928168a2e0a6e349e7c079f81d7",
+      "size_bytes": 773
+    },
+    {
+      "path": "Application/Python/platform_data/juyaca_class_dreadnought.py",
+      "sha256": "6d35e52860515067139bcb0c22231b053f788cad58656a7253672f90a8ff597c",
+      "size_bytes": 1352
+    },
+    {
+      "path": "Application/Python/platform_data/kabintak_class_super_dreadnought.py",
+      "sha256": "eee44e080ff40c6c6d40fa9799a48fa17c9c65f266464503972c8a14c032eb86",
+      "size_bytes": 1503
+    },
+    {
+      "path": "Application/Python/platform_data/kabrokta_class_assault_cruiser.py",
+      "sha256": "c18e4cb126c720f95e49b44c1e4beeaab55eb683b324fc370b37aa3ff93e283c",
+      "size_bytes": 962
+    },
+    {
+      "path": "Application/Python/platform_data/kahtrik_class_assault_ship.py",
+      "sha256": "8a702d38400ed4fd73db75d33cca6ee34eafc4a934a87551f2f1d48d700eff8a",
+      "size_bytes": 869
+    },
+    {
+      "path": "Application/Python/platform_data/kahtrik_so_class_cruiser.py",
+      "sha256": "b1a501149141ed9f9966a6fd9d12705d888ac08b76be34e3af48a2ed2faf22c7",
+      "size_bytes": 905
+    },
+    {
+      "path": "Application/Python/platform_data/kaliva_class_lance_cruiser.py",
+      "sha256": "d1b628d21a7c87712c4e39ef80a458e3715c4b4fb3e55411df861327e8ed0aa8",
+      "size_bytes": 950
+    },
+    {
+      "path": "Application/Python/platform_data/kamare_sas_patrol_cruiser.py",
+      "sha256": "a02d0d2d9a8495996477733cd9b25a2d7be2d86ee0d2548f40b3494aaeabec91",
+      "size_bytes": 856
+    },
+    {
+      "path": "Application/Python/platform_data/kamare_scout.py",
+      "sha256": "f8d3a30825701609ddc1b97f70ee20490d574bed3c409fc9679d3ca6475ebfd3",
+      "size_bytes": 613
+    },
+    {
+      "path": "Application/Python/platform_data/katan_class_escort_destroyer.py",
+      "sha256": "fe346ef3a07aebf8c4671e32fa20b3bb9e337c571f4494dcebc19550a44cf726",
+      "size_bytes": 1001
+    },
+    {
+      "path": "Application/Python/platform_data/katoc_class_battle_destroyer.py",
+      "sha256": "2e6e972bece29d00d9a7d52e820537915598aa137481a84f9a6356b29f5e8d74",
+      "size_bytes": 908
+    },
+    {
+      "path": "Application/Python/platform_data/klikkita_light_fighter.py",
+      "sha256": "919a557203e2a5ee93d4e0f05dba8b5f71a66c670d8677394a905432b41b37e3",
+      "size_bytes": 630
+    },
+    {
+      "path": "Application/Python/platform_data/klikkitak_crewed_missile.py",
+      "sha256": "f32c43c2aa5d067d96a55620be98cd35b715a1e7e81a5534ea1919ab8e51a432",
+      "size_bytes": 1188
+    },
+    {
+      "path": "Application/Python/platform_data/kotha_medium_fighter.py",
+      "sha256": "0d34469d90f3972521328ae2c6930845bb11a9ece8d0b05dcff385020edaa736",
+      "size_bytes": 640
+    },
+    {
+      "path": "Application/Python/platform_data/kutai_class_gunship.py",
+      "sha256": "b4935e74c03a246d76cb15463c5f446b0e8e7a48cb4569ec26bdcfb776809a97",
+      "size_bytes": 755
+    },
+    {
+      "path": "Application/Python/platform_data/lakara_class_cruiser.py",
+      "sha256": "b3db6be09afb5c1426e1993fae430b1ffec4199ead7489d70076b14bcab57a87",
+      "size_bytes": 931
+    },
+    {
+      "path": "Application/Python/platform_data/leshath_heavy_scout.py",
+      "sha256": "95b913522131c8ca8f83ddf044208a9a06399fdee1953c4ac5b7601c5c51df86",
+      "size_bytes": 1089
+    },
+    {
+      "path": "Application/Python/platform_data/liati_class_advanced_cruiser.py",
+      "sha256": "e9d71a5bb38c0f9591bd6dbcadcf047fd95ad340a3d9215d15b727540382f39f",
+      "size_bytes": 890
+    },
+    {
+      "path": "Application/Python/platform_data/lumati_transport.py",
+      "sha256": "fc68cde866fee23eccdf645608eec3d07da68fac17bd0dd6dba509e5f8bb9b5d",
+      "size_bytes": 782
+    },
+    {
+      "path": "Application/Python/platform_data/macu_carrier.py",
+      "sha256": "aab526a72f49ef72bcd242e36c1b2b515c92afabb5e4621c740198be83de5a67",
+      "size_bytes": 962
+    },
+    {
+      "path": "Application/Python/platform_data/magnus_class_destroyer.py",
+      "sha256": "745fb3b5bc773c07dec08cd0c04c6d0f59ca28bbcd0979305ab4edac226b9e66",
+      "size_bytes": 983
+    },
+    {
+      "path": "Application/Python/platform_data/mankhat_class_dreadnought.py",
+      "sha256": "897297ca6a55fc8a7a36ba0f415ebca68c220fbd4418960438f9780dcdb61263",
+      "size_bytes": 1026
+    },
+    {
+      "path": "Application/Python/platform_data/mankhat_py_class_bombardment_dreadnought.py",
+      "sha256": "240e3987e1b5c78a0b17463ffee8e4cfc8d1c25501b5c0dcfc50dd3a1b363ff2",
+      "size_bytes": 1321
+    },
+    {
+      "path": "Application/Python/platform_data/marata_class_diplomatic_transport.py",
+      "sha256": "9f407a0d9573cf33bd1e90510b25ac68d419ccf735f7f40649dc8f6978af7c03",
+      "size_bytes": 872
+    },
+    {
+      "path": "Application/Python/platform_data/marathon.py",
+      "sha256": "23931b5abd5ad990ecab85cb3dc46bac1b7c2a9a6b3fed3f0951e7190d638c1f",
+      "size_bytes": 1284
+    },
+    {
+      "path": "Application/Python/platform_data/maximus_class_frigate.py",
+      "sha256": "441f9d52ecb3b61561e125fe859694f413b67a0ddfce9a6bc94ea4ed391af3fa",
+      "size_bytes": 654
+    },
+    {
+      "path": "Application/Python/platform_data/milani_class_carrier.py",
+      "sha256": "c412a5dbae50bda83495329dcc2e420f8d709d0cdf9d4c3fb47ed1386d45cf53",
+      "size_bytes": 828
+    },
+    {
+      "path": "Application/Python/platform_data/minbari_breaching_pod.py",
+      "sha256": "6dba1dac52c30d46aed14c40b145db1343d4372429194ad829821f054d79adb8",
+      "size_bytes": 622
+    },
+    {
+      "path": "Application/Python/platform_data/minbari_flyer.py",
+      "sha256": "5f88cda8042de151f5891b33051f9fae26ff42b210b82cb6397d3c73de4fa772",
+      "size_bytes": 673
+    },
+    {
+      "path": "Application/Python/platform_data/mishakur_class_dreadnought.py",
+      "sha256": "09246f7d5fbb2324a65a2377f0990488d59836c285bf6e6183ef401c12afaf3f",
+      "size_bytes": 1240
+    },
+    {
+      "path": "Application/Python/platform_data/modified_freighter.py",
+      "sha256": "4a5206f7bec69ca3f35fa61df42f7e5e11ede62d146360c06033e8fdce7b3d71",
+      "size_bytes": 695
+    },
+    {
+      "path": "Application/Python/platform_data/morgrath_class_frigate.py",
+      "sha256": "9f69561abaf91ee5114936d018297fb8a6ee07f98d899ba6b4d3dee9fad1db33",
+      "size_bytes": 698
+    },
+    {
+      "path": "Application/Python/platform_data/morshin_carrier.py",
+      "sha256": "8f799c254df4611faae94a42a1c8270d7279e94a067b45b97b13423bb38573fc",
+      "size_bytes": 1084
+    },
+    {
+      "path": "Application/Python/platform_data/mothership.py",
+      "sha256": "bcb0e83f913a1dac30c657c6c382415dda0f7fc5338959f60fb8929918332607",
+      "size_bytes": 875
+    },
+    {
+      "path": "Application/Python/platform_data/myrmidon.py",
+      "sha256": "baeb81cbd3360c3ba80897f5c658f223c38eaca200226e88747dd07322b4dc79",
+      "size_bytes": 763
+    },
+    {
+      "path": "Application/Python/platform_data/narn_breaching_pod.py",
+      "sha256": "909c00029e95280334238759bb75767ed8c7699671e2da9ff1cbeb0f40036f8b",
+      "size_bytes": 574
+    },
+    {
+      "path": "Application/Python/platform_data/nemesis_class_advanced_destroyer.py",
+      "sha256": "0f84def389ebc86f4db43a7fd83eaa0b2222ce57bd1dc36f94f38c1a76fb68b4",
+      "size_bytes": 1331
+    },
+    {
+      "path": "Application/Python/platform_data/neroon_heavy_war_cruiser.py",
+      "sha256": "a9235ce96611e76d29eac0e70850867e1b08b106c2a856273c0650a3f4441377",
+      "size_bytes": 1464
+    },
+    {
+      "path": "Application/Python/platform_data/neshatan_gunship.py",
+      "sha256": "9581607e1a0031d91e462204b3433eba1de26b7e504d3146ff3d8e61c8db0f54",
+      "size_bytes": 1024
+    },
+    {
+      "path": "Application/Python/platform_data/nial_heavy_fighter.py",
+      "sha256": "8df1c7adf73099c59ac03b5dd033470fe49dadc99f7f4801d9775a20deb4125f",
+      "size_bytes": 773
+    },
+    {
+      "path": "Application/Python/platform_data/nightfalcon_class_heavy_carrier.py",
+      "sha256": "32f0a82193f2250a8735fc59e19772e59cdfcd0623eb27d0f2638e07bc051779",
+      "size_bytes": 912
+    },
+    {
+      "path": "Application/Python/platform_data/nova.py",
+      "sha256": "6ca81a3731216f7fac9e8456dcbd23b57ee8654af83eebcd6e0e14d893a962d9",
+      "size_bytes": 1599
+    },
+    {
+      "path": "Application/Python/platform_data/nova_dreadnought.py",
+      "sha256": "45c9fc6cb232d0c16e3e18aeb77c278f6a4bd7312b66428657a8f8e6d43805c3",
+      "size_bytes": 909
+    },
+    {
+      "path": "Application/Python/platform_data/nova_starfury.py",
+      "sha256": "bce5c5362d680ee27cc05be263562a5f658d6ce05c806dca1c9511fef61239b3",
+      "size_bytes": 687
+    },
+    {
+      "path": "Application/Python/platform_data/ochlavita_class_destroyer.py",
+      "sha256": "67a44142bc478429848beaeb43987b9cf98d4dd7bcbc4798f889265149ad2236",
+      "size_bytes": 888
+    },
+    {
+      "path": "Application/Python/platform_data/ochlavita_ki_class_command_destroyer.py",
+      "sha256": "807e3f9d1ec074c9ce55efc643fc15d2bbba24c304d49a1f39cf46a1ec4bca02",
+      "size_bytes": 1064
+    },
+    {
+      "path": "Application/Python/platform_data/octurion_class_battleship.py",
+      "sha256": "edaac8bb330bc336426f6c8a262559539e3e666ad9cbd2943a437f0edbdced67",
+      "size_bytes": 1231
+    },
+    {
+      "path": "Application/Python/platform_data/olympus.py",
+      "sha256": "a2ca5d900b691c847ac49d9cb3ffc25ddbd707b1d62b1820f486cb2116052337",
+      "size_bytes": 1595
+    },
+    {
+      "path": "Application/Python/platform_data/olympus_gunship.py",
+      "sha256": "ae5e0a7e85b268cbecc51a2b3e53c04da3c03becf535caba9d7760976549b618",
+      "size_bytes": 694
+    },
+    {
+      "path": "Application/Python/platform_data/omega.py",
+      "sha256": "ad33e74757d9004ac4360dbf9c5392968577a6571d35c4c1498692930dbd5dcd",
+      "size_bytes": 2217
+    },
+    {
+      "path": "Application/Python/platform_data/omega_command.py",
+      "sha256": "76376d5f5bce15e660977549bb783ac8d7a55b91f21fa4c8279b66cf7426a75f",
+      "size_bytes": 2315
+    },
+    {
+      "path": "Application/Python/platform_data/omega_pulse.py",
+      "sha256": "c4029082c5f519c1132cca28432e863b6f448790824b41186d74ca0bd74291e4",
+      "size_bytes": 946
+    },
+    {
+      "path": "Application/Python/platform_data/omelos_class_light_cruiser.py",
+      "sha256": "9d56c32aad8ed2f86e867404a38cffd681a501d97cbe1d42f1b02330ec799846",
+      "size_bytes": 1036
+    },
+    {
+      "path": "Application/Python/platform_data/oracle.py",
+      "sha256": "736467ee26fb16c7d465c40965e4edc9a2b90a2552a9e0408f47b83efb3d2880",
+      "size_bytes": 1749
+    },
+    {
+      "path": "Application/Python/platform_data/orestes.py",
+      "sha256": "0ff42605c93e912fbbd0b5c7dda90cb5b8485e9274da4f4d4888c96be0b89520",
+      "size_bytes": 967
+    },
+    {
+      "path": "Application/Python/platform_data/others_hurr_gunship.py",
+      "sha256": "3d34f7130f2747ee2d805f4a388d8b7f003a345dfe6bc6cc283ed3da48fd3b71",
+      "size_bytes": 1096
+    },
+    {
+      "path": "Application/Python/platform_data/pakmara_halik_class_frigate.py",
+      "sha256": "53b91b7c818563928859c181ca9e08544cac32e082ffcff15c16af8f08070832",
+      "size_bytes": 604
+    },
+    {
+      "path": "Application/Python/platform_data/pakmara_sunhawk_class_battlecruiser.py",
+      "sha256": "33d2d676da56c0278fe1d974a636c32168318d8fcdf77a420905b3cdeb132092",
+      "size_bytes": 613
+    },
+    {
+      "path": "Application/Python/platform_data/pakmara_warbird_class_cruiser.py",
+      "sha256": "34f48a51f892afc36fa5813eb6951cd20ea577a1ad634dd0a77d1110bd6c863c",
+      "size_bytes": 597
+    },
+    {
+      "path": "Application/Python/platform_data/patrol_boat.py",
+      "sha256": "a2f3da0fc8fe29518f0c73202dbd13174012f697593f54b9481da66fe2fb41bd",
+      "size_bytes": 595
+    },
+    {
+      "path": "Application/Python/platform_data/pikatos_heavy_fighter_flight.py",
+      "sha256": "1eb50c125e535312661e16c2accb3a4c5c55e228f5cdc43ec9a0da71e1620972",
+      "size_bytes": 736
+    },
+    {
+      "path": "Application/Python/platform_data/porfatis_system_patrol_boat.py",
+      "sha256": "04035ecb019f1edef3d5faaafbc708b37949d443c212d2a2dd883eb4104ce1de",
+      "size_bytes": 779
+    },
+    {
+      "path": "Application/Python/platform_data/poseidon.py",
+      "sha256": "0b9147cc471fd6c993338ff7dc82c794e5b44d705e4cddb403a26cfe704cd55a",
+      "size_bytes": 1967
+    },
+    {
+      "path": "Application/Python/platform_data/primus_class_battlecruiser.py",
+      "sha256": "047f223c14d7b60fc6a76e3ecd985acb78324f77440a9f1638be86bc80e886a4",
+      "size_bytes": 958
+    },
+    {
+      "path": "Application/Python/platform_data/pshul_shi_class_convoy_guardian.py",
+      "sha256": "4b0fe5356235e084977ebb540627f974fed66bf8f6bfeaa59fadf665fefd7295",
+      "size_bytes": 1096
+    },
+    {
+      "path": "Application/Python/platform_data/raiders_breaching_pod.py",
+      "sha256": "7b45f2f7a73dd00bb12ab63427491c91cfdf593dca802f05f2e9cd79c24d174d",
+      "size_bytes": 545
+    },
+    {
+      "path": "Application/Python/platform_data/razik_light_fighter_flight.py",
+      "sha256": "06fc2df37765f9362eea56976632bd3518be098c1e49d907323dd6cc0afdd5e0",
+      "size_bytes": 714
+    },
+    {
+      "path": "Application/Python/platform_data/riastor_gris_fast_destroyer.py",
+      "sha256": "9200b81095984ec126c994272c00a29d08c97b395dc5ed57a3d0719fae1e8ff7",
+      "size_bytes": 741
+    },
+    {
+      "path": "Application/Python/platform_data/riastor_heavy_raider.py",
+      "sha256": "fea8c9f75d711bfe08c9010166c7107e7658112c726fe17577e9c5f731a27fc6",
+      "size_bytes": 671
+    },
+    {
+      "path": "Application/Python/platform_data/riavash_strike_cruiser.py",
+      "sha256": "316ca7efd6c282bdb5841d991a02918945b15159eac0a01b2c498b2aa83aae99",
+      "size_bytes": 986
+    },
+    {
+      "path": "Application/Python/platform_data/riva_super_heavy_fighter_flight.py",
+      "sha256": "d275c01582c8fe8434c4566c7398ff8f3f4cd25e877e5cf99a712cf936d23a7e",
+      "size_bytes": 734
+    },
+    {
+      "path": "Application/Python/platform_data/rohric_class_assault_ship.py",
+      "sha256": "16fef48793ee42901e0217db17e1d3d5a1772210b513a84af66216a00fb45389",
+      "size_bytes": 833
+    },
+    {
+      "path": "Application/Python/platform_data/rongoth_class_destroyer.py",
+      "sha256": "bc198364a4e81eaa676c80180963d542172e8cba7d8d50fe67ea75c94d652adc",
+      "size_bytes": 778
+    },
+    {
+      "path": "Application/Python/platform_data/rothan_class_plasma_destroyer.py",
+      "sha256": "f0510c793efb7d25ddba45ccd890f17b98f55203d005442b9394c97ea74d0097",
+      "size_bytes": 805
+    },
+    {
+      "path": "Application/Python/platform_data/rutarian_strike_fighter.py",
+      "sha256": "5c3a07ab932570980a938589df473af8ab7f5c9d05c69091f5e75b17c1a817d4",
+      "size_bytes": 804
+    },
+    {
+      "path": "Application/Python/platform_data/sadravash_light_cruiser.py",
+      "sha256": "dda01356a4822e94e2150df266fd8609b39f2c72140c791c0eab00f59ed5e28e",
+      "size_bytes": 878
+    },
+    {
+      "path": "Application/Python/platform_data/sagittarius.py",
+      "sha256": "8c548655a3f32c637200b7356aa909d0a26472a58f747e28512020df93682520",
+      "size_bytes": 930
+    },
+    {
+      "path": "Application/Python/platform_data/Sample Files/Sample Fighter.py",
+      "sha256": "f68f0ce813d782bec75311e8efa74d99c16b5eb731ff146e78b820d7af580261",
+      "size_bytes": 1306
+    },
+    {
+      "path": "Application/Python/platform_data/Sample Files/Sample Ship.py",
+      "sha256": "2644103f470d744295442d7393649c9aaaf62f11430d3446d1056e5f8861f74c",
+      "size_bytes": 2708
+    },
+    {
+      "path": "Application/Python/platform_data/sariastor_light_raider.py",
+      "sha256": "4cb2df0c35344116cd502d9f492bedad9b75c925d114374dcacf444c82c5d2e6",
+      "size_bytes": 677
+    },
+    {
+      "path": "Application/Python/platform_data/sataaka_class_gunship.py",
+      "sha256": "2a022e5ce676d354912148c6e285230c988f8d699ebbc279801b475ba899fbc6",
+      "size_bytes": 726
+    },
+    {
+      "path": "Application/Python/platform_data/secundus_class_battlecruiser.py",
+      "sha256": "d2493f38e7e4804671e4454a13baf9a436461743f41d52384c7869f4fd8f566b",
+      "size_bytes": 1077
+    },
+    {
+      "path": "Application/Python/platform_data/sentri_medium_fighter_flight.py",
+      "sha256": "d20128565da7307470315cabcdbb75670b39aad444f576ea7fed780115af7adf",
+      "size_bytes": 719
+    },
+    {
+      "path": "Application/Python/platform_data/shaakak_class_queen_light_cruiser.py",
+      "sha256": "d3973fd216c70402ea8d00a8202bcff95e721b1fed2e632a99fd48a806c5179d",
+      "size_bytes": 883
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_fighter.py",
+      "sha256": "3573c3ba1e405b401a253b111a739ee28e58467c89607380fd4eee5014ca91ec",
+      "size_bytes": 996
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_omega_class_advanced_destroyer.py",
+      "sha256": "fc19b524d2842b73397e93a23d05f2792bba05a3e54d41a47355e8d45aa49c0a",
+      "size_bytes": 1211
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_scout.py",
+      "sha256": "de41f5a70dc8f086a864d421b203888d723c72891ec3fd1119e8dbe420d0f058",
+      "size_bytes": 657
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_ship_ancient.py",
+      "sha256": "c5bac72f47f5a3b66ee42a1b4521c4522d35841a1f0bd13927929fc75c4ae1c1",
+      "size_bytes": 851
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_ship_young.py",
+      "sha256": "c4767a3e859e764e0a5466677c726be752a593f5276435ebe5aa6f221829a7ab",
+      "size_bytes": 776
+    },
+    {
+      "path": "Application/Python/platform_data/shadow_stalker.py",
+      "sha256": "fbcaf38fbb2c5d7b24005ba24a9ee699ba0dd407bf3e69c083fb8b79731dc0cc",
+      "size_bytes": 725
+    },
+    {
+      "path": "Application/Python/platform_data/shadowcloak_class_escort.py",
+      "sha256": "ad44b6b611ac8656860410bc4d4d2f50de61df69a3ebc72e51f958bb8c32c5f7",
+      "size_bytes": 775
+    },
+    {
+      "path": "Application/Python/platform_data/shadowfury_flight.py",
+      "sha256": "1ca19d88fcc18a67a3c696ac0fba3eb22b178f5ba2391c0d6b49d2f95c268526",
+      "size_bytes": 623
+    },
+    {
+      "path": "Application/Python/platform_data/shakara_class_scout_cruiser.py",
+      "sha256": "468849f49bcab87706f62956d25fefe108c67d8fdebe9778cfe26e7f67de744d",
+      "size_bytes": 773
+    },
+    {
+      "path": "Application/Python/platform_data/shantavi_heavy_battle_frigate.py",
+      "sha256": "692d26cf6eeff44edee5c8fcd6925db952aa2b08c5afbb5926fa5a22229020dc",
+      "size_bytes": 983
+    },
+    {
+      "path": "Application/Python/platform_data/sharkaan_advanced_war_cruiser.py",
+      "sha256": "c3f5fb17964f6e2236b0af20e16a182ea24064b8db4595eb18769345cdac3d96",
+      "size_bytes": 1190
+    },
+    {
+      "path": "Application/Python/platform_data/sharlin_war_cruiser.py",
+      "sha256": "8ea434cf7b520767dd6576e057fae444fd31e6ae3b3beed3268bae1387224cc9",
+      "size_bytes": 1087
+    },
+    {
+      "path": "Application/Python/platform_data/sharoos_heavy_war_cruiser.py",
+      "sha256": "4cc8805abf7c5ffcd7ad5d77411d2efc024a75aad9ff2ad12f7493759dea1e9a",
+      "size_bytes": 1329
+    },
+    {
+      "path": "Application/Python/platform_data/shokar_class_light_scout_cruiser.py",
+      "sha256": "f5e900cf7cf2bb2897facb7e6562b12793a3b8d97857ea7fb248de2449c8f20b",
+      "size_bytes": 904
+    },
+    {
+      "path": "Application/Python/platform_data/shokos_class_patrol_cutter.py",
+      "sha256": "650263fa0fd7342519fba895264a4d26e1abce658507ae7ac85a80c3d5e9c1d0",
+      "size_bytes": 767
+    },
+    {
+      "path": "Application/Python/platform_data/shokov_class_torpedo_cutter.py",
+      "sha256": "04e3f80c64322a1244f55f888a707c952d5477e1559e6d58b16084e39ffe99f4",
+      "size_bytes": 786
+    },
+    {
+      "path": "Application/Python/platform_data/shrutaa_class_queen_battleship.py",
+      "sha256": "0784ea0d5b594f3d29645595545876e01ac6d6c8df9aa870ba33295c7a8f054e",
+      "size_bytes": 897
+    },
+    {
+      "path": "Application/Python/platform_data/shuuka_class_queen_light_cruiser.py",
+      "sha256": "7e256d247d4545b715b4b17e9fc65b3e97bc8e840a2fa08af46359a1eab28e6b",
+      "size_bytes": 845
+    },
+    {
+      "path": "Application/Python/platform_data/shyarie_class_jammer_frigate.py",
+      "sha256": "e38c91e63d8e0bc6ab953c2c536027d926e83502aa09c0436a8d630cfdd688a5",
+      "size_bytes": 897
+    },
+    {
+      "path": "Application/Python/platform_data/skrunnka_class_assault_ship.py",
+      "sha256": "380bfc0900beac2f748f9ce37e4ac7f0485a0ab5fb5624ac1d023f898f726979",
+      "size_bytes": 962
+    },
+    {
+      "path": "Application/Python/platform_data/sky_serpent_heavy_assault_fighter_flight.py",
+      "sha256": "74158f43c0954835bf0d1967b1cf279dadaf94faa210e5e4606b4117a08cf32d",
+      "size_bytes": 747
+    },
+    {
+      "path": "Application/Python/platform_data/sleekbird_class_assault_cruiser.py",
+      "sha256": "43b93c058bccdc92144aa6aa95eb19941fdff9ae3f40a9d7da042d82577c6732",
+      "size_bytes": 724
+    },
+    {
+      "path": "Application/Python/platform_data/sluuka_class_grand_queen.py",
+      "sha256": "9776f411d492d1ad8caca8457600651b8f9fe6b6afa0f3fa6a60ef7a0dfaa1c5",
+      "size_bytes": 1208
+    },
+    {
+      "path": "Application/Python/platform_data/solarhawk_class_battlecruiser.py",
+      "sha256": "a736211a1977af766bbafd883ee0c6f21260aeb500522e594956d22fd5ef88c2",
+      "size_bytes": 720
+    },
+    {
+      "path": "Application/Python/platform_data/space_liner.py",
+      "sha256": "06bca15b9f6589f5e58803c3394f897e3896f8759c779149e71d79b4d57be49c",
+      "size_bytes": 561
+    },
+    {
+      "path": "Application/Python/platform_data/stak_class_scout.py",
+      "sha256": "2b133aca25bc514c7743cce656a70c1c78051a6e91a6f564101955b256aedd9e",
+      "size_bytes": 622
+    },
+    {
+      "path": "Application/Python/platform_data/star_snake_light_attack_fighter_flight.py",
+      "sha256": "509b78f67d55500559639e44cb2963356d08532824b33b123a47803771ae3f5c",
+      "size_bytes": 698
+    },
+    {
+      "path": "Application/Python/platform_data/stormfalcon_class_heavy_cruiser.py",
+      "sha256": "9932c675fe4ddf83e53331066b09b2b32718ebd848fbb521c9a47c0d1d1c3abb",
+      "size_bytes": 921
+    },
+    {
+      "path": "Application/Python/platform_data/strike_carrier.py",
+      "sha256": "cc50273c5e809a4b87eb4172d4c08430a805b662fa699f116fa78d817cdb6169",
+      "size_bytes": 747
+    },
+    {
+      "path": "Application/Python/platform_data/strikehawk_class_battle_carrier.py",
+      "sha256": "b1cf825e1562550a9d0f9dde80007a6070e83b6353c47043ae1b16ba6d4c9ffc",
+      "size_bytes": 766
+    },
+    {
+      "path": "Application/Python/platform_data/stuteeka_class_war_carrier.py",
+      "sha256": "94b6936124161181d1027086684521239e29ea89066d391a18492863e47f9625",
+      "size_bytes": 741
+    },
+    {
+      "path": "Application/Python/platform_data/sulust_class_escort_destroyer.py",
+      "sha256": "45d42c6b9f6d59e9ee6321d9398676db274a80c21161daf9692d10c4c6f8e043",
+      "size_bytes": 723
+    },
+    {
+      "path": "Application/Python/platform_data/takata_class_mine_cruiser.py",
+      "sha256": "fc4f9290ba1598d84987fbc0b85f3ea0c83148fd4e532733a608c9503fced432",
+      "size_bytes": 954
+    },
+    {
+      "path": "Application/Python/platform_data/tantalus.py",
+      "sha256": "b545f60ef321d1f111beb4d467d2ce4ea8480f2b691cd7b0fc12e9ceca9cf9ce",
+      "size_bytes": 1876
+    },
+    {
+      "path": "Application/Python/platform_data/targrath_class_strike_cruiser.py",
+      "sha256": "697e0606d9b72207dee9eed9b153fc2167f2dbd6722e014179de1a7a3d035628",
+      "size_bytes": 950
+    },
+    {
+      "path": "Application/Python/platform_data/tashkat_class_advanced_cruiser.py",
+      "sha256": "bfad96e168656097cfb12466eb6543a646b4ac9c55de8a86cc9b7c3830881688",
+      "size_bytes": 978
+    },
+    {
+      "path": "Application/Python/platform_data/techno_mage_pinnace.py",
+      "sha256": "b0ceacd622352a7e3e42ccf4b949c259fb92f83c6c437e36864bc6ab1534e63a",
+      "size_bytes": 1766
+    },
+    {
+      "path": "Application/Python/platform_data/teshlan_fast_cruiser.py",
+      "sha256": "b06955143a668daf0e68a8dda84318e17616923636b0ec2be8308e44d41551b8",
+      "size_bytes": 1055
+    },
+    {
+      "path": "Application/Python/platform_data/tethys.py",
+      "sha256": "5e5eb519150e2aefe42f32841471545fb7249e132e0fed6a92f1dbed99a8ae4f",
+      "size_bytes": 800
+    },
+    {
+      "path": "Application/Python/platform_data/tethys_laser.py",
+      "sha256": "0e367e4d3932a9806f7c9d79ae1fdfeaff6c9869b0690ef9c2a85fffac052c70",
+      "size_bytes": 759
+    },
+    {
+      "path": "Application/Python/platform_data/tethys_missile.py",
+      "sha256": "1885c21965134de1456a31523302404f9bc9b889ce51ccd0da4cb0fc3f15a843",
+      "size_bytes": 985
+    },
+    {
+      "path": "Application/Python/platform_data/the_dark_knife.py",
+      "sha256": "a97183ac80d78a6de29b798d53a22d94b32b62237418cf543c501e259d8f837e",
+      "size_bytes": 757
+    },
+    {
+      "path": "Application/Python/platform_data/the_lordship.py",
+      "sha256": "db2fac79c8f369c79f0db8d249f47b3d21f64c4de675a938fc667ad662c10030",
+      "size_bytes": 983
+    },
+    {
+      "path": "Application/Python/platform_data/the_traveller.py",
+      "sha256": "7b1b9744bd5daaae274acca32afc740465b6d80f4ec9392d76489db789e5df59",
+      "size_bytes": 1152
+    },
+    {
+      "path": "Application/Python/platform_data/the_triumviron.py",
+      "sha256": "80fd1a644fb2e085ced95c9ba51879b8f3ef90b40d89129e06d8859ec8b4ac1b",
+      "size_bytes": 1339
+    },
+    {
+      "path": "Application/Python/platform_data/thentus_class_frigate.py",
+      "sha256": "1a3295227407f4c610af3bcea9a8044aebbfc4fcf01dd6c667b65153b479ed7d",
+      "size_bytes": 911
+    },
+    {
+      "path": "Application/Python/platform_data/thorun_dartfighter.py",
+      "sha256": "0d776526d563f6b90b0b5864191defd2c312b1eab630239103018c0a8106a92b",
+      "size_bytes": 665
+    },
+    {
+      "path": "Application/Python/platform_data/thorun_torpedofighter.py",
+      "sha256": "399b3ffdcecf4180a6f4dcb3c5e9275c9ee02fe40e479e24e79073308c1c9d62",
+      "size_bytes": 725
+    },
+    {
+      "path": "Application/Python/platform_data/thoughtforce.py",
+      "sha256": "38d9df84d4173a3c44a8e4494bce9bb199255c7912639702f32e1d2a6223f3d2",
+      "size_bytes": 1007
+    },
+    {
+      "path": "Application/Python/platform_data/thunderbolt_starfury.py",
+      "sha256": "f68f0ce813d782bec75311e8efa74d99c16b5eb731ff146e78b820d7af580261",
+      "size_bytes": 1306
+    },
+    {
+      "path": "Application/Python/platform_data/tigara_attack_cruiser.py",
+      "sha256": "18252aefb8bf637432fc57253c948b7133f8957711bc903a66e2c2abd7cf7d98",
+      "size_bytes": 1334
+    },
+    {
+      "path": "Application/Python/platform_data/tiger_starfury.py",
+      "sha256": "b126e24021c5baeceb4ce799a87590544f42ff166a66561149b53970cadd3fd0",
+      "size_bytes": 745
+    },
+    {
+      "path": "Application/Python/platform_data/tikrit_class_heavy_cruiser.py",
+      "sha256": "03c2d02fccb2a61e85c7125a3f0a9918978c0baaec7c8998b7b9e1156a068a55",
+      "size_bytes": 956
+    },
+    {
+      "path": "Application/Python/platform_data/tinashi_warship.py",
+      "sha256": "92aeecd8cab0b2490191ac223679c8590428a265f2e3673ff5272e7d6d303162",
+      "size_bytes": 942
+    },
+    {
+      "path": "Application/Python/platform_data/tiraca_class_attack_frigate.py",
+      "sha256": "2a078d8195b1b39393783fc6336e675c481f7fdba7c28500847646b0ff13a1d2",
+      "size_bytes": 837
+    },
+    {
+      "path": "Application/Python/platform_data/tishat_medium_fighter.py",
+      "sha256": "4013bf0f6855a674b450e82614c7aef7f9d43f96e46a1468710b4794c3caa391",
+      "size_bytes": 792
+    },
+    {
+      "path": "Application/Python/platform_data/tloth_class_assault_cruiser.py",
+      "sha256": "f3fcd3c664ceaccd5dd689fb5ddbc21548188b8347235f898f1a7bb48865c2ea",
+      "size_bytes": 885
+    },
+    {
+      "path": "Application/Python/platform_data/torotha_assault_frigate.py",
+      "sha256": "c338fb1209e909e11b0ed263540a01049b9b12af6565cf8c3d3c376bda91bcea",
+      "size_bytes": 903
+    },
+    {
+      "path": "Application/Python/platform_data/trakk_class_frigate.py",
+      "sha256": "5dc1720c60daf5e0e4e01e931b580b662c66b4409d1ea264697a03055dd9f9b3",
+      "size_bytes": 819
+    },
+    {
+      "path": "Application/Python/platform_data/trann_class_heavy_carrier.py",
+      "sha256": "fede48df8543dda0e503fb55408ae72f87145c74ef8384b8257281dd806c6503",
+      "size_bytes": 857
+    },
+    {
+      "path": "Application/Python/platform_data/troligan_armoured_cruiser.py",
+      "sha256": "3eb152648241b721a359251de81801cfcb51d67baf0924f9273aaf766e69488b",
+      "size_bytes": 1530
+    },
+    {
+      "path": "Application/Python/platform_data/tzymm_heavy_fighter.py",
+      "sha256": "4d14e0fe1d5bdfe6db2fe3e0d02629c8bc97a9cf8ae8a6a2367c94a14cf51e62",
+      "size_bytes": 732
+    },
+    {
+      "path": "Application/Python/platform_data/urik_hal_class_supermerchant.py",
+      "sha256": "6deeb88211c560de284aff6ff383c727f96be118a666326d6db8fddb2a648004",
+      "size_bytes": 839
+    },
+    {
+      "path": "Application/Python/platform_data/vaarka_class_escort_scout.py",
+      "sha256": "d60bfc079a95f63317725fdecc1a4e9c6399a4bf46d39885e91d5727f8ab00b7",
+      "size_bytes": 725
+    },
+    {
+      "path": "Application/Python/platform_data/vaarl_class_scout_saucer.py",
+      "sha256": "ef5fb6867358381afccce94088143e315420eb70398e2ff008837879e40161bd",
+      "size_bytes": 675
+    },
+    {
+      "path": "Application/Python/platform_data/varnic_class_long_range_destroyer.py",
+      "sha256": "e1fcaea185affb3ef15194a19b2703f91d532e128aeda440bf5d203f118b67e2",
+      "size_bytes": 892
+    },
+    {
+      "path": "Application/Python/platform_data/veshatan_fast_gunship.py",
+      "sha256": "6f348269e34a6e4f9ce62210b3d5ed40575e8e7dcc4e5c7ead7ded5d6d7f2216",
+      "size_bytes": 1065
+    },
+    {
+      "path": "Application/Python/platform_data/vorchan_class_warship.py",
+      "sha256": "e2726e98b26e6c394a8987e84bec61878898350694e569b651a6831b641ab6b1",
+      "size_bytes": 722
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_destroyer.py",
+      "sha256": "369e2851a126f8c0fdda25a6480abc5207ed9841bd98e7f6f1032cd034f53d07",
+      "size_bytes": 697
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_dreadnought.py",
+      "sha256": "100e1dc75f3df607f7c502a3d24f97852e44faab9060a5a3f9b2356fb443e9d0",
+      "size_bytes": 803
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_fighter_flight.py",
+      "sha256": "ef845ee9ae5860196937c7cbfe9aaac7f4dfdc218b17c64d20d09b6ad6ba6f2b",
+      "size_bytes": 710
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_frigate.py",
+      "sha256": "59a1000144869ab1e58c88fecde706032af4e756c4e7c88a282894a89f1b22f9",
+      "size_bytes": 765
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_heavy_cruiser.py",
+      "sha256": "9da41c3417a07eca4bc3ac9aefd81ef072ab4cd4e418a860f10a3dc68ff14fe8",
+      "size_bytes": 811
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_light_cruiser.py",
+      "sha256": "d3b88381573ccf03932588832102fabb6996bfc42457b5b71aad437d72e444a7",
+      "size_bytes": 713
+    },
+    {
+      "path": "Application/Python/platform_data/vorlon_transport.py",
+      "sha256": "710f3c601826861d82e65bd0b90e5d87838519950ccfafde500d7ac425048a67",
+      "size_bytes": 716
+    },
+    {
+      "path": "Application/Python/platform_data/wahant_class_heavy_assault_ship.py",
+      "sha256": "ca43a441096ddb5927058525f68b2e57bd9d114fa45b4ec1530ca9a9942761cb",
+      "size_bytes": 1337
+    },
+    {
+      "path": "Application/Python/platform_data/warlock.py",
+      "sha256": "e176633ac2efb3c78217882f9decd6e70551d8eb8b53e0113ec3e4259619c223",
+      "size_bytes": 2436
+    },
+    {
+      "path": "Application/Python/platform_data/white_star_enforcer.py",
+      "sha256": "904b8b436d42d03e515054809b10c1c3f6a96c665ba01c052fb5279b20c4c788",
+      "size_bytes": 1017
+    },
+    {
+      "path": "Application/Python/platform_data/xaak_class_command_saucer.py",
+      "sha256": "0f36fb2dc5d05f28ad6214fd82056c297b28ae55208e3bdaf0ca4db154c0ee48",
+      "size_bytes": 879
+    },
+    {
+      "path": "Application/Python/platform_data/xaar_class_patrol_boat.py",
+      "sha256": "84c7bb715cd23777cc0dbefc837ddc72e434f9b7a9be05cc5b6bd4623065fdda",
+      "size_bytes": 645
+    },
+    {
+      "path": "Application/Python/platform_data/xeel_class_war_carrier.py",
+      "sha256": "9ddc0eb67f4e8d28ae9d902bc54d3c9e15a09d69124c54f4bbe150bd03e297d2",
+      "size_bytes": 657
+    },
+    {
+      "path": "Application/Python/platform_data/xill_class_battle_saucer.py",
+      "sha256": "30bbe041d4a4a539eebf6540ab27b3e0c424b366867e06552c024bd7617dd054",
+      "size_bytes": 730
+    },
+    {
+      "path": "Application/Python/platform_data/ximm_class_close_escort.py",
+      "sha256": "6bfbb4bd12f592317a5250892b3d1e99df13b64cc7bebf649ae2822f12c1eedd",
+      "size_bytes": 703
+    },
+    {
+      "path": "Application/Python/platform_data/xirr_class_bombardment_saucer.py",
+      "sha256": "3471be74d52e05c765550c09a07274a86c4357fedeef1e8647340a4149ebeb04",
+      "size_bytes": 688
+    },
+    {
+      "path": "Application/Python/platform_data/xixx_class_torpedo_saucer.py",
+      "sha256": "6ddfbe197da18b446d75739b93abdee121dc88f7a0401eb17db858ffcb9e632f",
+      "size_bytes": 693
+    },
+    {
+      "path": "Application/Python/platform_data/xonn_class_dreadnought.py",
+      "sha256": "868e758c35f3ba5d50d36fd4e2046ab6cfd0f9ca6baa403232b0e6aa86580589",
+      "size_bytes": 740
+    },
+    {
+      "path": "Application/Python/platform_data/xorr_class_war_saucer.py",
+      "sha256": "ff72f3dfefd5a5d3e17cc694269a767786e95d6edc8f9923dc206c4d4c07019b",
+      "size_bytes": 722
+    },
+    {
+      "path": "Application/Python/platform_data/z_takk_class_command_saucer.py",
+      "sha256": "03caaa60a78e34a8abb36dfe0e02603f31a89a4f940b9cf0d149cf9fb15f010d",
+      "size_bytes": 870
+    },
+    {
+      "path": "Application/Python/platform_data/z_trikk_heavy_carrier.py",
+      "sha256": "91c98a537591958172b3ef303396ce03f45e2f7957b1db0582c6d0cc29922652",
+      "size_bytes": 896
+    },
+    {
+      "path": "Application/Python/platform_data/zorth_light_fighter_flight.py",
+      "sha256": "75506345b9c103b11b9de5c583966571669057bbbc7c811b4aa00e4c101a0e65",
+      "size_bytes": 668
+    },
+    {
+      "path": "Database/Data/dfs.db",
+      "sha256": "f411ed28196afe2a5950bfba47c2c559f5bf524341f407fbcc74b32a66904847",
+      "size_bytes": 303104
+    }
+  ],
+  "format_version": 1,
+  "protected_roots": [
+    "Application/Python/platform_data"
+  ],
+  "protected_single_files": [
+    "Database/Data/dfs.db"
+  ]
+}

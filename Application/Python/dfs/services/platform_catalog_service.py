@@ -21,6 +21,9 @@ class PlatformCatalogService:
     def count(self, filters: PlatformFilter | None = None) -> int:
         return self._repository.count(filters or PlatformFilter())
 
+    def count_profiles(self, include_generated: bool = False) -> int:
+        return self._repository.count_profiles(include_generated=include_generated)
+
     def list_factions(self) -> list[FilterOption]:
         return self._repository.list_factions()
 

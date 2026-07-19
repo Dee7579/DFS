@@ -27,5 +27,16 @@ def test_existing_allied_rules_are_marked_implemented():
 
 def test_catalog_filters_by_status_and_fleet():
     implemented = rule_records(status=CatalogStatus.IMPLEMENTED)
-    assert {record.rule_id for record in implemented} == {"B5-ISA-ALL-001", "B5-RAID-ALL-001", "B5-ANCIENT-UNQ-001"}
+    implemented_ids = {record.rule_id for record in implemented}
+    required_implemented_ids = {
+        "B5-ISA-ALL-001",
+        "B5-ISA-DATE-002",
+        "B5-RAID-ALL-001",
+        "B5-PSI-ALL-001",
+        "B5-GAIM-QUEEN-001",
+        "B5-GAIM-QUEEN-002",
+        "B5-ANCIENT-UNQ-001",
+    }
+    assert required_implemented_ids <= implemented_ids
+    assert all(record.status is CatalogStatus.IMPLEMENTED for record in implemented)
     assert all(record.fleet == "Gaim Intelligence" for record in rule_records(fleet="gaim intelligence"))
