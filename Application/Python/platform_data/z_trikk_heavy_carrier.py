@@ -1,9 +1,10 @@
-SHIP_NAME = 'Z’Trikk Heavy Carrier'
-SHIP_CLASS = 'Z’Trikk Heavy Carrier'
+SHIP_NAME = 'Z’Trikk Heavy Carrier (Z’Takk Variant)'
+SHIP_CLASS = 'Z’Trikk Heavy Carrier (Z’Takk Variant)'
 FILE_NAME = 'z_trikk_heavy_carrier'
 FACTION_NAME = 'Vree Conglomerate'
 
 LEGACY_SHIP_NAMES = [
+    'Z’Trikk Heavy Carrier',
 ]
 
 PROFILES = [

@@ -87,7 +87,7 @@ class SettingsService:
 
     def reset_application_preferences(self) -> None:
         """Reset framework-managed preferences without touching user data."""
-        for group in ("appearance", "startup", "documents", "explorer", "framework"):
+        for group in ("appearance", "startup", "documents", "explorer", "fleet", "framework"):
             self.remove(group)
         self._ensure_schema()
         self.sync()

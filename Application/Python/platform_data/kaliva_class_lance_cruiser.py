@@ -4,6 +4,7 @@ FILE_NAME = 'kaliva_class_lance_cruiser'
 FACTION_NAME = 'Brakiri Syndicracy'
 
 LEGACY_SHIP_NAMES = [
+    'Kaliva-class Lance Cruiser',
 ]
 
 PROFILES = [

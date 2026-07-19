@@ -29,6 +29,7 @@ class Ship:
 
     initiative: str
     in_service: str
+    crew_quality: str = ""
 
     traits: list[str] = field(default_factory=list)
     weapons: list[Weapon] = field(default_factory=list)

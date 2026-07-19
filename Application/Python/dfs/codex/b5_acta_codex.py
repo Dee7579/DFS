@@ -841,16 +841,39 @@ FLEET_RULES = {'Abbai Matriarchy': [],
                                      'effects',
                                      'immune'],
                         'see_also': []},
+                       {'title': 'Guardian Array',
+                        'text': 'A Centauri ship with both Escort and Interceptors may '
+                                'lend any or all of its Interceptor dice to one friendly '
+                                'ship within 8 inches and line of sight. Dice may be '
+                                'assigned after an attack is declared, but once rolling '
+                                'begins they cannot be taken back or increased. The Escort '
+                                'ship may still provide its normal anti-fighter protection. '
+                                'The official FAQ confirms that Guardian Array may also '
+                                'grant Interceptor dice to friendly fighter flights.',
+                        'source': 'B5 ACTA Fleet Lists, The Centauri Republic, p. 71; '
+                                  'A Call to Arms FAQ, Fleet Book Q&A',
+                        'category': 'Fleet Rule',
+                        'keywords': ['Guardian Array',
+                                     'Fleet Rule',
+                                     'Escort',
+                                     'Interceptors',
+                                     'fighters',
+                                     'friendly ship',
+                                     'line of sight'],
+                        'see_also': ['Escort', 'Interceptors']},
                        {'title': 'Mass Drivers',
-                        'text': 'A Primus may replace 5 AD of its forward Ion Cannon with '
-                                'one Mass Driver. An Octurion may replace 8 AD of its '
-                                'forward Ion Cannon with two Mass Drivers. Each Mass '
+                        'text': 'A Primus or Secundus may replace 5 AD of its forward Ion '
+                                'Cannon with one Mass Driver. An Octurion may replace 8 AD '
+                                'of its forward Ion Cannon with two Mass Drivers. Each Mass '
                                 'Driver has Range 10, Fore arc, 8 AD, and the Mass Driver, '
                                 'Slow-Loading, Super AP, and Triple Damage traits.',
                         'source': 'B5 ACTA Fleet Lists, The Centauri Republic, p. 71',
                         'category': 'Fleet Rule',
                         'keywords': ['Mass Drivers',
                                      'Fleet Rule',
+                                     'Primus',
+                                     'Secundus',
+                                     'Octurion',
                                      'mass',
                                      'driver',
                                      'cannon',
@@ -859,6 +882,25 @@ FLEET_RULES = {'Abbai Matriarchy': [],
                                      'damage',
                                      'drivers',
                                      'fore'],
+                        'see_also': ['Mass Driver']},
+                       {'title': 'Hunting Packs',
+                        'text': 'A Hunting Pack is a special Centauri squadron of up to six '
+                                'ships, none above Raid priority. Every ship in the pack '
+                                'must attack the same target in a turn, though ships in the '
+                                'same enemy squadron may be treated as that target. If at '
+                                'least one pack member has the target in range, every other '
+                                'member may increase the range of all its weapons by half '
+                                'when attacking that target.',
+                        'source': 'Powers & Principalities, Fleet Command, p. 4',
+                        'category': 'Fleet Rule',
+                        'keywords': ['Hunting Packs',
+                                     'Fleet Rule',
+                                     'Centauri',
+                                     'squadron',
+                                     'Raid',
+                                     'target',
+                                     'range',
+                                     'six ships'],
                         'see_also': []},
                        {'title': 'Fighter Replacements',
                         'text': 'Any ship carrying one or more Sentri flights may replace '

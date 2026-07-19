@@ -1,0 +1,16 @@
+
+# DFS runtime and audit artifacts
+__pycache__/
+*.py[cod]
+Application/Python/logs/
+Application/Python/output_before_reimport_*/
+Database/Data/dfs_before_*.db
+git_commit_review.txt
+git_staged_review.txt
+Application/Python/repair_stale_legacy_platforms.cmd
+
+# DFS local commit-preparation artifacts
+Application/Python/fleets/
+prepare_dfs_commit.cmd
+finalize_dfs_commit_staging.py
+git_final_review.txt

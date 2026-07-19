@@ -22,36 +22,75 @@ def get_id(cursor, table, id_column, name_column, name):
     return row[0]
 
 
-def delete_existing_ship(cursor, ship_name):
+def delete_existing_ship(cursor, ship_name, faction_id):
+    """Delete every existing copy of a platform for one faction only.
+
+    Platform display names are not globally unique in DFS. Shared platforms
+    such as Breaching Pods, Brivoki-class Advanced Warships, Halik-class
+    Frigates, Sunhawk Battlecruisers, Warbird Cruisers, and Hurr Gunships may
+    legitimately exist under more than one faction. Matching on both
+    ship_name and faction_id prevents one faction's import from deleting
+    another faction's platform.
+    """
     cursor.execute(
-        "SELECT ship_id FROM ships WHERE ship_name = ?;",
-        (ship_name,),
+        """
+        SELECT ship_id
+        FROM ships
+        WHERE ship_name = ?
+          AND faction_id = ?;
+        """,
+        (ship_name, faction_id),
     )
 
-    row = cursor.fetchone()
+    ship_ids = [row[0] for row in cursor.fetchall()]
 
-    if row is None:
-        return
-
-    ship_id = row[0]
-
-    cursor.execute(
-        "SELECT profile_id FROM acta_profiles WHERE ship_id = ?;",
-        (ship_id,),
-    )
-
-    profile_ids = [r[0] for r in cursor.fetchall()]
-
-    for profile_id in profile_ids:
-        cursor.execute("DELETE FROM weapons WHERE profile_id = ?;", (profile_id,))
-        cursor.execute("DELETE FROM traits WHERE profile_id = ?;", (profile_id,))
+    for ship_id in ship_ids:
         cursor.execute(
-            "DELETE FROM profile_fleet_lists WHERE profile_id = ?;",
-            (profile_id,),
+            "SELECT profile_id FROM acta_profiles WHERE ship_id = ?;",
+            (ship_id,),
         )
 
-    cursor.execute("DELETE FROM acta_profiles WHERE ship_id = ?;", (ship_id,))
-    cursor.execute("DELETE FROM ships WHERE ship_id = ?;", (ship_id,))
+        profile_ids = [row[0] for row in cursor.fetchall()]
+
+        for profile_id in profile_ids:
+            cursor.execute(
+                "DELETE FROM weapons WHERE profile_id = ?;",
+                (profile_id,),
+            )
+            cursor.execute(
+                "DELETE FROM traits WHERE profile_id = ?;",
+                (profile_id,),
+            )
+            cursor.execute(
+                "DELETE FROM profile_fleet_lists WHERE profile_id = ?;",
+                (profile_id,),
+            )
+
+        cursor.execute(
+            "DELETE FROM acta_profiles WHERE ship_id = ?;",
+            (ship_id,),
+        )
+        cursor.execute(
+            "DELETE FROM ships WHERE ship_id = ?;",
+            (ship_id,),
+        )
+
+
+def ensure_profile_columns(cursor):
+    """Add optional profile fields required by later official exceptions.
+
+    Existing DFS databases predate the fixed Crew Quality field.  Keeping the
+    migration here makes the importer safe for both existing and newly created
+    databases.
+    """
+    cursor.execute("PRAGMA table_info(acta_profiles);")
+    columns = {row[1] for row in cursor.fetchall()}
+
+    if "initiative" not in columns:
+        cursor.execute("ALTER TABLE acta_profiles ADD COLUMN initiative TEXT;")
+
+    if "crew_quality" not in columns:
+        cursor.execute("ALTER TABLE acta_profiles ADD COLUMN crew_quality TEXT;")
 
 
 def format_notes(notes):
@@ -95,6 +134,8 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    ensure_profile_columns(cursor)
+
     faction_id = get_id(
         cursor,
         "factions",
@@ -104,9 +145,9 @@ def main():
     )
 
     for legacy_name in legacy_ship_names:
-        delete_existing_ship(cursor, legacy_name)
+        delete_existing_ship(cursor, legacy_name, faction_id)
 
-    delete_existing_ship(cursor, ship_name)
+    delete_existing_ship(cursor, ship_name, faction_id)
 
     cursor.execute(
         """
@@ -148,12 +189,14 @@ def main():
                 hull,
                 damage,
                 crew,
+                crew_quality,
                 troops,
                 craft,
+                initiative,
                 in_service,
                 notes
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
             """,
             (
                 ship_id,
@@ -164,8 +207,10 @@ def main():
                 profile["hull"],
                 profile["damage"],
                 profile["crew"],
+                profile.get("crew_quality"),
                 profile["troops"],
                 profile["craft"],
+                profile.get("initiative"),
                 profile["in_service"],
                 format_notes(profile.get("notes", [])),
             ),

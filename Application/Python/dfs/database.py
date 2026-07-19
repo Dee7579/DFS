@@ -46,7 +46,8 @@ class Database:
                     s.file_name,
                     f.name AS faction,
                     fl.name AS fleet,
-                    fl.initiative,
+                    fl.initiative AS fleet_initiative,
+                    ap.initiative AS profile_initiative,
                     ap.profile_id,
                     ap.priority_level,
                     ap.speed,
@@ -54,6 +55,7 @@ class Database:
                     ap.hull,
                     ap.damage,
                     ap.crew,
+                    ap.crew_quality,
                     ap.troops,
                     ap.craft,
                     ap.in_service,
@@ -83,9 +85,14 @@ class Database:
                 hull=row["hull"],
                 damage=row["damage"],
                 crew=row["crew"],
+                crew_quality=row["crew_quality"] or "",
                 troops=row["troops"],
                 craft=row["craft"],
-                initiative=initiative_override if initiative_override else row["initiative"],
+                initiative=(
+                    initiative_override
+                    if initiative_override not in (None, "")
+                    else (row["profile_initiative"] or row["fleet_initiative"] or "")
+                ),
                 in_service=row["in_service"],
             )
 
@@ -106,7 +113,8 @@ class Database:
                     ap.profile_id,
                     s.ship_name,
                     fl.name AS fleet_name,
-                    fl.initiative AS fleet_initiative
+                    fl.initiative AS fleet_initiative,
+                    ap.initiative AS profile_initiative
                 FROM ships s
                 JOIN acta_profiles ap ON s.ship_id = ap.ship_id
                 JOIN profile_fleet_lists pfl ON ap.profile_id = pfl.profile_id
@@ -123,7 +131,11 @@ class Database:
             ship = self.get_ship_by_profile(
                 row["profile_id"],
                 fleet_override=row["fleet_name"],
-                initiative_override=row["fleet_initiative"],
+                initiative_override=(
+                    row["profile_initiative"]
+                    if row["profile_initiative"] not in (None, "")
+                    else row["fleet_initiative"]
+                ),
             )
 
             if ship is not None:

@@ -4,6 +4,7 @@ FILE_NAME = 'brikorta_class_light_carrier'
 FACTION_NAME = 'Brakiri Syndicracy'
 
 LEGACY_SHIP_NAMES = [
+    'Brikorta-class Light Carrier',
 ]
 
 PROFILES = [

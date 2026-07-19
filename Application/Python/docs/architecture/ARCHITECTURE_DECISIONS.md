@@ -10,7 +10,7 @@
 
 **Decision:** The GUI remains a thin presentation layer.
 
-**Reason:** Fleet Builder, Game Mode, Campaign Manager, and future systems must reuse identical rules.
+**Reason:** Fleet Builder, Tactical Assistant, Campaign Manager, and future systems must reuse identical rules.
 
 ## ADR-003 — Game-system identity is dynamic
 

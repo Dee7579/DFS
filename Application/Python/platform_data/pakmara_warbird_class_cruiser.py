@@ -18,6 +18,5 @@ PROFILES = [{'fleet': "pak'ma'ra",
   'in_service': '2241+',
   'traits': ['Agile', 'Anti-Fighter 4', 'Atmospheric', 'Dodge 5+'],
   'notes': [],
-  'weapons': [('Heavy Plasma Cannon', '15', 'F', 6, 'AP, Double Damage'),
-              ('Plasma Cannon', '10', 'P', 6, 'AP'),
-              ('Plasma Cannon', '10', 'S', 6, 'AP')]}]
+  'weapons': [('Plasma Cannon', '10', 'B', 8, 'AP'),
+              ('Plasma Torpedo', '25', 'F', 2, 'AP, Slow-Loading, Triple Damage')]}]

@@ -4,6 +4,7 @@ FILE_NAME = 'marata_class_diplomatic_transport'
 FACTION_NAME = 'Abbai Matriarchy'
 
 LEGACY_SHIP_NAMES = [
+    'Marata-class Diplomatic Transport',
 ]
 
 PROFILES = [

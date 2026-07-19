@@ -356,7 +356,7 @@ QTableView::item, QTableWidget::item {
     border-bottom: 1px solid #334155;
 }
 QTableView::item:selected, QTableWidget::item:selected, QListView::item:selected {
-    background: #164e63;
+    background: #243447;
     color: #ffffff;
 }
 QHeaderView::section {

@@ -1,9 +1,10 @@
-SHIP_NAME = 'Ximm-class Close Escort'
-SHIP_CLASS = 'Ximm-class Close Escort'
+SHIP_NAME = 'Ximm-class Close Escort (Xorr variant)'
+SHIP_CLASS = 'Ximm-class Close Escort (Xorr variant)'
 FILE_NAME = 'ximm_class_close_escort'
 FACTION_NAME = 'Vree Conglomerate'
 
 LEGACY_SHIP_NAMES = [
+    'Ximm-class Close Escort',
 ]
 
 PROFILES = [

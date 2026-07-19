@@ -297,7 +297,7 @@ def estimate_rules_back_height(
     include_fleet_rules: bool,
 ) -> float:
     content_width = page_width - CONTENT_MARGIN * 2
-    current_y = 45 + 58
+    current_y = 45 + 65
 
     if include_fleet_rules:
         current_y += _single_section_height(
@@ -330,6 +330,7 @@ def _draw_header(
     ship,
     y: float,
     sheet_type: str,
+    vessel_name: str = "",
 ) -> float:
     era = str(ship.fleet).replace(str(ship.faction), "").replace("-", "").strip()
     header_text = (
@@ -356,8 +357,21 @@ def _draw_header(
     d.text(right_x, y + 21, f"Initiative: {ship.initiative}", 8.7, True, "end")
     d.text(right_x, y + 36, f"{sheet_type} Rules Reference", 7.6, True, "end")
 
-    d.line(FRAME_MARGIN, y + 48, d.page_width - FRAME_MARGIN, y + 48)
-    return y + 58
+    # Keep the back-page vessel field visually identical to the front sheet.
+    # It is always present so unnamed laminated sheets can still be completed
+    # by hand later.
+    name_text = str(vessel_name).strip().upper()
+    label_text = f"SHIP NAME: {name_text}" if name_text else "SHIP NAME"
+    label_size = 6.8 if not name_text else 8.2
+    line_end = min(414, d.page_width - 198)
+    max_name_width = max(80, line_end - 24)
+    while label_size > 6.0 and stringWidth(label_text, "Helvetica-Bold", label_size) > max_name_width:
+        label_size -= 0.4
+    d.text(24, y + 41, label_text, label_size, True)
+    d.line(80, y + 42, line_end, y + 42)
+
+    d.line(FRAME_MARGIN, y + 55, d.page_width - FRAME_MARGIN, y + 55)
+    return y + 65
 
 
 def _draw_inline_entry(
@@ -488,6 +502,7 @@ def draw_rules_back(
     include_fleet_rules: bool = True,
     sheet_type: str = "Ship",
     page_height: float | None = None,
+    vessel_name: str = "",
 ) -> None:
     required_height = estimate_rules_back_height(
         ship,
@@ -538,7 +553,7 @@ def draw_rules_back(
         WHITE,
     )
 
-    current_y = _draw_header(d, ship, 45, sheet_type)
+    current_y = _draw_header(d, ship, 45, sheet_type, vessel_name)
     content_width = page_width - CONTENT_MARGIN * 2
 
     if include_fleet_rules:

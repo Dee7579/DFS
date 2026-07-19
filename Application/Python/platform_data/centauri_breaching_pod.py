@@ -1,10 +1,10 @@
-SHIP_NAME = 'Centauri Breaching Pod'
-SHIP_CLASS = 'Centauri Breaching Pod'
+SHIP_NAME = 'Breaching Pod'
+SHIP_CLASS = 'Breaching Pod'
 FILE_NAME = 'Centauri_Breaching_Pod'
 FACTION_NAME = "Centauri Republic"
 
 LEGACY_SHIP_NAMES = [
-    'Breaching Pod',
+    'Centauri Breaching Pod',
 ]
 
 PROFILES = [

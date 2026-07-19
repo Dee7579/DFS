@@ -1,6 +1,0 @@
-DFS 2.1.0-alpha2 — Platform Explorer Complete
-
-Adds Codex navigation, related craft, favorites, history, comparison, dynamic
-splash branding, tests, changelog, and design notes.
-
-Extract into the existing Python folder and allow updated files to replace prior versions.

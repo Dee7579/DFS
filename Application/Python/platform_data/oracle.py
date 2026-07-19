@@ -4,6 +4,7 @@ FILE_NAME = 'Oracle_Scout_Cruiser'
 FACTION_NAME = "Earth Alliance"
 
 LEGACY_SHIP_NAMES = [
+    'Oracle Scout',
     'Oracle Scout Cruiser',
 ]
 

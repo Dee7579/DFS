@@ -4,6 +4,7 @@ FILE_NAME = 'takata_class_mine_cruiser'
 FACTION_NAME = 'Brakiri Syndicracy'
 
 LEGACY_SHIP_NAMES = [
+    'Takata-class Mine Cruiser',
 ]
 
 PROFILES = [

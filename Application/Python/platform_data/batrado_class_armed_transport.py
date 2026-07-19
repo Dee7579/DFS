@@ -4,6 +4,7 @@ FILE_NAME = 'batrado_class_armed_transport'
 FACTION_NAME = 'Brakiri Syndicracy'
 
 LEGACY_SHIP_NAMES = [
+    'Batrado-class Armed Transport',
 ]
 
 PROFILES = [

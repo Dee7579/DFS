@@ -1,10 +1,10 @@
-SHIP_NAME = 'Shadow Fighter Flight'
-SHIP_CLASS = 'Shadow Fighter Flight'
+SHIP_NAME = 'Shadow Fighter'
+SHIP_CLASS = 'Shadow Fighter'
 FILE_NAME = 'Shadow_Fighter'
 FACTION_NAME = 'The Shadows'
 
 LEGACY_SHIP_NAMES = [
-    'Shadow Fighter',
+    'Shadow Fighter Flight',
     'Shadow Fighter Wing',
 ]
 
@@ -24,6 +24,8 @@ PROFILES = [
         'notes': [
             'Dogfight: +0',
             'Wing of Two Flights',
+            'Shadow Fighters cannot be jammed.',
+            'Shields work against Anti-Fighter, Advanced Anti-Fighter, and in dogfights. Ignore the first successful Anti-Fighter result; in a dogfight, the flight must be defeated twice to be destroyed.',
         ],
         'weapons': [
             ('Polarity Cannon', '2', 'T', 3, 'AP, Double Damage'),

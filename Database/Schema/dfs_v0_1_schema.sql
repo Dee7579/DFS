@@ -30,6 +30,7 @@ CREATE TABLE acta_profiles (
     hull INTEGER,
     damage TEXT,
     crew TEXT,
+    crew_quality TEXT,
     troops TEXT,
     craft TEXT,
     initiative TEXT,

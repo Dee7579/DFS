@@ -36,7 +36,13 @@ class SQLitePlatformRepository:
             params.extend((token, token))
 
         if filters.faction_ids:
-            clauses.append(f"s.faction_id IN ({self._placeholders(filters.faction_ids)})")
+            marks = self._placeholders(filters.faction_ids)
+            clauses.append(
+                f"(s.faction_id IN ({marks}) OR EXISTS ("
+                "SELECT 1 FROM acta_profiles apx JOIN fleet_lists flx ON flx.fleet_list_id = apx.fleet_list_id "
+                f"WHERE apx.ship_id = s.ship_id AND flx.faction_id IN ({marks})))"
+            )
+            params.extend(filters.faction_ids)
             params.extend(filters.faction_ids)
 
         if filters.fleet_list_ids:
@@ -198,6 +204,7 @@ class SQLitePlatformRepository:
                 damage=str(row["damage"] or ""), crew=str(row["crew"] or ""),
                 troops=str(row["troops"] or ""), craft=str(row["craft"] or ""),
                 in_service=str(row["in_service"] or ""), source_book=str(row["source_book"] or ""),
+                crew_quality=str(row["crew_quality"] or ""),
                 notes=tuple(line.strip() for line in str(row["notes"] or "").splitlines() if line.strip()),
                 traits=tuple(traits_by_profile[row["profile_id"]]),
                 weapons=order_weapons(weapons_by_profile[row["profile_id"]]),
@@ -211,6 +218,64 @@ class SQLitePlatformRepository:
             faction_name=ship_row["faction_name"], profiles=profiles,
         )
 
+
+    def get_profile_by_id(self, profile_id: int) -> PlatformProfile | None:
+        """Load one fleet-list profile for Fleet Manager and Tactical Assistant."""
+        with self._connections.connect() as connection:
+            row = connection.execute(
+                """
+                SELECT ap.*, fl.name AS fleet_name, COALESCE(fl.initiative, '') AS fleet_initiative
+                FROM acta_profiles ap
+                JOIN fleet_lists fl ON fl.fleet_list_id = ap.fleet_list_id
+                WHERE ap.profile_id = ?
+                """,
+                (profile_id,),
+            ).fetchone()
+            if row is None:
+                return None
+            traits = tuple(
+                item["trait"]
+                for item in connection.execute(
+                    "SELECT trait FROM traits WHERE profile_id = ? ORDER BY sort_order, trait",
+                    (profile_id,),
+                )
+            )
+            weapons = []
+            for item in connection.execute(
+                """
+                SELECT name, COALESCE(range_value, '') AS range_value,
+                       COALESCE(arc, '') AS arc, COALESCE(attack_dice, '') AS attack_dice,
+                       COALESCE(traits, '') AS traits, COALESCE(sort_order, 0) AS sort_order
+                FROM weapons WHERE profile_id = ? ORDER BY sort_order, weapon_id
+                """,
+                (profile_id,),
+            ):
+                weapons.append(WeaponDetail(
+                    name=item["name"], range_value=item["range_value"], arc=item["arc"],
+                    attack_dice=str(item["attack_dice"]), traits=item["traits"],
+                    sort_order=item["sort_order"],
+                ))
+        return PlatformProfile(
+            profile_id=row["profile_id"],
+            fleet_list_id=row["fleet_list_id"],
+            fleet_name=row["fleet_name"],
+            initiative=str(row["initiative"] or row["fleet_initiative"] or ""),
+            priority_level=str(row["priority_level"] or ""),
+            speed=str(row["speed"] if row["speed"] is not None else ""),
+            turn=str(row["turn"] or ""),
+            hull=str(row["hull"] if row["hull"] is not None else ""),
+            damage=str(row["damage"] or ""),
+            crew=str(row["crew"] or ""),
+            troops=str(row["troops"] or ""),
+            craft=str(row["craft"] or ""),
+            in_service=str(row["in_service"] or ""),
+            source_book=str(row["source_book"] or ""),
+            crew_quality=str(row["crew_quality"] or ""),
+            notes=tuple(line.strip() for line in str(row["notes"] or "").splitlines() if line.strip()),
+            traits=traits,
+            weapons=order_weapons(weapons),
+        )
+
     def _options(self, sql: str, params: tuple[Any, ...] = ()) -> list[FilterOption]:
         with self._connections.connect() as connection:
             rows = connection.execute(sql, params).fetchall()
@@ -218,8 +283,12 @@ class SQLitePlatformRepository:
 
     def list_factions(self) -> list[FilterOption]:
         return self._options("""
-            SELECT f.faction_id AS id, f.name AS label, COUNT(DISTINCT s.ship_id) AS total
-            FROM factions f LEFT JOIN ships s ON s.faction_id = f.faction_id
+            SELECT f.faction_id AS id, f.name AS label,
+                   COUNT(DISTINCT COALESCE(s.ship_id, ap.ship_id)) AS total
+            FROM factions f
+            LEFT JOIN ships s ON s.faction_id = f.faction_id
+            LEFT JOIN fleet_lists fl ON fl.faction_id = f.faction_id
+            LEFT JOIN acta_profiles ap ON ap.fleet_list_id = fl.fleet_list_id
             GROUP BY f.faction_id, f.name ORDER BY f.name COLLATE NOCASE
         """)
 

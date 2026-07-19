@@ -1,4 +1,5 @@
 from reportlab.lib import colors
+from reportlab.pdfbase.pdfmetrics import stringWidth
 
 
 ARC_ORDER = {
@@ -79,12 +80,44 @@ def get_shields_from_traits(ship):
     return None
 
 
+def wrapped_line_count(text, max_width, font_size):
+    words = str(text).split()
+    if not words:
+        return 0
+
+    lines = 0
+    line = ""
+    for word in words:
+        test_line = f"{line} {word}".strip()
+        if stringWidth(test_line, "Helvetica", font_size) <= max_width:
+            line = test_line
+        else:
+            lines += 1
+            line = word
+
+    if line:
+        lines += 1
+    return lines
+
+
+def traits_notes_box_height(ship):
+    trait_lines = wrapped_line_count(", ".join(ship.traits), 180, 7.2)
+    trait_needed = 24 + (trait_lines * 10) + 8
+
+    note_needed = 24
+    for note in ship.notes:
+        note_needed += (wrapped_line_count(note, 344, 6.8) * 9) + 2
+    note_needed += 8
+
+    return max(62, trait_needed, note_needed)
+
+
 def estimate_page_height(ship):
     weapon_rows = len(ship.weapons)
     weapon_height = 12 + 13 + (weapon_rows * 13.3)
 
     header_stats_height = 120
-    traits_notes_height = 72
+    traits_notes_height = traits_notes_box_height(ship) + 10
 
     damage_rows = track_rows(ship.damage)
     crew_rows = track_rows(ship.crew)

@@ -71,6 +71,7 @@ class PlatformProfile:
     craft: str
     in_service: str
     source_book: str
+    crew_quality: str = ""
     notes: tuple[str, ...] = ()
     traits: tuple[str, ...] = ()
     weapons: tuple[WeaponDetail, ...] = ()

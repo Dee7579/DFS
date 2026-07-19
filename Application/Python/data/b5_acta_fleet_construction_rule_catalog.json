@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "rule_id": "B5-LEAGUE-ALL-001",
+      "fleet": "Allied League of Non-Aligned Worlds",
+      "name": "Permitted component fleet lists",
+      "rule_family": "allowed_fleet_lists",
+      "category": "alliance",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Combined Fleets of the Non-Aligned Worlds",
+        "page": 6,
+        "edition": "Second Edition"
+      },
+      "summary": "An Allied League fleet may draw ships only from the listed League, Raiders, and selected Other Ships lists.",
+      "remedy_hint": "Remove ships from an unlisted fleet list.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-LEAGUE-FTR-002",
+      "fleet": "Allied League of Non-Aligned Worlds",
+      "name": "No cross-fleet carrier loading",
+      "rule_family": "carrier_craft_affinity",
+      "category": "replacement",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Combined Fleets of the Non-Aligned Worlds",
+        "page": 6,
+        "edition": "Second Edition"
+      },
+      "summary": "Fighters from one component fleet list may not be placed in a carrier from another component fleet list.",
+      "remedy_hint": "Return the craft to a carrier from its own fleet list or restore the carrier's standard craft.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-LEAGUE-FTR-003",
+      "fleet": "Allied League of Non-Aligned Worlds",
+      "name": "Ship prerequisite for purchased fighters",
+      "rule_family": "required_platform",
+      "category": "replacement",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Combined Fleets of the Non-Aligned Worlds",
+        "page": 6,
+        "edition": "Second Edition"
+      },
+      "summary": "Separately purchased fighters require at least one ship from the same component fleet list.",
+      "remedy_hint": "Add a ship from the fighter's fleet list or remove the purchased fighter wing.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-LEAGUE-DATE-004",
+      "fleet": "Allied League of Non-Aligned Worlds",
+      "name": "Combined League date limit",
+      "rule_family": "fleet_year_limit",
+      "category": "fleet",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Combined League Fleets and Army of Light",
+        "page": 11,
+        "edition": ""
+      },
+      "summary": "Combined League fleets may include only ships whose In Service Date extends no later than 2259.",
+      "remedy_hint": "Choose ships valid for 2259 or earlier, or use an Army of Light fleet for a later battle.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-AOL-LIST-001",
+      "fleet": "Army of Light",
+      "name": "Permitted fleet lists",
+      "rule_family": "allowed_fleet_lists",
+      "category": "alliance",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Army of Light",
+        "page": 11,
+        "edition": ""
+      },
+      "summary": "Army of Light fleets may draw only from the published list of member fleet lists.",
+      "remedy_hint": "Remove ships from an unlisted fleet list.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-AOL-PLAT-002",
+      "fleet": "Army of Light",
+      "name": "Permitted platforms",
+      "rule_family": "allowed_platforms",
+      "category": "platform",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Army of Light",
+        "page": 11,
+        "edition": ""
+      },
+      "summary": "Only the specifically listed ships, fighters, and variants may be selected.",
+      "remedy_hint": "Replace the platform with one named in the Army of Light roster.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-AOL-MIX-003",
+      "fleet": "Army of Light",
+      "name": "Minimum two component fleets",
+      "rule_family": "minimum_distinct_fleets",
+      "category": "fleet",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Army of Light",
+        "page": 11,
+        "edition": ""
+      },
+      "summary": "An Army of Light must include ships from at least two different fleet lists.",
+      "remedy_hint": "Add a qualifying ship from a second permitted fleet list.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-ISA-ALL-001",
+      "fleet": "Interstellar Alliance",
+      "name": "Allied contingent",
+      "rule_family": "allied_contingent",
+      "category": "alliance",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "ISA Fleet Special Rules - Allied Fleets",
+        "page": 82,
+        "edition": "Second Edition"
+      },
+      "summary": "Up to one scenario-level FAP may be spent on one permitted allied fleet list.",
+      "remedy_hint": "Reduce allied expenditure, or remove ships from additional allied fleet lists.",
+      "status": "implemented",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-ISA-DATE-002",
+      "fleet": "Interstellar Alliance",
+      "name": "Fleet unavailable before 2262",
+      "rule_family": "fleet_year_minimum",
+      "category": "fleet",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "ISA Fleet Special Rules - In Service Dates",
+        "page": 82,
+        "edition": "Second Edition"
+      },
+      "summary": "The ISA fleet list may not be used in scenarios set before 2262.",
+      "remedy_hint": "Set the scenario year to 2262 or later, or choose another fleet list.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-RAID-ALL-001",
+      "fleet": "Raiders",
+      "name": "Allied contingent",
+      "rule_family": "allied_contingent",
+      "category": "alliance",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Raiders Fleet Special Rules - Allied Fleets",
+        "page": 127,
+        "edition": "Second Edition"
+      },
+      "summary": "Up to one scenario-level FAP may be spent on one permitted League allied fleet list.",
+      "remedy_hint": "Reduce allied expenditure, or remove ships from additional allied fleet lists.",
+      "status": "implemented",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-PSI-ALL-001",
+      "fleet": "Psi Corps",
+      "name": "EarthForce requisition",
+      "rule_family": "allied_contingent",
+      "category": "alliance",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Psi Corps Fleet Special Rules - EarthForce Requisition",
+        "page": 149,
+        "edition": "Second Edition"
+      },
+      "summary": "Up to two scenario-level FAP may be spent on ships from one Earth Alliance fleet list.",
+      "remedy_hint": "Reduce Earth Alliance expenditure to the permitted allowance.",
+      "status": "implemented",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-GAIM-QUEEN-001",
+      "fleet": "Gaim Intelligence",
+      "name": "At least one Queen",
+      "rule_family": "minimum_fleet_requirement",
+      "category": "fleet",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Revised Gaim Intelligence Fleet Special Rules - The Queens",
+        "page": 19,
+        "edition": ""
+      },
+      "summary": "Every revised Gaim fleet must contain at least one Queen ship.",
+      "remedy_hint": "Add any Queen ship or remove all non-Queen choices and rebuild the fleet.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-GAIM-QUEEN-002",
+      "fleet": "Gaim Intelligence",
+      "name": "One highest-priority Ruling Queen",
+      "rule_family": "maximum_quantity_dynamic",
+      "category": "fleet",
+      "source": {
+        "title": "Powers & Principalities",
+        "section": "Revised Gaim Intelligence Fleet Special Rules - The Queens",
+        "page": 19,
+        "edition": ""
+      },
+      "summary": "Only one Queen of the highest Priority Level represented in the fleet may be present; lower-priority Queens are unrestricted.",
+      "remedy_hint": "Remove duplicate Queens at the fleet's highest represented Queen priority.",
+      "status": "catalogued",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-ANCIENT-UNQ-001",
+      "fleet": "The Ancients",
+      "name": "Each Ancient is unique",
+      "rule_family": "unique_platform",
+      "category": "platform",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Using the Ancients",
+        "page": 139,
+        "edition": "Second Edition"
+      },
+      "summary": "Only one example of each Ancient platform may be selected.",
+      "remedy_hint": "Reduce the fleet to one copy of each Ancient platform.",
+      "status": "implemented",
+      "notes": ""
+    },
+    {
+      "rule_id": "B5-ANCIENT-DATE-002",
+      "fleet": "The Ancients",
+      "name": "Ancients depart in 2261",
+      "rule_family": "fleet_year_maximum",
+      "category": "fleet",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Using the Ancients",
+        "page": 139,
+        "edition": "Second Edition"
+      },
+      "summary": "The five Ancient vessels disappear during the early part of 2261.",
+      "remedy_hint": "Use the fleet only in a suitably dated special scenario.",
+      "status": "review",
+      "notes": "The text is narrative rather than a precise month boundary; activation should present an advisory unless scenario metadata is expanded."
+    },
+    {
+      "rule_id": "B5-DRAKH-HGR-001",
+      "fleet": "The Drakh",
+      "name": "Huge Hangar carried-ship capacity",
+      "rule_family": "hangar_capacity",
+      "category": "replacement",
+      "source": {
+        "title": "A Call to Arms: Second Edition Fleet Lists",
+        "section": "Drakh Fleet Special Rules - Huge Hangars",
+        "page": 143,
+        "edition": "Second Edition"
+      },
+      "summary": "Light Raiders, Heavy Raiders, and Scouts consume Huge Hangar slots; larger Amu-carried ships consume two or eight slots as printed.",
+      "remedy_hint": "Reduce carried craft or replace them with craft that fit the remaining Huge Hangar capacity.",
+      "status": "catalogued",
+      "notes": ""
+    }
+  ]
+}

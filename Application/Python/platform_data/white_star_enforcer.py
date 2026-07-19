@@ -1,10 +1,10 @@
-SHIP_NAME = "White Star Enforcer"
-SHIP_CLASS = "White Star Enforcer"
+SHIP_NAME = "White Star Enforcer (White Star Gunship Variant)"
+SHIP_CLASS = "White Star Enforcer (White Star Gunship Variant)"
 FILE_NAME = "White_Star_Enforcer"
 FACTION_NAME = "Interstellar Alliance"
 
 LEGACY_SHIP_NAMES = [
-    "White Star Enforcer (White Star Gunship Variant)",
+    "White Star Enforcer",
 ]
 
 PROFILES = [

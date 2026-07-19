@@ -69,7 +69,7 @@ class ACTAAncientGenerator:
     def __init__(self, filename):
         self.filename = filename
 
-    def generate_ship_sheet(self, ship):
+    def generate_ship_sheet(self, ship, vessel_name: str = ""):
         front_height = self.estimate_page_height(ship)
         back_height = estimate_rules_back_height(
             ship,
@@ -83,7 +83,7 @@ class ACTAAncientGenerator:
 
         self.draw_frame(d, page_height)
         current_y = 45
-        current_y = self.draw_header(d, ship, current_y)
+        current_y = self.draw_header(d, ship, current_y, vessel_name)
         current_y = self.draw_stat_boxes(d, ship, current_y)
         current_y = self.draw_weapons(d, ship, current_y)
         current_y = self.draw_traits_and_notes(d, ship, current_y)
@@ -103,12 +103,13 @@ class ACTAAncientGenerator:
             include_fleet_rules=True,
             sheet_type="Ancient",
             page_height=page_height,
+            vessel_name=vessel_name,
         )
 
         c.save()
 
     def estimate_page_height(self, ship):
-        current_y = 45 + 48 + 37
+        current_y = 45 + 65 + 37
         weapon_rows = max(len(ship.weapons), 1)
         current_y += 13 + 12 + weapon_rows * 12 + SECTION_GAP
 
@@ -149,7 +150,7 @@ class ACTAAncientGenerator:
         )
         d.text(PAGE_WIDTH - 24, 27.5, "Ancient Sheet", 7.2, True, "end", WHITE)
 
-    def draw_header(self, d, ship, y):
+    def draw_header(self, d, ship, y, vessel_name: str = ""):
         d.text(24, y, ship.faction.upper(), 11.2, True)
         self.draw_smart_title(d, 24, y + 22, ship.name)
         d.text(PAGE_WIDTH - 24, y, ship.priority.upper(), 11.5, True, "end")
@@ -162,8 +163,16 @@ class ACTAAncientGenerator:
             "end",
         )
         d.text(PAGE_WIDTH - 24, y + 36, "Crew Quality: 7", 8.2, True, "end")
-        d.line(FRAME_X, y + 48, PAGE_WIDTH - FRAME_X, y + 48)
-        return y + 58
+        d.text(24, y + 41, "SHIP NAME", 6.8, True)
+        d.line(80, y + 42, 414, y + 42)
+        if vessel_name:
+            name_text = str(vessel_name).strip().upper()
+            name_size = 8.2
+            while name_size > 6.0 and d.c.stringWidth(name_text, "Helvetica-Bold", name_size) > 328:
+                name_size -= 0.4
+            d.text(84, y + 39.5, name_text, name_size, True)
+        d.line(FRAME_X, y + 55, PAGE_WIDTH - FRAME_X, y + 55)
+        return y + 65
 
     def draw_smart_title(self, d, x, y, title):
         title = str(title).upper()

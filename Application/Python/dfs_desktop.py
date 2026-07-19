@@ -19,7 +19,7 @@ from dfs.bootstrap import build_application_context
 from dfs.framework.settings_service import SettingsService
 from dfs.ui.main_window import MainWindow
 
-APP_VERSION = "2.2.0-alpha1"
+APP_VERSION = "2.4.0-alpha23"
 
 
 def _make_splash(system_name: str) -> QSplashScreen:

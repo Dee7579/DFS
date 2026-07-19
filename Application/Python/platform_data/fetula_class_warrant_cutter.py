@@ -4,6 +4,7 @@ FILE_NAME = 'fetula_class_warrant_cutter'
 FACTION_NAME = 'Abbai Matriarchy'
 
 LEGACY_SHIP_NAMES = [
+    'Fetula-class Warrant Cutter',
 ]
 
 PROFILES = [
@@ -17,13 +18,14 @@ PROFILES = [
         'crew': '13/3',
         'troops': 1,
         'craft': 'None',
-        'in_service': '2261+',
-        'traits': ['Anti-Fighter 2', 'Escort', 'Shields 8/2'],
+        'in_service': '2180+',
+        'traits': ['Anti-Fighter 2', 'Shields 10/2'],
         'notes': [],
         'weapons': [
             ('Quad Particle Array', '8', 'F', 8, 'Twin-Linked'),
-            ('Quad Particle Array', '8', 'P', 6, 'Twin-Linked'),
-            ('Quad Particle Array', '8', 'S', 6, 'Twin-Linked'),
+            ('Quad Particle Array', '8', 'P', 8, 'Twin-Linked'),
+            ('Quad Particle Array', '8', 'S', 8, 'Twin-Linked'),
+            ('Quad Particle Array', '8', 'A', 8, 'Twin-Linked'),
         ],
     },
 ]

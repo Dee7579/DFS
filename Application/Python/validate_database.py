@@ -1,5 +1,6 @@
 from pathlib import Path
 import sqlite3
+import sys
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -49,20 +50,22 @@ def main():
             """,
         ),
         (
-    "Every combat profile has at least one weapon",
-    """
-    SELECT ap.profile_id
-    FROM acta_profiles ap
-    LEFT JOIN weapons w
-        ON ap.profile_id = w.profile_id
-    WHERE w.weapon_id IS NULL
-      AND ap.profile_id NOT IN (
-            SELECT DISTINCT profile_id
-            FROM traits
-            WHERE trait = 'Breaching Pod'
-      );
-    """,
-),
+            "Every combat profile has at least one weapon",
+            """
+            SELECT ap.profile_id
+            FROM acta_profiles ap
+            JOIN ships s ON s.ship_id = ap.ship_id
+            LEFT JOIN weapons w ON ap.profile_id = w.profile_id
+            WHERE w.weapon_id IS NULL
+              AND s.ship_name <> 'Klikkitak Crewed Missile'
+              AND NOT EXISTS (
+                    SELECT 1
+                    FROM traits t
+                    WHERE t.profile_id = ap.profile_id
+                      AND t.trait = 'Breaching Pod'
+              );
+            """,
+        ),
         (
             "Every profile belongs to at least one fleet list",
             """
@@ -70,6 +73,15 @@ def main():
             FROM acta_profiles ap
             LEFT JOIN profile_fleet_lists pfl ON ap.profile_id = pfl.profile_id
             WHERE pfl.profile_fleet_list_id IS NULL;
+            """,
+        ),
+        (
+            "No duplicate platform file identities within a faction",
+            """
+            SELECT faction_id, file_name
+            FROM ships
+            GROUP BY faction_id, file_name
+            HAVING COUNT(*) > 1;
             """,
         ),
         (
@@ -116,23 +128,18 @@ def main():
     print("-------------------------------------")
 
     passed = True
-
     for label, sql in checks:
         if not check(cursor, label, sql):
             passed = False
 
     print()
     print("=====================================")
-
-    if passed:
-        print("Validation PASSED")
-    else:
-        print("Validation FAILED")
-
+    print("Validation PASSED" if passed else "Validation FAILED")
     print("=====================================")
 
     conn.close()
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

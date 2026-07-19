@@ -23,9 +23,7 @@ PROFILES = [
         'weapons': [
             ('Molecular Slicer Beam', '24', 'B', 6, 'Beam, Triple Damage'),
             ('Light Multi-Phased Cutter', '10', 'F', 8, 'Mini-Beam, Twin-Linked'),
-            ('Heavy Phasing Pulse', '12', 'P', 12, 'AP, Double Damage'),
             ('Light Multi-Phased Cutter', '10', 'P', 12, 'Mini-Beam, Twin-Linked'),
-            ('Heavy Phasing Pulse', '12', 'S', 12, 'AP, Double Damage'),
             ('Light Multi-Phased Cutter', '10', 'S', 6, 'Mini-Beam, Twin-Linked'),
             ('Light Multi-Phased Cutter', '10', 'A', 12, 'Mini-Beam, Twin-Linked'),
             ('Molecular Slicer Beam', '24', 'B(a)', 4, 'Beam, Triple Damage'),

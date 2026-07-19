@@ -13,7 +13,7 @@ from dfs.bootstrap import ApplicationServices
 from dfs.domain.catalog import PlatformFilter
 
 
-APP_VERSION = "2.1.0-alpha2"
+APP_VERSION = "2.4.0-alpha23"
 
 
 class AboutDialog(QDialog):

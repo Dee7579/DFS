@@ -1,10 +1,10 @@
-SHIP_NAME = 'Shadow Stalker'
+SHIP_NAME = 'Shadow Stalker (Shadow Scout Variant)'
 SHIP_CLASS = 'Shadow Stalker (Shadow Scout Variant)'
 FILE_NAME = 'Shadow_Stalker'
 FACTION_NAME = 'The Shadows'
 
 LEGACY_SHIP_NAMES = [
-    'Shadow Stalker (Shadow Scout Variant)',
+    'Shadow Stalker',
 ]
 
 PROFILES = [

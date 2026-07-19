@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "game_system": "b5_acta",
+  "authority_order": ["Fleet Lists", "FAQ", "Powers & Principalities"],
+  "categories": {
+    "core": {"status": "implemented"},
+    "fighter_replacements": {"status": "implemented"},
+    "missile_variants": {"status": "implemented"},
+    "allied_contingents": {"status": "implemented"},
+    "combined_league": {"status": "catalogued"},
+    "purchase_groups": {"status": "planned"},
+    "platform_limits": {"status": "planned"},
+    "fleet_composition": {"status": "planned"},
+    "faq_overrides": {"status": "catalogued"},
+    "p_and_p_overrides": {"status": "catalogued"}
+  },
+  "rules": [
+    {"id":"CORE_PRIORITY_BUDGET","category":"core","status":"implemented","source":"Powers & Principalities","section":"Fleet Allocation Point Breakdowns"},
+    {"id":"CORE_YEAR_AVAILABILITY","category":"core","status":"implemented","source":"Fleet Lists","section":"In Service Dates"},
+    {"id":"CORE_FIGHTER_REPLACEMENT_ALLOCATION","category":"fighter_replacements","status":"implemented","source":"Fleet Lists"},
+    {"id":"EA_MISSILE_VARIANTS","category":"missile_variants","status":"implemented","source":"Fleet Lists","section":"Missile Variants"},
+    {"id":"ISA_ALLIED_FLEETS","category":"allied_contingents","status":"implemented","source":"Fleet Lists","section":"ISA Fleet Special Rules — Allied Fleets"},
+    {"id":"RAIDERS_ALLIED_FLEETS","category":"allied_contingents","status":"implemented","source":"Fleet Lists","section":"Raiders Fleet Special Rules — Allied Fleets"},
+    {"id":"ALLIED_LEAGUE_COMBINED_FLEET","category":"combined_league","status":"catalogued","source":"Fleet Lists","section":"Combined Fleets of the Non-Aligned Worlds"},
+    {"id":"ALLIED_LEAGUE_FIGHTER_PARENT","category":"combined_league","status":"catalogued","source":"Fleet Lists","section":"Combined Fleets of the Non-Aligned Worlds"},
+    {"id":"ALLIED_LEAGUE_HANGAR_RESTRICTION","category":"combined_league","status":"catalogued","source":"Fleet Lists","section":"Combined Fleets of the Non-Aligned Worlds"},
+    {"id":"OTHER_SHIPS_COMBINED_LEAGUE","category":"combined_league","status":"catalogued","source":"Fleet Lists","section":"Other Ships — Military Ships"}
+  ]
+}

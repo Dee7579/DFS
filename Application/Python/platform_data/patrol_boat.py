@@ -9,17 +9,20 @@ LEGACY_SHIP_NAMES = [
 PROFILES = [
     {
         'fleet': 'Others',
-        'priority': 'Patrol',
-        'speed': 10,
+        'priority': '2 CFP',
+        'speed': 8,
         'turn': '2/45°',
-        'hull': 4,
-        'damage': '10/2',
-        'crew': '10/2',
+        'hull': 5,
+        'damage': '8/2',
+        'crew': '9/2',
         'troops': 1,
         'craft': 'None',
-        'in_service': '2200+',
-        'traits': [],
+        'in_service': '—',
+        'traits': ['Anti-Fighter 1'],
         'notes': [],
-        'weapons': [('Light Pulse Cannon', '8', 'F', 2, '')],
+        'weapons': [
+            ('Particle Gun', '6', 'T', 4, 'Weak'),
+            ('Particle Beam', '8', 'T', 1, 'Weak'),
+        ],
     },
 ]

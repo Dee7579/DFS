@@ -15,12 +15,14 @@ from dfs.ui.about_dialog import AboutDialog
 from dfs.ui.dashboard import DashboardPage
 from dfs.ui.platform_explorer.page import PlatformExplorerPage
 from dfs.ui.settings.page import SettingsPage
+from dfs.ui.fleet_builder import FleetBuilderPage
 
 
 class MainWindow(QMainWindow):
     PAGE_DASHBOARD = 0
     PAGE_EXPLORER = 1
-    PAGE_SETTINGS = 2
+    PAGE_FLEET_BUILDER = 2
+    PAGE_SETTINGS = 3
 
     def __init__(self, context: ApplicationContext, database_label: str) -> None:
         super().__init__()
@@ -51,21 +53,23 @@ class MainWindow(QMainWindow):
         self.navigation.setObjectName("navigation")
         self.navigation.setFixedWidth(190)
         for text in (
-            "Dashboard", "Platform Explorer", "Fleet Builder", "Game Mode",
+            "Dashboard", "Platform Explorer", "Fleet Builder", "Tactical Assistant",
             "Codex Browser", "Campaign Manager", "Platform Editor", "Settings",
         ):
             item = QListWidgetItem(text)
-            if text not in ("Dashboard", "Platform Explorer", "Settings"):
+            if text not in ("Dashboard", "Platform Explorer", "Fleet Builder", "Settings"):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
             self.navigation.addItem(item)
 
         self.pages = QStackedWidget()
         self.dashboard = DashboardPage(context)
         self.platform_explorer = PlatformExplorerPage(context)
+        self.fleet_builder = FleetBuilderPage(context)
         self.settings_page = SettingsPage(context)
         self.ship_viewer = self.platform_explorer
         self.pages.addWidget(self.dashboard)
         self.pages.addWidget(self.platform_explorer)
+        self.pages.addWidget(self.fleet_builder)
         self.pages.addWidget(self.settings_page)
 
         app_name = QLabel("DFS")
@@ -99,6 +103,7 @@ class MainWindow(QMainWindow):
         self.navigation.currentRowChanged.connect(self._navigate)
         self.dashboard.open_platform_explorer.connect(lambda: self.navigation.setCurrentRow(1))
         self.dashboard.open_platform.connect(self._open_platform_from_dashboard)
+        self.fleet_builder.open_platform_requested.connect(self._open_platform_from_fleet_builder)
         self._build_menu()
         self._build_status_bar()
         context.notifications.published.connect(self._show_notification)
@@ -116,7 +121,7 @@ class MainWindow(QMainWindow):
             saved_page = self.PAGE_EXPLORER
         elif startup_page == "dashboard":
             saved_page = self.PAGE_DASHBOARD
-        self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 7) else 0)
+        self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 2, 7) else 0)
 
     def _build_menu(self) -> None:
         view_menu = self.menuBar().addMenu("&View")
@@ -167,6 +172,10 @@ class MainWindow(QMainWindow):
         self.navigation.setCurrentRow(1)
         self.platform_explorer.open_platform(ship_id)
 
+    def _open_platform_from_fleet_builder(self, ship_id: int) -> None:
+        self.navigation.setCurrentRow(1)
+        self.platform_explorer.open_platform(ship_id)
+
     def _reset_platform_explorer_layout(self) -> None:
         self.navigation.setCurrentRow(1)
         self.platform_explorer.reset_layout()
@@ -184,7 +193,7 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(f"{notification.title}: {notification.message}", 3500)
 
     def _navigate(self, row: int) -> None:
-        mapping = {0: self.PAGE_DASHBOARD, 1: self.PAGE_EXPLORER, 7: self.PAGE_SETTINGS}
+        mapping = {0: self.PAGE_DASHBOARD, 1: self.PAGE_EXPLORER, 2: self.PAGE_FLEET_BUILDER, 7: self.PAGE_SETTINGS}
         if row in mapping:
             self.pages.setCurrentIndex(mapping[row])
             self._settings.set_value("main_window/page", row)

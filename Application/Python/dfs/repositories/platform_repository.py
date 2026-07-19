@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from dfs.domain.catalog import FilterOption, PlatformDetail, PlatformFilter, PlatformSummary
+from dfs.domain.catalog import FilterOption, PlatformDetail, PlatformFilter, PlatformProfile, PlatformSummary
 
 
 class PlatformRepository(Protocol):
@@ -13,6 +13,8 @@ class PlatformRepository(Protocol):
     def count(self, filters: PlatformFilter) -> int: ...
 
     def get_by_id(self, ship_id: int) -> PlatformDetail | None: ...
+
+    def get_profile_by_id(self, profile_id: int) -> PlatformProfile | None: ...
 
     def list_factions(self) -> list[FilterOption]: ...
 

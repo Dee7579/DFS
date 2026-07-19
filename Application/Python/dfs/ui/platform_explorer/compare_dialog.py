@@ -1,15 +1,18 @@
 """Readable side-by-side comparison for two DFS platforms."""
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
     QDialog,
-    QDialogButtonBox,
+    QHBoxLayout,
     QHeaderView,
     QLabel,
+    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -32,10 +35,25 @@ def _weapon_text(weapon) -> str:
 
 
 class PlatformCompareDialog(QDialog):
-    """A single scrolling comparison table that emphasizes differences."""
+    """A single scrolling comparison table that emphasizes differences.
 
+    Optional add callbacks let Fleet Builder reuse the same comparison dialog
+    without coupling the shared component to fleet-domain services.
+    """
 
-    def __init__(self, left: PlatformDetail, right: PlatformDetail, parent=None) -> None:
+    def __init__(
+        self,
+        left: PlatformDetail,
+        right: PlatformDetail,
+        parent=None,
+        *,
+        add_left: Callable[[], None] | None = None,
+        add_right: Callable[[], None] | None = None,
+        left_add_enabled: bool = True,
+        right_add_enabled: bool = True,
+        left_disabled_reason: str = "",
+        right_disabled_reason: str = "",
+    ) -> None:
         super().__init__(parent)
         self.setWindowTitle(f"Compare — {left.name} and {right.name}")
         self._configure_colors()
@@ -57,11 +75,26 @@ class PlatformCompareDialog(QDialog):
                 1,
             )
 
-        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
-        buttons.rejected.connect(self.reject)
-        buttons.accepted.connect(self.accept)
-        layout.addWidget(buttons)
-
+        buttons = QHBoxLayout()
+        if add_left is not None:
+            left_button = QPushButton(f"Add {left.name} to Fleet")
+            left_button.setEnabled(left_add_enabled)
+            if left_disabled_reason:
+                left_button.setToolTip(left_disabled_reason)
+            left_button.clicked.connect(add_left)
+            buttons.addWidget(left_button)
+        if add_right is not None:
+            right_button = QPushButton(f"Add {right.name} to Fleet")
+            right_button.setEnabled(right_add_enabled)
+            if right_disabled_reason:
+                right_button.setToolTip(right_disabled_reason)
+            right_button.clicked.connect(add_right)
+            buttons.addWidget(right_button)
+        buttons.addStretch(1)
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(self.reject)
+        buttons.addWidget(close_button)
+        layout.addLayout(buttons)
 
     def _configure_colors(self) -> None:
         """Choose comparison colors that remain readable in light and dark modes."""
@@ -72,12 +105,12 @@ class PlatformCompareDialog(QDialog):
 
         if dark_mode:
             self.section_background = QColor("#334155")
-            self.difference_background = QColor("#164e63")
+            self.difference_background = QColor("#243447")
             self.section_foreground = QColor("#f8fafc")
             self.cell_foreground = QColor("#f1f5f9")
         else:
             self.section_background = QColor("#d9e1ea")
-            self.difference_background = QColor("#ecfeff")
+            self.difference_background = QColor("#dfe7ef")
             self.section_foreground = QColor("#111827")
             self.cell_foreground = text
 

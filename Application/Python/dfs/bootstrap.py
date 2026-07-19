@@ -17,10 +17,16 @@ from dfs.framework import (
 from dfs.game_systems.registry import GameSystemRegistry, build_default_registry
 from dfs.infrastructure.sqlite.connection import SQLiteConnectionFactory
 from dfs.infrastructure.sqlite.platform_repository import SQLitePlatformRepository
+from dfs.services.fleet.b5_composite_fleets import ensure_b5_composite_fleets
+from dfs.infrastructure.fleet import JSONFleetStore
 from dfs.services.codex_service import CodexService
 from dfs.services.document_service import DocumentService, DocumentStyle
 from dfs.services.platform_catalog_service import PlatformCatalogService
 from dfs.services.platform_detail_service import PlatformDetailService
+from dfs.services.fleet import (
+    FleetConstructionService, FleetPrintPlanner, FleetSheetGenerator, FleetPrintComposer,
+    FleetRosterGenerator, B5FighterReplacementService, B5MissileLoadoutService,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -38,6 +44,14 @@ class ApplicationContext:
     logging: LoggingService
     commands: CommandService
     resources: ResourceService
+    fleets: FleetConstructionService
+    fleet_files: JSONFleetStore
+    fleet_prints: FleetPrintPlanner
+    fleet_sheets: FleetSheetGenerator
+    fleet_composer: FleetPrintComposer
+    fleet_rosters: FleetRosterGenerator
+    fighter_replacements: B5FighterReplacementService
+    missile_loadouts: B5MissileLoadoutService
 
 
 # Compatibility name used by existing UI modules while they migrate gradually.
@@ -49,6 +63,7 @@ def build_application_context(
     settings: SettingsService | None = None,
 ) -> ApplicationContext:
     database_path = Path(database_path).resolve()
+    ensure_b5_composite_fleets(database_path)
     project_root = Path(__file__).resolve().parents[1]
     settings_service = settings or SettingsService()
     connections = SQLiteConnectionFactory(database_path)
@@ -70,6 +85,18 @@ def build_application_context(
         logging=logging_service,
         commands=CommandService(),
         resources=ResourceService(project_root),
+        fleets=FleetConstructionService(platforms),
+        fleet_files=JSONFleetStore(),
+        fleet_prints=FleetPrintPlanner(PlatformCatalogService(platforms), PlatformDetailService(platforms)),
+        fleet_sheets=FleetSheetGenerator(PlatformDetailService(platforms), documents),
+        fleet_composer=FleetPrintComposer(),
+        fighter_replacements=B5FighterReplacementService(PlatformCatalogService(platforms), PlatformDetailService(platforms)),
+        missile_loadouts=B5MissileLoadoutService(),
+        fleet_rosters=FleetRosterGenerator(
+            PlatformCatalogService(platforms),
+            PlatformDetailService(platforms),
+            FleetConstructionService(platforms),
+        ),
     )
 
 

@@ -12,6 +12,7 @@ from dfs.pdf.layout import (
     WHITE,
     CONTENT_X,
     CONTENT_W,
+    traits_notes_box_height,
 )
 from dfs.pdf.weapons import draw_weapon_table
 from dfs.pdf.tracks import draw_damage_and_crew
@@ -58,7 +59,7 @@ class ACTAClassicGenerator:
     def __init__(self, filename):
         self.filename = filename
 
-    def generate_ship_sheet(self, ship):
+    def generate_ship_sheet(self, ship, vessel_name: str = ""):
         front_height = estimate_page_height(ship)
         back_height = estimate_rules_back_height(
             ship,
@@ -73,7 +74,7 @@ class ACTAClassicGenerator:
         self.draw_frame(d, page_height)
 
         current_y = 45
-        current_y = self.draw_header(d, ship, current_y)
+        current_y = self.draw_header(d, ship, current_y, vessel_name)
         current_y = self.draw_stat_boxes(d, ship, current_y)
         current_y = draw_weapon_table(d, ship, CONTENT_X, current_y, CONTENT_W)
         current_y = self.draw_traits_notes(d, ship, current_y)
@@ -89,6 +90,7 @@ class ACTAClassicGenerator:
             include_fleet_rules=True,
             sheet_type="Ship",
             page_height=page_height,
+            vessel_name=vessel_name,
         )
 
         c.save()
@@ -116,7 +118,7 @@ class ACTAClassicGenerator:
             WHITE,
         )
 
-    def draw_header(self, d, ship, y):
+    def draw_header(self, d, ship, y, vessel_name: str = ""):
         era = ship.fleet.replace(ship.faction, "").replace("-", "").strip()
 
         if era:
@@ -134,7 +136,16 @@ class ACTAClassicGenerator:
         d.text(458, y + 41, "CREW QUALITY", 6.8, True)
 
         d.line(80, y + 42, 414, y + 42)
+        if vessel_name:
+            name_text = str(vessel_name).strip().upper()
+            name_size = 8.2
+            while name_size > 6.0 and d.c.stringWidth(name_text, "Helvetica-Bold", name_size) > 328:
+                name_size -= 0.4
+            d.text(84, y + 39.5, name_text, name_size, True)
         d.line(535, y + 42, 575, y + 42)
+        crew_quality = str(getattr(ship, "crew_quality", "") or "").strip()
+        if crew_quality:
+            d.text(555, y + 39.5, crew_quality, 8.2, True, "middle")
         d.line(18, y + 55, 594, y + 55)
 
         return y + 65
@@ -201,7 +212,7 @@ class ACTAClassicGenerator:
         d.text(x + w / 2, y + 22, value, 8.2, False, "middle")
 
     def draw_traits_notes(self, d, ship, y):
-        box_h = 62
+        box_h = traits_notes_box_height(ship)
         notes_top = y + 24
         notes_bottom = y + box_h - 8
 

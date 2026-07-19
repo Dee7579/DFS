@@ -4,6 +4,7 @@ FILE_NAME = 'haltona_class_frigate'
 FACTION_NAME = 'Brakiri Syndicracy'
 
 LEGACY_SHIP_NAMES = [
+    'Haltona-class Frigate',
 ]
 
 PROFILES = [

@@ -29,4 +29,4 @@ through `QSettings` and do not modify the canonical database.
 
 - DFS logo and application icon.
 - Additional PDF renderers such as DFS Modern and DFS Compact.
-- Fleet Builder and Game Mode.
+- Fleet Builder and Tactical Assistant.

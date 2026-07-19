@@ -1,8 +1,0 @@
-DFS Application Phase 3C
-
-1. Close DFS.
-2. Extract this archive directly into the existing Python folder.
-3. Allow folders to merge and updated files to replace older versions.
-4. Launch with: py dfs_desktop.py
-
-No database migration is required.

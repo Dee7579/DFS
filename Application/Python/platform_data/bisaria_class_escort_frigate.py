@@ -4,6 +4,7 @@ FILE_NAME = 'bisaria_class_escort_frigate'
 FACTION_NAME = 'Abbai Matriarchy'
 
 LEGACY_SHIP_NAMES = [
+    'Bisaria-class Escort Frigate',
 ]
 
 PROFILES = [
