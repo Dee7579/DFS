@@ -1,0 +1,56 @@
+name: Windows Portable Release Candidate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - release/sprint-001-windows-packaging
+    paths:
+      - ".github/workflows/windows-portable.yml"
+      - "Application/Python/dfs/**"
+      - "Application/Python/dfs_desktop.py"
+      - "Application/Python/output/**"
+      - "Application/Python/packaging/**"
+      - "Application/Python/requirements-desktop.txt"
+      - "Application/Python/requirements-release.txt"
+      - "Application/Python/resources/**"
+      - "Database/Data/dfs.db"
+
+permissions:
+  contents: read
+
+jobs:
+  build-portable:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out release branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            Application/Python/requirements-desktop.txt
+            Application/Python/requirements-release.txt
+
+      - name: Install release dependencies
+        working-directory: Application/Python
+        run: python -m pip install -r requirements-release.txt
+
+      - name: Build and verify portable release
+        working-directory: Application/Python
+        run: python packaging/build_portable.py
+
+      - name: Upload portable ZIP and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: dfs-windows-portable-${{ github.sha }}
+          path: |
+            Application/Python/release/*.zip
+            Application/Python/release/*.sha256
+          if-no-files-found: error
+          retention-days: 14
