@@ -15,13 +15,15 @@ from dfs.ui.dashboard import DashboardPage
 from dfs.ui.platform_explorer.page import PlatformExplorerPage
 from dfs.ui.settings.page import SettingsPage
 from dfs.ui.fleet_builder import FleetBuilderPage
+from dfs.ui.tactical_assistant import TacticalAssistantPage
 
 
 class MainWindow(QMainWindow):
     PAGE_DASHBOARD = 0
     PAGE_EXPLORER = 1
     PAGE_FLEET_BUILDER = 2
-    PAGE_SETTINGS = 3
+    PAGE_TACTICAL_ASSISTANT = 3
+    PAGE_SETTINGS = 4
 
     def __init__(self, context: ApplicationContext, database_label: str) -> None:
         super().__init__()
@@ -56,7 +58,9 @@ class MainWindow(QMainWindow):
             "Codex Browser", "Campaign Manager", "Platform Editor", "Settings",
         ):
             item = QListWidgetItem(text)
-            if text not in ("Dashboard", "Platform Explorer", "Fleet Builder", "Settings"):
+            if text not in (
+                "Dashboard", "Platform Explorer", "Fleet Builder", "Tactical Assistant", "Settings"
+            ):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
             self.navigation.addItem(item)
 
@@ -64,11 +68,13 @@ class MainWindow(QMainWindow):
         self.dashboard = DashboardPage(context)
         self.platform_explorer = PlatformExplorerPage(context)
         self.fleet_builder = FleetBuilderPage(context)
+        self.tactical_assistant = TacticalAssistantPage(context)
         self.settings_page = SettingsPage(context)
         self.ship_viewer = self.platform_explorer
         self.pages.addWidget(self.dashboard)
         self.pages.addWidget(self.platform_explorer)
         self.pages.addWidget(self.fleet_builder)
+        self.pages.addWidget(self.tactical_assistant)
         self.pages.addWidget(self.settings_page)
 
         app_name = QLabel("DFS")
@@ -120,7 +126,7 @@ class MainWindow(QMainWindow):
             saved_page = self.PAGE_EXPLORER
         elif startup_page == "dashboard":
             saved_page = self.PAGE_DASHBOARD
-        self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 2, 7) else 0)
+        self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 2, 3, 7) else 0)
 
     def _build_menu(self) -> None:
         view_menu = self.menuBar().addMenu("&View")
@@ -142,6 +148,16 @@ class MainWindow(QMainWindow):
         explorer_action.setShortcut(QKeySequence("Ctrl+1"))
         explorer_action.triggered.connect(lambda: self.navigation.setCurrentRow(1))
         self.addAction(explorer_action)
+
+        fleet_action = QAction("&Fleet Builder", self)
+        fleet_action.setShortcut(QKeySequence("Ctrl+2"))
+        fleet_action.triggered.connect(lambda: self.navigation.setCurrentRow(2))
+        self.addAction(fleet_action)
+
+        tactical_action = QAction("&Tactical Assistant", self)
+        tactical_action.setShortcut(QKeySequence("Ctrl+3"))
+        tactical_action.triggered.connect(lambda: self.navigation.setCurrentRow(3))
+        self.addAction(tactical_action)
 
     def _build_status_bar(self) -> None:
         system = self._context.game_systems.get(self._settings.default_game_system)
@@ -190,12 +206,21 @@ class MainWindow(QMainWindow):
             self.statusBar().showMessage(f"{notification.title}: {notification.message}", 3500)
 
     def _navigate(self, row: int) -> None:
-        mapping = {0: self.PAGE_DASHBOARD, 1: self.PAGE_EXPLORER, 2: self.PAGE_FLEET_BUILDER, 7: self.PAGE_SETTINGS}
+        mapping = {
+            0: self.PAGE_DASHBOARD,
+            1: self.PAGE_EXPLORER,
+            2: self.PAGE_FLEET_BUILDER,
+            3: self.PAGE_TACTICAL_ASSISTANT,
+            7: self.PAGE_SETTINGS,
+        }
         if row in mapping:
             self.pages.setCurrentIndex(mapping[row])
             self._settings.set_value("main_window/page", row)
 
     def closeEvent(self, event: QCloseEvent) -> None:  # noqa: N802
+        if not self.tactical_assistant.confirm_close():
+            event.ignore()
+            return
         self.platform_explorer.save_settings()
         self._settings.set_value("main_window/geometry", self.saveGeometry())
         self._settings.set_value("main_window/state", self.saveState())

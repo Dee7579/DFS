@@ -1,7 +1,7 @@
 """Build independent Tactical Assistant game state from a saved DFS fleet."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import re
 from typing import Protocol
 from uuid import uuid4
@@ -9,13 +9,18 @@ from uuid import uuid4
 from dfs.domain.catalog import PlatformFilter, PlatformProfile
 from dfs.domain.fleet import Fleet, FleetEntry
 from dfs.domain.fleet.huge_hangars import embarked_profile_ids
-from dfs.domain.fleet.included_craft import IncludedCraft, parse_included_craft
+from dfs.domain.fleet.included_craft import (
+    IncludedCraft,
+    normalize_craft_name,
+    parse_included_craft,
+)
 from dfs.domain.fleet.replacements import replacement_map
 from dfs.domain.tactical import (
     TacticalGameState,
     TacticalUnitState,
     TrackState,
     TraitState,
+    UnitDisposition,
     UnitKind,
     WeaponState,
 )
@@ -69,6 +74,41 @@ _SHIELD_PATTERN = re.compile(
     r"^\s*Shields\s+(?P<maximum>\d+)(?:\s*/\s*(?P<recovery>.+))?\s*$",
     re.IGNORECASE,
 )
+_WING_OF_FLIGHTS_PATTERN = re.compile(
+    r"\bWing\s+of\s+(?P<count>\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+Flights?\b",
+    re.IGNORECASE,
+)
+_NUMBER_WORDS = {
+    "one": 1,
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+}
+
+
+def _purchased_craft_flights(notes: tuple[str, ...]) -> int:
+    """Return the number of individual flights represented by one purchase.
+
+    ACTA fighter entries are bought as wings. The canonical profile notes state
+    the wing size (for example ``Wing of Four Flights``). Tactical Assistant
+    tracks each flight independently, so one Fleet Builder purchase must expand
+    to the printed number of flights rather than one representative row.
+    """
+
+    for note in notes:
+        match = _WING_OF_FLIGHTS_PATTERN.search(str(note or ""))
+        if match is None:
+            continue
+        token = match.group("count").casefold()
+        value = int(token) if token.isdigit() else _NUMBER_WORDS.get(token, 1)
+        return max(1, value)
+    return 1
 
 
 def _parse_track(value: str | None) -> tuple[int | None, int | None]:
@@ -106,6 +146,7 @@ class CatalogTacticalProfileResolver:
         self._catalog = catalog_service
         self._details = platform_detail_service
         self._cache: dict[int, TacticalProfileTemplate] = {}
+        self._craft_cache: dict[tuple[str, str, str], TacticalProfileTemplate | None] = {}
 
     def resolve(self, profile_id: int) -> TacticalProfileTemplate:
         cached = self._cache.get(profile_id)
@@ -166,6 +207,70 @@ class CatalogTacticalProfileResolver:
         self._cache[profile_id] = template
         return template
 
+    def resolve_included_craft(
+        self,
+        printed_name: str,
+        *,
+        faction_name: str = "",
+        fleet_name: str = "",
+    ) -> TacticalProfileTemplate | None:
+        """Resolve printed carried-craft text to its canonical craft profile.
+
+        Fleet Builder already performs conservative normalized-name matching for
+        included craft. Tactical Assistant mirrors that approach so ordinary
+        carried fighters receive the same weapons and traits as purchased or
+        replacement fighters.
+        """
+
+        key = (
+            normalize_craft_name(printed_name),
+            faction_name.casefold(),
+            fleet_name.casefold(),
+        )
+        if key in self._craft_cache:
+            return self._craft_cache[key]
+        target = key[0]
+        if not target:
+            self._craft_cache[key] = None
+            return None
+
+        best: TacticalProfileTemplate | None = None
+        best_score = -1
+        for summary in self._catalog.search(PlatformFilter(limit=1000)):
+            normalized = normalize_craft_name(summary.name)
+            if normalized == target:
+                score = 100
+            elif target in normalized or normalized in target:
+                score = 60
+            else:
+                score = len(set(target.split()) & set(normalized.split())) * 10
+            if key[1] and summary.faction_name.casefold() == key[1]:
+                score += 15
+            if key[2] and any(name.casefold() == key[2] for name in summary.fleet_names):
+                score += 10
+            if score <= best_score:
+                continue
+
+            detail = self._details.get(summary.ship_id)
+            if detail is None:
+                continue
+            ordered_profiles = sorted(
+                detail.profiles,
+                key=lambda item: bool(key[2]) and item.fleet_name.casefold() != key[2],
+            )
+            for profile in ordered_profiles:
+                candidate = self.resolve(profile.profile_id)
+                if candidate.kind is not UnitKind.CRAFT:
+                    continue
+                best = candidate
+                best_score = score
+                break
+
+        if best_score < 20:
+            best = None
+        self._craft_cache[key] = best
+        return best
+
     def _find_platform(self, profile: PlatformProfile):
         summaries = self._catalog.search(
             PlatformFilter(fleet_list_ids=(profile.fleet_list_id,), limit=1000)
@@ -187,15 +292,38 @@ class TacticalGameBuilder:
         units: list[TacticalUnitState] = []
         for entry in fleet.entries:
             template = self._resolver.resolve(entry.profile_id)
-            primary_units = tuple(
-                self._create_profile_unit(
-                    entry,
-                    template,
-                    instance_number,
-                    metadata={"fleet_entry_options": dict(entry.options)},
+            if template.kind is UnitKind.CRAFT:
+                wing_size = _purchased_craft_flights(template.notes)
+                primary_units = tuple(
+                    self._create_profile_unit(
+                        entry,
+                        template,
+                        ((wing_number - 1) * wing_size) + flight_number,
+                        metadata={
+                            "fleet_entry_options": dict(entry.options),
+                            "purchased_craft_expanded": True,
+                            "purchased_wing_size": wing_size,
+                            "purchased_wing_number": wing_number,
+                            "purchased_flight_number": flight_number,
+                            "source_fleet_entry_quantity": entry.quantity,
+                        },
+                    )
+                    for wing_number in range(1, entry.quantity + 1)
+                    for flight_number in range(1, wing_size + 1)
                 )
-                for instance_number in range(1, entry.quantity + 1)
-            )
+            else:
+                primary_units = tuple(
+                    self._create_profile_unit(
+                        entry,
+                        template,
+                        instance_number,
+                        metadata={
+                            "fleet_entry_options": dict(entry.options),
+                            "source_fleet_entry_quantity": entry.quantity,
+                        },
+                    )
+                    for instance_number in range(1, entry.quantity + 1)
+                )
             units.extend(primary_units)
 
             if template.kind is UnitKind.PLATFORM:
@@ -216,6 +344,154 @@ class TacticalGameBuilder:
                 "source_fleet_schema_version": fleet.schema_version,
             },
         )
+
+    def hydrate_purchased_craft_wings(self, game: TacticalGameState) -> TacticalGameState:
+        """Expand legacy purchased fighter-wing snapshots into individual flights.
+
+        Sprint 001-005 created one tactical craft row for each Fleet Builder
+        fighter-wing purchase. Canonical fighter notes define how many flights
+        that purchase actually contains. Existing saved games are upgraded once
+        on load; the first legacy row keeps its current state and additional
+        flights begin Ready and Operational. The metadata flag makes the upgrade
+        idempotent.
+        """
+
+        changed = False
+        units: list[TacticalUnitState] = []
+        purchase_numbers: dict[tuple[str, int | None, str], int] = {}
+        for unit in game.units:
+            metadata = dict(unit.metadata)
+            if (
+                unit.kind is not UnitKind.CRAFT
+                or unit.parent_unit_id is not None
+                or metadata.get("purchased_craft_expanded")
+            ):
+                units.append(unit)
+                continue
+
+            wing_size = _purchased_craft_flights(unit.source_notes)
+            if wing_size <= 1:
+                units.append(unit)
+                continue
+
+            key = (unit.source_entry_id, unit.profile_id, unit.platform_name)
+            purchase_number = purchase_numbers.get(key, 0) + 1
+            purchase_numbers[key] = purchase_number
+            base = (purchase_number - 1) * wing_size
+
+            for flight_number in range(1, wing_size + 1):
+                expanded_metadata = {
+                    **metadata,
+                    "purchased_craft_expanded": True,
+                    "purchased_wing_size": wing_size,
+                    "purchased_wing_number": purchase_number,
+                    "purchased_flight_number": flight_number,
+                }
+                if flight_number == 1:
+                    expanded = replace(
+                        unit,
+                        instance_number=base + flight_number,
+                        metadata=expanded_metadata,
+                    )
+                else:
+                    expanded = replace(
+                        unit,
+                        unit_id=str(uuid4()),
+                        vessel_name="",
+                        instance_number=base + flight_number,
+                        metadata=expanded_metadata,
+                        traits=tuple(
+                            replace(trait, disabled=False, destroyed=False)
+                            for trait in unit.traits
+                        ),
+                        weapons=tuple(
+                            replace(weapon, disabled=False, destroyed=False)
+                            for weapon in unit.weapons
+                        ),
+                        critical_hits=(),
+                        special_action="",
+                        craft_status="ready",
+                        disposition=UnitDisposition.OPERATIONAL,
+                        notes="",
+                        destroyed=False,
+                        crippled=False,
+                        skeleton_crew=False,
+                        crippled_correction=False,
+                        skeleton_crew_correction=False,
+                    )
+                units.append(expanded)
+            changed = True
+
+        return replace(game, units=tuple(units)) if changed else game
+
+    def hydrate_missing_craft(self, game: TacticalGameState) -> TacticalGameState:
+        """Populate legacy carried-craft snapshots that predate profile resolution.
+
+        Sprint 001-003 game files stored printed carried craft with ``profile_id``
+        set to ``None`` and no weapon/trait snapshot. Reopening those files now
+        safely enriches only the independent game state from read-only catalog
+        data; the saved fleet and certified sources remain untouched.
+        """
+
+        changed = False
+        units: list[TacticalUnitState] = []
+        for unit in game.units:
+            source_name = str(unit.metadata.get("included_craft_source", "")).strip()
+            if (
+                unit.kind is not UnitKind.CRAFT
+                or not source_name
+                or unit.traits
+                or unit.weapons
+            ):
+                units.append(unit)
+                continue
+            resolver = getattr(self._resolver, "resolve_included_craft", None)
+            if not callable(resolver):
+                units.append(unit)
+                continue
+            template = resolver(
+                source_name,
+                faction_name=unit.faction_name,
+                fleet_name=unit.fleet_name,
+            )
+            if template is None:
+                units.append(unit)
+                continue
+            traits = tuple(
+                TraitState(_safe_key("trait", index, name), name)
+                for index, name in enumerate(template.traits, start=1)
+            )
+            weapons = tuple(
+                WeaponState(
+                    weapon_key=_safe_key("weapon", index, weapon.name, weapon.arc),
+                    name=weapon.name,
+                    arc=weapon.arc,
+                    range_value=weapon.range_value,
+                    attack_dice=weapon.attack_dice,
+                    traits=weapon.traits,
+                )
+                for index, weapon in enumerate(template.weapons, start=1)
+            )
+            units.append(
+                replace(
+                    unit,
+                    profile_id=template.profile_id,
+                    platform_name=template.platform_name,
+                    priority_level=template.priority_level,
+                    initiative=template.initiative,
+                    speed=template.speed,
+                    turn=template.turn,
+                    hull=template.hull,
+                    troops=template.troops,
+                    source_notes=template.notes,
+                    crew_quality=template.crew_quality,
+                    traits=traits,
+                    weapons=weapons,
+                    metadata={**dict(unit.metadata), "legacy_snapshot_hydrated": True},
+                )
+            )
+            changed = True
+        return replace(game, units=tuple(units)) if changed else game
 
     def _create_profile_unit(
         self,
@@ -299,6 +575,7 @@ class TacticalGameBuilder:
             )
 
         for group in template.included_craft:
+            source_template = self._resolve_printed_craft(group.printed_name, template)
             # Round-robin slots keep partial replacements distributed predictably
             # across grouped carriers instead of assigning every replacement to
             # the first carrier.
@@ -350,22 +627,48 @@ class TacticalGameBuilder:
             original_instance = 0
             for parent in parent_slots[slot_index:]:
                 original_instance += 1
-                craft_units.append(
-                    TacticalUnitState(
-                        unit_id=str(uuid4()),
-                        source_entry_id=entry.entry_id,
-                        profile_id=None,
-                        parent_unit_id=parent.unit_id,
-                        kind=UnitKind.CRAFT,
-                        platform_name=group.printed_name,
-                        instance_number=original_instance,
-                        faction_name=template.faction_name,
-                        fleet_name=template.fleet_name,
-                        priority_level="Included",
-                        metadata={"included_craft_source": group.printed_name},
+                if source_template is not None:
+                    craft_units.append(
+                        self._create_profile_unit(
+                            entry,
+                            source_template,
+                            original_instance,
+                            parent_unit_id=parent.unit_id,
+                            vessel_name="",
+                            metadata={"included_craft_source": group.printed_name},
+                        )
                     )
-                )
+                else:
+                    craft_units.append(
+                        TacticalUnitState(
+                            unit_id=str(uuid4()),
+                            source_entry_id=entry.entry_id,
+                            profile_id=None,
+                            parent_unit_id=parent.unit_id,
+                            kind=UnitKind.CRAFT,
+                            platform_name=group.printed_name,
+                            instance_number=original_instance,
+                            faction_name=template.faction_name,
+                            fleet_name=template.fleet_name,
+                            priority_level="Included",
+                            metadata={"included_craft_source": group.printed_name},
+                        )
+                    )
         return craft_units
+
+    def _resolve_printed_craft(
+        self,
+        printed_name: str,
+        parent_template: TacticalProfileTemplate,
+    ) -> TacticalProfileTemplate | None:
+        resolver = getattr(self._resolver, "resolve_included_craft", None)
+        if not callable(resolver):
+            return None
+        return resolver(
+            printed_name,
+            faction_name=parent_template.faction_name,
+            fleet_name=parent_template.fleet_name,
+        )
 
     def _create_embarked_platforms(
         self,
@@ -399,28 +702,41 @@ class TacticalGameBuilder:
                 result.extend(self._create_plain_included_craft(entry, embarked, template))
         return result
 
-    @staticmethod
     def _create_plain_included_craft(
+        self,
         entry: FleetEntry,
         parent: TacticalUnitState,
         template: TacticalProfileTemplate,
     ) -> list[TacticalUnitState]:
         result: list[TacticalUnitState] = []
         for group in template.included_craft:
+            source_template = self._resolve_printed_craft(group.printed_name, template)
             for instance_number in range(1, group.quantity + 1):
-                result.append(
-                    TacticalUnitState(
-                        unit_id=str(uuid4()),
-                        source_entry_id=entry.entry_id,
-                        profile_id=None,
-                        parent_unit_id=parent.unit_id,
-                        kind=UnitKind.CRAFT,
-                        platform_name=group.printed_name,
-                        instance_number=instance_number,
-                        faction_name=template.faction_name,
-                        fleet_name=template.fleet_name,
-                        priority_level="Included",
-                        metadata={"included_craft_source": group.printed_name},
+                if source_template is not None:
+                    result.append(
+                        self._create_profile_unit(
+                            entry,
+                            source_template,
+                            instance_number,
+                            parent_unit_id=parent.unit_id,
+                            vessel_name="",
+                            metadata={"included_craft_source": group.printed_name},
+                        )
                     )
-                )
+                else:
+                    result.append(
+                        TacticalUnitState(
+                            unit_id=str(uuid4()),
+                            source_entry_id=entry.entry_id,
+                            profile_id=None,
+                            parent_unit_id=parent.unit_id,
+                            kind=UnitKind.CRAFT,
+                            platform_name=group.printed_name,
+                            instance_number=instance_number,
+                            faction_name=template.faction_name,
+                            fleet_name=template.fleet_name,
+                            priority_level="Included",
+                            metadata={"included_craft_source": group.printed_name},
+                        )
+                    )
         return result

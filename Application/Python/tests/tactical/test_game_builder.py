@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dfs.domain.fleet import Fleet, FleetEntry
 from dfs.domain.fleet.included_craft import IncludedCraft
-from dfs.domain.tactical import UnitKind
+from dfs.domain.tactical import TacticalGameState, TacticalUnitState, UnitKind
 from dfs.services.tactical import TacticalGameBuilder, TacticalProfileTemplate, TacticalWeaponTemplate
 
 
@@ -73,7 +73,7 @@ def test_builder_expands_every_platform_and_fighter_flight() -> None:
     craft = [unit for unit in game.units if unit.kind is UnitKind.CRAFT]
 
     assert len(platforms) == 2
-    assert len(craft) == 7  # 4 included flights plus 3 purchased flights
+    assert len(craft) == 16  # 4 included flights plus 3 purchased wings of 4 flights
     assert platforms[0].vessel_name == "Defiant"
     assert platforms[1].vessel_name == ""
     assert platforms[0].damage.maximum == 40
@@ -89,9 +89,12 @@ def test_builder_expands_every_platform_and_fighter_flight() -> None:
     included = [unit for unit in craft if unit.profile_id is None]
     purchased = [unit for unit in craft if unit.profile_id == 202]
     assert len(included) == 4
-    assert len(purchased) == 3
+    assert len(purchased) == 12
     assert all(unit.parent_unit_id for unit in included)
     assert all(unit.parent_unit_id is None for unit in purchased)
+    assert {unit.instance_number for unit in purchased} == set(range(1, 13))
+    assert all(unit.metadata["purchased_wing_size"] == 4 for unit in purchased)
+    assert {unit.metadata["purchased_wing_number"] for unit in purchased} == {1, 2, 3}
     assert {unit.parent_unit_id for unit in included} == {unit.unit_id for unit in platforms}
 
 
@@ -176,3 +179,34 @@ def test_builder_applies_saved_fighter_replacements_and_huge_hangar_choices() ->
     assert embarked[0].parent_unit_id in {unit.unit_id for unit in primary}
     assert embarked_craft[0].parent_unit_id == embarked[0].unit_id
     assert all(unit.metadata["replacement_profile_id"] == 303 for unit in replacements)
+
+
+def test_legacy_purchased_fighter_wing_is_expanded_once_on_load() -> None:
+    legacy = TacticalUnitState(
+        unit_id="legacy-flight",
+        source_entry_id="legacy-entry",
+        profile_id=202,
+        parent_unit_id=None,
+        kind=UnitKind.CRAFT,
+        platform_name="Test Fighter",
+        source_notes=("Wing of Four Flights",),
+        instance_number=1,
+    )
+    game = TacticalGameState.create(
+        name="Legacy Fighter Wing",
+        game_system_id="b5_acta",
+        source_fleet_id="fleet",
+        source_fleet_name="Legacy Fleet",
+        units=(legacy,),
+    )
+    builder = TacticalGameBuilder(FakeResolver())
+
+    expanded = builder.hydrate_purchased_craft_wings(game)
+    assert len(expanded.units) == 4
+    assert expanded.units[0].unit_id == "legacy-flight"
+    assert [unit.instance_number for unit in expanded.units] == [1, 2, 3, 4]
+    assert all(unit.metadata["purchased_craft_expanded"] is True for unit in expanded.units)
+    assert all(unit.metadata["purchased_wing_size"] == 4 for unit in expanded.units)
+
+    repeated = builder.hydrate_purchased_craft_wings(expanded)
+    assert [unit.unit_id for unit in repeated.units] == [unit.unit_id for unit in expanded.units]

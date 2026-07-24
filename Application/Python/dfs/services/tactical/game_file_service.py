@@ -18,6 +18,8 @@ class TacticalGameService:
     platform data or the DFS database.
     """
 
+    FILE_EXTENSION = JSONTacticalGameStore.FILE_EXTENSION
+
     def __init__(
         self,
         builder: TacticalGameBuilder,
@@ -56,4 +58,5 @@ class TacticalGameService:
         return self._game_store.save(game, path)
 
     def load(self, path: str | Path) -> TacticalGameState:
-        return self._game_store.load(path)
+        game = self._builder.hydrate_missing_craft(self._game_store.load(path))
+        return self._builder.hydrate_purchased_craft_wings(game)

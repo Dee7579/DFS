@@ -12,6 +12,7 @@ from dfs.domain.tactical import (
     TacticalUnitState,
     TrackState,
     TraitState,
+    UnitDisposition,
     UnitKind,
     WeaponState,
 )
@@ -30,7 +31,9 @@ def _track_payload(track: TrackState) -> dict[str, Any]:
     }
 
 
-def _track_from_payload(payload: dict[str, Any] | None) -> TrackState:
+def _track_from_payload(
+    payload: dict[str, Any] | None, *, allow_negative: bool = False
+) -> TrackState:
     data = payload or {}
     maximum = data.get("maximum")
     current = data.get("current")
@@ -44,7 +47,12 @@ def _track_from_payload(payload: dict[str, Any] | None) -> TrackState:
     if track.maximum is None and track.current is not None:
         raise TacticalGameFileError("A tactical track cannot have a current value without a maximum.")
     if track.maximum is not None:
-        if track.maximum < 0 or track.current is None or not 0 <= track.current <= track.maximum:
+        current_valid = (
+            track.current is not None
+            and track.current <= track.maximum
+            and (allow_negative or track.current >= 0)
+        )
+        if track.maximum < 0 or not current_valid:
             raise TacticalGameFileError("A tactical track contains an invalid current/maximum value.")
     return track
 
@@ -67,6 +75,14 @@ class JSONTacticalGameStore:
             "units": [self._unit_payload(unit) for unit in game.units],
             "notes": game.notes,
             "metadata": dict(game.metadata),
+            "scenario_key": game.scenario_key,
+            "scenario_priority": game.scenario_priority,
+            "player_role": game.player_role,
+            "scenario_objectives": dict(game.scenario_objectives),
+            "victory_points": game.victory_points,
+            "opponent_victory_points": game.opponent_victory_points,
+            "battle_report_notes": game.battle_report_notes,
+            "ended_at": game.ended_at,
             "created_at": game.created_at,
             "updated_at": game.updated_at,
         }
@@ -105,6 +121,16 @@ class JSONTacticalGameStore:
                 units=units,
                 notes=str(payload.get("notes", "")),
                 metadata=dict(payload.get("metadata", {})),
+                scenario_key=str(payload.get("scenario_key", "")),
+                scenario_priority=str(payload.get("scenario_priority", "")),
+                player_role=str(payload.get("player_role", "")),
+                scenario_objectives=dict(payload.get("scenario_objectives", {})),
+                victory_points=max(0, int(payload.get("victory_points", 0))),
+                opponent_victory_points=max(
+                    0, int(payload.get("opponent_victory_points", 0))
+                ),
+                battle_report_notes=str(payload.get("battle_report_notes", "")),
+                ended_at=str(payload.get("ended_at", "")),
                 created_at=str(payload.get("created_at", "")),
                 updated_at=str(payload.get("updated_at", "")),
             )
@@ -141,7 +167,12 @@ class JSONTacticalGameStore:
             "shields": _track_payload(unit.shields),
             "crew_quality": unit.crew_quality,
             "traits": [
-                {"trait_key": trait.trait_key, "name": trait.name, "disabled": trait.disabled}
+                {
+                    "trait_key": trait.trait_key,
+                    "name": trait.name,
+                    "disabled": trait.disabled,
+                    "destroyed": trait.destroyed,
+                }
                 for trait in unit.traits
             ],
             "weapons": [
@@ -164,16 +195,58 @@ class JSONTacticalGameStore:
                     "effect": critical.effect,
                     "repaired": critical.repaired,
                     "notes": critical.notes,
+                    "rule_key": critical.rule_key,
+                    "system": critical.system,
+                    "roll": critical.roll,
+                    "damage_loss": critical.damage_loss,
+                    "crew_loss": critical.crew_loss,
+                    "speed_penalty": critical.speed_penalty,
+                    "weapon_ad_penalty": critical.weapon_ad_penalty,
+                    "no_special_actions": critical.no_special_actions,
+                    "no_damage_control": critical.no_damage_control,
+                    "no_damage_control_this_turn": critical.no_damage_control_this_turn,
+                    "troop_penalty": critical.troop_penalty,
+                    "power_fluctuations": critical.power_fluctuations,
+                    "adrift": critical.adrift,
+                    "target_kind": critical.target_kind,
+                    "target_keys": list(critical.target_keys),
+                    "target_labels": list(critical.target_labels),
+                    "repairable": critical.repairable,
+                    "applied_turn": critical.applied_turn,
+                    "before_damage": critical.before_damage,
+                    "before_crew": critical.before_crew,
+                    "before_crippled": critical.before_crippled,
+                    "before_skeleton_crew": critical.before_skeleton_crew,
+                    "before_destroyed": critical.before_destroyed,
+                    "before_special_action": critical.before_special_action,
                 }
                 for critical in unit.critical_hits
             ],
             "special_action": unit.special_action,
+            "craft_status": unit.craft_status,
+            "disposition": unit.disposition.value,
             "notes": unit.notes,
             "destroyed": unit.destroyed,
+            "crippled": unit.crippled,
+            "skeleton_crew": unit.skeleton_crew,
+            "crippled_correction": unit.crippled_correction,
+            "skeleton_crew_correction": unit.skeleton_crew_correction,
         }
 
     @staticmethod
     def _unit_from_payload(payload: dict[str, Any]) -> TacticalUnitState:
+        damage = _track_from_payload(payload.get("damage"), allow_negative=True)
+        crew = _track_from_payload(payload.get("crew"))
+        inferred_crippled = bool(
+            damage.threshold is not None
+            and damage.current is not None
+            and damage.current <= damage.threshold
+        )
+        inferred_skeleton = bool(
+            crew.threshold is not None
+            and crew.current is not None
+            and crew.current <= crew.threshold
+        )
         return TacticalUnitState(
             unit_id=str(payload["unit_id"]),
             source_entry_id=str(payload["source_entry_id"]),
@@ -193,8 +266,8 @@ class JSONTacticalGameStore:
             troops=str(payload.get("troops", "")),
             source_notes=tuple(str(item) for item in payload.get("source_notes", [])),
             metadata=dict(payload.get("metadata", {})),
-            damage=_track_from_payload(payload.get("damage")),
-            crew=_track_from_payload(payload.get("crew")),
+            damage=damage,
+            crew=crew,
             shields=_track_from_payload(payload.get("shields")),
             crew_quality=str(payload.get("crew_quality", "")),
             traits=tuple(
@@ -202,6 +275,7 @@ class JSONTacticalGameStore:
                     trait_key=str(item["trait_key"]),
                     name=str(item["name"]),
                     disabled=bool(item.get("disabled", False)),
+                    destroyed=bool(item.get("destroyed", False)),
                 )
                 for item in payload.get("traits", [])
             ),
@@ -225,12 +299,52 @@ class JSONTacticalGameStore:
                     effect=str(item.get("effect", "")),
                     repaired=bool(item.get("repaired", False)),
                     notes=str(item.get("notes", "")),
+                    rule_key=str(item.get("rule_key", "")),
+                    system=str(item.get("system", "")),
+                    roll=str(item.get("roll", "")),
+                    damage_loss=int(item.get("damage_loss", 0)),
+                    crew_loss=int(item.get("crew_loss", 0)),
+                    speed_penalty=int(item.get("speed_penalty", 0)),
+                    weapon_ad_penalty=int(item.get("weapon_ad_penalty", 0)),
+                    no_special_actions=bool(item.get("no_special_actions", False)),
+                    no_damage_control=bool(item.get("no_damage_control", False)),
+                    no_damage_control_this_turn=bool(
+                        item.get("no_damage_control_this_turn", False)
+                    ),
+                    troop_penalty=int(item.get("troop_penalty", 0)),
+                    power_fluctuations=bool(item.get("power_fluctuations", False)),
+                    adrift=bool(item.get("adrift", False)),
+                    target_kind=str(item.get("target_kind", "")),
+                    target_keys=tuple(str(value) for value in item.get("target_keys", [])),
+                    target_labels=tuple(str(value) for value in item.get("target_labels", [])),
+                    repairable=bool(item.get("repairable", True)),
+                    applied_turn=max(1, int(item.get("applied_turn", 1))),
+                    before_damage=(
+                        int(item["before_damage"])
+                        if item.get("before_damage") is not None
+                        else None
+                    ),
+                    before_crew=(
+                        int(item["before_crew"])
+                        if item.get("before_crew") is not None
+                        else None
+                    ),
+                    before_crippled=bool(item.get("before_crippled", False)),
+                    before_skeleton_crew=bool(item.get("before_skeleton_crew", False)),
+                    before_destroyed=bool(item.get("before_destroyed", False)),
+                    before_special_action=str(item.get("before_special_action", "")),
                 )
                 for item in payload.get("critical_hits", [])
             ),
             special_action=str(payload.get("special_action", "")),
+            craft_status=str(payload.get("craft_status", "ready")),
+            disposition=UnitDisposition(str(payload.get("disposition", "operational"))),
             notes=str(payload.get("notes", "")),
             destroyed=bool(payload.get("destroyed", False)),
+            crippled=bool(payload.get("crippled", inferred_crippled)),
+            skeleton_crew=bool(payload.get("skeleton_crew", inferred_skeleton)),
+            crippled_correction=bool(payload.get("crippled_correction", False)),
+            skeleton_crew_correction=bool(payload.get("skeleton_crew_correction", False)),
         )
 
     @staticmethod
@@ -245,4 +359,11 @@ class JSONTacticalGameStore:
             if unit.parent_unit_id and unit.parent_unit_id not in unit_id_set:
                 raise TacticalGameFileError(
                     f"Unit {unit.unit_id} references missing parent {unit.parent_unit_id}."
+                )
+            if unit.kind is UnitKind.CRAFT and unit.craft_status.casefold() not in {
+                "ready",
+                "launched",
+            }:
+                raise TacticalGameFileError(
+                    f"Craft {unit.unit_id} has invalid status {unit.craft_status!r}."
                 )

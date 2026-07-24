@@ -34,12 +34,25 @@ class CodexService:
             see_also=tuple(get_related_rules(name)),
         )
 
-    def first_for_weapon(self, weapon_name: str, traits: str) -> CodexEntry | None:
+    def all_for_weapon(self, weapon_name: str, traits: str) -> tuple[CodexEntry, ...]:
+        """Return the weapon rule and every recognized printed weapon trait."""
+
+        entries: list[CodexEntry] = []
+        seen: set[str] = set()
         for candidate in (weapon_name, *split_weapon_traits(traits)):
             entry = self.get(candidate)
-            if entry is not None:
-                return entry
-        return None
+            if entry is None:
+                continue
+            identity = entry.title.casefold()
+            if identity in seen:
+                continue
+            seen.add(identity)
+            entries.append(entry)
+        return tuple(entries)
+
+    def first_for_weapon(self, weapon_name: str, traits: str) -> CodexEntry | None:
+        entries = self.all_for_weapon(weapon_name, traits)
+        return entries[0] if entries else None
 
     def search(self, query: str) -> tuple[CodexEntry, ...]:
         return tuple(
