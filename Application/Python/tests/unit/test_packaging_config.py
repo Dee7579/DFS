@@ -30,13 +30,14 @@ def test_spec_bundles_only_approved_runtime_payload_roots():
     assert "project_sources" not in spec
 
 
-def test_windows_workflow_builds_on_release_branch():
+def test_windows_workflow_builds_for_release_pull_request():
     workflow = (
         APP_ROOT.parents[1] / ".github" / "workflows" / "windows-portable.yml"
     ).read_text(encoding="utf-8")
 
     assert "windows-latest" in workflow
-    assert "release/sprint-001-windows-packaging" in workflow
+    assert "pull_request:" in workflow
+    assert "- main" in workflow
     assert "packaging/build_portable.py" in workflow
     assert "actions/upload-artifact@" in workflow
 

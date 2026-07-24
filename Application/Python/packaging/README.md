@@ -5,8 +5,9 @@ This folder builds the unsigned, one-folder Windows release candidate for DFS.
 ## Automated build
 
 The `Windows Portable Release Candidate` GitHub Actions workflow builds and
-uploads a ZIP plus its SHA-256 checksum whenever the release branch changes.
-It can also be started manually from the Actions tab.
+uploads a ZIP plus its SHA-256 checksum whenever the draft release pull request
+changes. It can also be started manually from the Actions tab after the workflow
+reaches the default branch.
 
 ## Local Windows build
 

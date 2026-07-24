@@ -2,9 +2,9 @@ name: Windows Portable Release Candidate
 
 on:
   workflow_dispatch:
-  push:
+  pull_request:
     branches:
-      - release/sprint-001-windows-packaging
+      - main
     paths:
       - ".github/workflows/windows-portable.yml"
       - "Application/Python/dfs/**"
@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 30
 
     steps:
-      - name: Check out release branch
+      - name: Check out release candidate
         uses: actions/checkout@v4
 
       - name: Set up Python
