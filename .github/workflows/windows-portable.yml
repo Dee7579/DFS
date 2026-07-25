@@ -1,4 +1,4 @@
-name: Windows Portable Release Candidate
+name: Windows Release Candidate
 
 on:
   workflow_dispatch:
@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 jobs:
-  build-portable:
+  build-windows-release:
     runs-on: windows-latest
     timeout-minutes: 30
 
@@ -45,12 +45,33 @@ jobs:
         working-directory: Application/Python
         run: python packaging/build_portable.py
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Get-Command ISCC.exe -ErrorAction SilentlyContinue)) {
+            choco install innosetup --yes --no-progress
+          }
+
+      - name: Build, install, verify, and uninstall Windows installer
+        working-directory: Application/Python
+        run: python packaging/build_installer.py
+
       - name: Upload portable ZIP and checksum
         uses: actions/upload-artifact@v4
         with:
           name: dfs-windows-portable-${{ github.sha }}
           path: |
             Application/Python/release/*.zip
-            Application/Python/release/*.sha256
+            Application/Python/release/*-Windows-x64.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Windows installer and checksum
+        uses: actions/upload-artifact@v4
+        with:
+          name: dfs-windows-installer-${{ github.sha }}
+          path: |
+            Application/Python/release/*-Setup.exe
+            Application/Python/release/*-Setup.sha256
           if-no-files-found: error
           retention-days: 14

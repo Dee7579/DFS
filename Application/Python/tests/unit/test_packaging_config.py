@@ -30,7 +30,7 @@ def test_spec_bundles_only_approved_runtime_payload_roots():
     assert "project_sources" not in spec
 
 
-def test_windows_workflow_builds_for_release_pull_request():
+def test_windows_workflow_builds_both_release_formats_for_pull_request():
     workflow = (
         APP_ROOT.parents[1] / ".github" / "workflows" / "windows-portable.yml"
     ).read_text(encoding="utf-8")
@@ -39,7 +39,30 @@ def test_windows_workflow_builds_for_release_pull_request():
     assert "pull_request:" in workflow
     assert "- main" in workflow
     assert "packaging/build_portable.py" in workflow
+    assert "choco install innosetup" in workflow
+    assert "packaging/build_installer.py" in workflow
+    assert "dfs-windows-installer-" in workflow
     assert "actions/upload-artifact@" in workflow
+
+
+def test_installer_is_per_user_and_creates_requested_shortcuts():
+    installer = (PACKAGING_ROOT / "dfs_installer.iss").read_text(encoding="utf-8")
+
+    assert "PrivilegesRequired=lowest" in installer
+    assert r"DefaultDirName={localappdata}\Programs" in installer
+    assert r'Name: "{autoprograms}\{#MyAppName}"' in installer
+    assert r'Name: "{autodesktop}\{#MyAppName}"' in installer
+    assert "UninstallDisplayIcon=" in installer
+    assert "postinstall skipifsilent" in installer
+
+
+def test_installer_builder_verifies_installed_payload_and_uninstaller():
+    builder = (PACKAGING_ROOT / "build_installer.py").read_text(encoding="utf-8")
+
+    assert "validate_bundle(install_root, SOURCE_DATABASE)" in builder
+    assert '"--release-smoke-test"' in builder
+    assert '"unins000.exe"' in builder
+    assert "The DFS uninstaller did not remove the application." in builder
 
 
 def test_layout_verifier_accepts_runtime_payload_and_rejects_source(tmp_path):
