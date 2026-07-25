@@ -2215,9 +2215,13 @@ class TacticalAssistantPage(QWidget):
 
     def _default_fleet_folder(self) -> Path:
         configured = self._context.settings.get_str("fleet/default_folder", "").strip()
-        folder = Path(configured) if configured else self._context.resources.project_root / "fleets"
-        folder = folder.expanduser().resolve()
-        folder.mkdir(parents=True, exist_ok=True)
+        folder = self._context.resources.writable_folder(
+            configured,
+            self._context.resources.fleet_files_root,
+        )
+        if not configured or Path(configured).expanduser().resolve() != folder:
+            self._context.settings.set_value("fleet/default_folder", str(folder))
+            self._context.settings.sync()
         return folder
 
     def _remember_fleet_folder(self, path: Path) -> None:
@@ -2226,10 +2230,11 @@ class TacticalAssistantPage(QWidget):
 
     def _default_game_folder(self) -> Path:
         configured = self._context.settings.get_str("tactical/default_folder", "").strip()
-        folder = Path(configured) if configured else self._context.resources.project_root / "games"
-        folder = folder.expanduser().resolve()
-        folder.mkdir(parents=True, exist_ok=True)
-        if not configured:
+        folder = self._context.resources.writable_folder(
+            configured,
+            self._context.resources.game_files_root,
+        )
+        if not configured or Path(configured).expanduser().resolve() != folder:
             self._context.settings.set_value("tactical/default_folder", str(folder))
             self._context.settings.sync()
         return folder

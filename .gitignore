@@ -8,6 +8,10 @@ Database/Data/dfs_before_*.db
 git_commit_review.txt
 git_staged_review.txt
 Application/Python/repair_stale_legacy_platforms.cmd
+Application/Python/.venv-release/
+Application/Python/build/
+Application/Python/dist/
+Application/Python/release/
 
 # DFS local commit-preparation artifacts
 Application/Python/fleets/

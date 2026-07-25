@@ -146,13 +146,11 @@ class FleetPrintDialog(QDialog):
         ]
 
     def _sheet_folder(self) -> Path:
-        if self._fleet_path:
-            base = self._fleet_path.parent / self._fleet_path.name.removesuffix(".dfs-fleet.json")
-        else:
-            root = self._context.settings.get_str("fleet/default_folder", "").strip()
-            base_root = Path(root) if root else self._context.resources.project_root / "fleets"
-            safe_name = "".join(ch if ch.isalnum() or ch in "-_ " else "_" for ch in self._fleet.name).strip() or "Untitled Fleet"
-            base = base_root / safe_name
+        safe_name = "".join(
+            ch if ch.isalnum() or ch in "-_ " else "_"
+            for ch in self._fleet.name
+        ).strip() or "Untitled Fleet"
+        base = self._context.resources.generated_sheets_root / safe_name
         folder = base / "sheets"
         folder.mkdir(parents=True, exist_ok=True)
         return folder
