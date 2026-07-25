@@ -53,7 +53,6 @@ def _verify_installed_payload(installer_path: Path) -> None:
     with tempfile.TemporaryDirectory(prefix="dfs-installer-smoke-") as temp:
         install_root = Path(temp) / "DeesFightingShips"
         install_log = Path(temp) / "install.log"
-        uninstall_log = Path(temp) / "uninstall.log"
 
         subprocess.run(
             [
@@ -94,7 +93,6 @@ def _verify_installed_payload(installer_path: Path) -> None:
                 "/VERYSILENT",
                 "/SUPPRESSMSGBOXES",
                 "/NORESTART",
-                f"/LOG={uninstall_log}",
             ],
             check=True,
             timeout=300,
