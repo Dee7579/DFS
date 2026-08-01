@@ -8,6 +8,9 @@ Database/Data/dfs_before_*.db
 git_commit_review.txt
 git_staged_review.txt
 Application/Python/repair_stale_legacy_platforms.cmd
+Application/Python/build/android/
+Application/Python/release/android/
+Application/Python/android/wheels/
 
 # DFS local commit-preparation artifacts
 Application/Python/fleets/

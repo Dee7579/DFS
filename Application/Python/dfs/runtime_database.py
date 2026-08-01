@@ -19,7 +19,10 @@ def prepare_runtime_database(source_path: str | Path) -> Path:
     source = Path(source_path).resolve()
     runtime_directory = Path(tempfile.mkdtemp(prefix="dfs_runtime_"))
     runtime_database = runtime_directory / source.name
-    shutil.copy2(source, runtime_database)
+    # Android app-private storage rejects the extended-attribute copy attempted
+    # by shutil.copy2().  The runtime database needs the certified bytes, not
+    # the source file's host metadata, so a content-only copy is intentional.
+    shutil.copyfile(source, runtime_database)
     atexit.register(shutil.rmtree, runtime_directory, ignore_errors=True)
     ensure_b5_composite_fleets(runtime_database)
     return runtime_database

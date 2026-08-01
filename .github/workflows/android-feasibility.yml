@@ -1,0 +1,232 @@
+name: Android Tablet Feasibility
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/android-feasibility.yml"
+      - "Application/Python/android/**"
+      - "Application/Python/dfs/mobile/**"
+      - "Application/Python/dfs/runtime_database.py"
+      - "Application/Python/dfs/services/fleet/__init__.py"
+      - "Application/Python/tests/mobile/**"
+      - "Database/Data/dfs.db"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android:
+    name: Build Android (${{ matrix.android_arch }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - android_arch: arm64-v8a
+            qt_arch: aarch64
+            run_emulator: false
+            publish: true
+          - android_arch: x86_64
+            qt_arch: x86_64
+            run_emulator: true
+            publish: false
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Application/Python/android/requirements-android.txt
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            autoconf \
+            automake \
+            build-essential \
+            ccache \
+            cmake \
+            libegl1 \
+            libffi-dev \
+            libltdl-dev \
+            libssl-dev \
+            libtool \
+            libtool-bin \
+            pkg-config \
+            unzip \
+            zip \
+            zlib1g-dev
+
+      - name: Install Python and Android deployment tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r Application/Python/android/requirements-android.txt
+          deploy_requirements="$(python - <<'PY'
+          from pathlib import Path
+          import PySide6
+          print(Path(PySide6.__file__).resolve().parent / "scripts" / "requirements-android.txt")
+          PY
+          )"
+          python -m pip install -r "$deploy_requirements"
+          python -m pip install "buildozer==1.5.0" "cython==0.29.33"
+
+      - name: Run focused mobile safeguards
+        working-directory: Application/Python
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m pytest -q tests/mobile
+          python -m compileall -q android dfs/mobile dfs/services/fleet/__init__.py
+          pyside6-qmllint android/qml/Main.qml
+          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+            python android/main.py --mobile-smoke-test
+          python android/stage_android.py
+          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+            PYTHONPATH=build/android/staging \
+            python build/android/staging/main.py --mobile-smoke-test
+
+      - name: Install pinned Android SDK and NDK components
+        shell: bash
+        run: |
+          sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          sdkmanager_bin="$sdk_root/cmdline-tools/latest/bin/sdkmanager"
+          if [[ ! -x "$sdkmanager_bin" ]]; then
+            echo "Android sdkmanager was not found at $sdkmanager_bin" >&2
+            exit 1
+          fi
+          yes | "$sdkmanager_bin" --licenses >/dev/null || true
+          "$sdkmanager_bin" --install \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;35.0.0" \
+            "ndk;28.2.13676358"
+          if [[ "${{ matrix.run_emulator }}" == "true" ]]; then
+            "$sdkmanager_bin" --install \
+              "emulator" \
+              "system-images;android-34;google_apis;x86_64"
+          fi
+          mkdir -p "$sdk_root/tools/bin"
+          ln -sfn "$sdkmanager_bin" "$sdk_root/tools/bin/sdkmanager"
+          echo "DFS_ANDROID_SDK_ROOT=$sdk_root" >> "$GITHUB_ENV"
+
+      - name: Download official Qt for Python Android wheels
+        run: |
+          mkdir -p Application/Python/android/wheels
+          curl --fail --location --retry 3 \
+            --output Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl
+          curl --fail --location --retry 3 \
+            --output Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl
+
+      - name: Build and verify Android APK
+        run: |
+          python Application/Python/android/build_android.py \
+            --arch "${{ matrix.android_arch }}" \
+            --wheel-pyside Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            --wheel-shiboken Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            --sdk-path "$DFS_ANDROID_SDK_ROOT" \
+            --ndk-path "$DFS_ANDROID_SDK_ROOT/ndk/28.2.13676358"
+
+      - name: Start Android emulator
+        if: matrix.run_emulator
+        shell: bash
+        run: |
+          avdmanager_bin="$DFS_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager"
+          adb_bin="$DFS_ANDROID_SDK_ROOT/platform-tools/adb"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/android-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "$avdmanager_bin" create avd \
+            --force \
+            --name dfs-ci \
+            --package "system-images;android-34;google_apis;x86_64"
+          "$DFS_ANDROID_SDK_ROOT/emulator/emulator" -list-avds | grep -Fx dfs-ci
+          if [[ -e /dev/kvm ]]; then
+            sudo chmod 666 /dev/kvm
+          fi
+          nohup "$DFS_ANDROID_SDK_ROOT/emulator/emulator" \
+            -avd dfs-ci \
+            -no-window \
+            -noaudio \
+            -no-boot-anim \
+            -no-snapshot \
+            -gpu swiftshader_indirect \
+            > "$RUNNER_TEMP/dfs-emulator.log" 2>&1 &
+          emulator_pid=$!
+          connected=false
+          for attempt in $(seq 1 60); do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/dfs-emulator.log"
+              exit 1
+            fi
+            if [[ "$("$adb_bin" get-state 2>/dev/null || true)" == "device" ]]; then
+              connected=true
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$connected" != "true" ]]; then
+            cat "$RUNNER_TEMP/dfs-emulator.log"
+            exit 1
+          fi
+          booted=false
+          for attempt in $(seq 1 120); do
+            if [[ "$("$adb_bin" shell getprop sys.boot_completed | tr -d '\r')" == "1" ]]; then
+              booted=true
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$booted" != "true" ]]; then
+            cat "$RUNNER_TEMP/dfs-emulator.log"
+            exit 1
+          fi
+          "$adb_bin" shell input keyevent 82
+
+      - name: Verify app startup on Android emulator
+        if: matrix.run_emulator
+        shell: bash
+        run: |
+          apk_path="$(find Application/Python/release/android -maxdepth 1 -name '*-x86_64.apk' -print -quit)"
+          python Application/Python/android/verify_emulator_startup.py \
+            --adb "$DFS_ANDROID_SDK_ROOT/platform-tools/adb" \
+            --aapt "$DFS_ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" \
+            --apk "$apk_path" \
+            --diagnostics Application/Python/release/android-emulator-diagnostics
+
+      - name: Upload emulator diagnostics
+        if: always() && matrix.run_emulator
+        uses: actions/upload-artifact@v4
+        with:
+          name: DFS-Android-Emulator-Diagnostics-alpha3
+          path: |
+            Application/Python/release/android-emulator-diagnostics/**
+            ${{ runner.temp }}/dfs-emulator.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload tablet alpha
+        if: matrix.publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: DFS-Android-Tablet-0.1.0-alpha3-arm64-v8a
+          path: |
+            Application/Python/release/android/*.apk
+            Application/Python/release/android/*.sha256
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,3 @@
+# Host-side tooling for the official PySide6 Android deployment path.
+PySide6==6.10.3
+pytest>=9,<10
