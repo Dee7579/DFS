@@ -29,6 +29,7 @@ from android.build_android import (
 )
 from android.main import _write_startup_status
 from android.verify_emulator_startup import _badging_identity
+from dfs.runtime_database import prepare_runtime_database
 
 
 def _run_python(source: str, *, python_path: Path) -> subprocess.CompletedProcess[str]:
@@ -217,3 +218,22 @@ def test_android_startup_status_is_persisted(monkeypatch, tmp_path: Path) -> Non
     assert (tmp_path / "dfs-startup-status.txt").read_text(encoding="utf-8") == (
         "error\nexample traceback"
     )
+
+
+def test_runtime_database_copy_does_not_require_metadata_writes(
+    monkeypatch, tmp_path: Path
+) -> None:
+    source = tmp_path / "certified.db"
+    source.write_bytes(b"certified database bytes")
+
+    def deny_metadata_copy(*_args, **_kwargs) -> None:
+        raise PermissionError("Android app storage rejects extended attributes")
+
+    monkeypatch.setattr("shutil.copystat", deny_metadata_copy)
+    monkeypatch.setattr(
+        "dfs.runtime_database.ensure_b5_composite_fleets", lambda _path: None
+    )
+
+    runtime_database = prepare_runtime_database(source)
+
+    assert runtime_database.read_bytes() == source.read_bytes()

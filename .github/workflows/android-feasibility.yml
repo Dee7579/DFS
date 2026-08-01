@@ -9,6 +9,7 @@ on:
       - ".github/workflows/android-feasibility.yml"
       - "Application/Python/android/**"
       - "Application/Python/dfs/mobile/**"
+      - "Application/Python/dfs/runtime_database.py"
       - "Application/Python/dfs/services/fleet/__init__.py"
       - "Application/Python/tests/mobile/**"
       - "Database/Data/dfs.db"
