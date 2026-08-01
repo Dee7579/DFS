@@ -109,9 +109,9 @@ def _write_project_file(stage: Path) -> None:
     )
 
 
-def _write_deploy_spec(stage: Path) -> None:
+def _write_deploy_spec(stage: Path, deploy_arch: str) -> None:
     (stage / "pysidedeploy.spec").write_text(
-        """[app]
+        f"""[app]
 title = DFSCompanion
 project_dir = .
 input_file = main.py
@@ -147,7 +147,7 @@ jars_dir =
 ndk_path =
 sdk_path =
 local_libs =
-arch = aarch64
+arch = {deploy_arch}
 """,
         encoding="utf-8",
     )
@@ -200,7 +200,7 @@ def validate_stage(stage: Path = STAGE_ROOT) -> list[str]:
     return errors
 
 
-def stage_android(stage: Path = STAGE_ROOT) -> Path:
+def stage_android(stage: Path = STAGE_ROOT, *, deploy_arch: str = "aarch64") -> Path:
     resolved_stage = stage.resolve()
     expected_parent = BUILD_ROOT.resolve()
     if expected_parent not in resolved_stage.parents:
@@ -214,7 +214,7 @@ def stage_android(stage: Path = STAGE_ROOT) -> Path:
     _stage_python_sources(resolved_stage)
     _write_database_payload(resolved_stage)
     _write_project_file(resolved_stage)
-    _write_deploy_spec(resolved_stage)
+    _write_deploy_spec(resolved_stage, deploy_arch)
 
     errors = validate_stage(resolved_stage)
     if errors:

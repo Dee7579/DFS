@@ -19,12 +19,17 @@ from android.build_android import (
     ANDROID_ARCH,
     ANDROID_PAGE_SIZE,
     NON_ELF_NATIVE_PAYLOADS,
+    P4A_BRANCH,
+    P4A_COMMIT,
     PAGE_ALIGNMENT_COMPAT_LIBRARIES,
     QML_PLUGIN_PATHS,
     _elf_load_alignments,
     _extract_qml_plugins,
     configure_buildozer,
 )
+from android.main import _write_startup_status
+from android.stage_android import _write_deploy_spec
+from android.verify_emulator_startup import _badging_identity
 
 
 def _run_python(source: str, *, python_path: Path) -> subprocess.CompletedProcess[str]:
@@ -82,6 +87,9 @@ print(hashlib.sha256(path.read_bytes()).hexdigest())
     )
     assert result.stdout.strip() == hashlib.sha256(CANONICAL_DATABASE.read_bytes()).hexdigest()
     assert destination.read_bytes() == CANONICAL_DATABASE.read_bytes()
+    assert "arch = aarch64" in (stage / "pysidedeploy.spec").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_buildozer_configuration_is_landscape_and_pinned(tmp_path: Path) -> None:
@@ -108,9 +116,40 @@ log_level = 2
     assert "android.api = 34" in configured
     assert "android.minapi = 28" in configured
     assert "android.accept_sdk_license = True" in configured
+    assert f"p4a.branch = {P4A_BRANCH}" in configured
+    assert f"p4a.commit = {P4A_COMMIT}" in configured
     assert "android.add_libs_arm64_v8a = qml-libs/arm64-v8a/*.so" in configured
+    extra_args = next(
+        line for line in configured.splitlines() if line.startswith("p4a.extra_args")
+    )
     for plugin in QML_PLUGIN_PATHS:
-        assert plugin in configured
+        assert plugin not in extra_args
+
+
+def test_buildozer_configuration_supports_x86_emulator_package(tmp_path: Path) -> None:
+    spec = tmp_path / "buildozer.spec"
+    spec.write_text(
+        """[app]
+p4a.extra_args = --qt-libs=Core --load-local-libs=plugins_platforms_qtforandroid --init-classes=
+
+[buildozer]
+""",
+        encoding="utf-8",
+    )
+
+    configure_buildozer(spec, arch="x86_64", include_qml_plugins=True)
+
+    configured = spec.read_text(encoding="utf-8")
+    assert "android.add_libs_x86_64 = qml-libs/x86_64/*.so" in configured
+    assert "--load-local-libs=plugins_platforms_qtforandroid" in configured
+
+
+def test_android_deploy_spec_supports_x86_emulator(tmp_path: Path) -> None:
+    _write_deploy_spec(tmp_path, "x86_64")
+
+    assert "arch = x86_64" in (tmp_path / "pysidedeploy.spec").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_qml_plugins_are_extracted_from_android_wheel(tmp_path: Path) -> None:
@@ -125,6 +164,24 @@ def test_qml_plugins_are_extracted_from_android_wheel(tmp_path: Path) -> None:
     assert len(extracted) == len(QML_PLUGIN_PATHS)
     assert {path.name for path in extracted} == {
         f"lib{plugin}_{ANDROID_ARCH}.so" for plugin in QML_PLUGIN_PATHS
+    }
+
+
+def test_qml_plugins_are_extracted_for_x86_emulator(tmp_path: Path) -> None:
+    wheel = tmp_path / "PySide6-android-x86.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        for plugin, qml_path in QML_PLUGIN_PATHS.items():
+            filename = f"lib{plugin}_x86_64.so"
+            archive.writestr(f"PySide6/Qt/qml/{qml_path}/{filename}", plugin.encode())
+
+    extracted = _extract_qml_plugins(
+        wheel,
+        tmp_path / "qml-libs",
+        arch="x86_64",
+    )
+
+    assert {path.name for path in extracted} == {
+        f"lib{plugin}_x86_64.so" for plugin in QML_PLUGIN_PATHS
     }
 
 
@@ -145,3 +202,24 @@ def test_alignment_exceptions_are_narrow_and_explicit() -> None:
         f"lib/{ANDROID_ARCH}/libshiboken6.abi3.so"
     }
     assert NON_ELF_NATIVE_PAYLOADS == {f"lib/{ANDROID_ARCH}/libpybundle.so"}
+
+
+def test_emulator_badging_identity_parser() -> None:
+    output = """package: name='org.example.dfscompanion' versionCode='1'
+launchable-activity: name='org.kivy.android.PythonActivity' label='DFSCompanion'
+"""
+
+    assert _badging_identity(output) == (
+        "org.example.dfscompanion",
+        "org.kivy.android.PythonActivity",
+    )
+
+
+def test_android_startup_status_is_persisted(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("ANDROID_PRIVATE", str(tmp_path))
+
+    _write_startup_status("error", "example traceback")
+
+    assert (tmp_path / "dfs-startup-status.txt").read_text(encoding="utf-8") == (
+        "error\nexample traceback"
+    )

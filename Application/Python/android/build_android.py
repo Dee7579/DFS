@@ -1,4 +1,4 @@
-"""Build and checksum the DFS ARM64 tablet APK with Qt's official tool."""
+"""Build and checksum a DFS tablet APK with Qt's official Android tool."""
 
 from __future__ import annotations
 
@@ -18,13 +18,19 @@ except ImportError:  # Direct script execution from the android directory.
     from stage_android import BUILD_ROOT, PYTHON_ROOT, stage_android
 
 
-PRODUCT_NAME = "Dees-Fighting-Ships-Android-Tablet-0.1.0-alpha2-arm64-v8a"
+PRODUCT_VERSION = "0.1.0-alpha3"
 DELIVERY_ROOT = PYTHON_ROOT / "release" / "android"
 ANDROID_API = "34"
 ANDROID_MIN_API = "28"
 ANDROID_PYTHON = "3.11.15"
 ANDROID_ARCH = "arm64-v8a"
 ANDROID_PAGE_SIZE = 16 * 1024
+P4A_BRANCH = "develop"
+P4A_COMMIT = "0382d27de2f7315ed98e74884bafb30365decdee"
+DEPLOY_ARCHES = {
+    "arm64-v8a": "aarch64",
+    "x86_64": "x86_64",
+}
 
 # Qt's official 6.10.3 Shiboken ARM64 wheel still ships this one prebuilt at
 # 4 KB alignment. Android 16 detects it and enables its 16 KB compatibility
@@ -42,8 +48,9 @@ NON_ELF_NATIVE_PAYLOADS = {
 
 # pyside6-android-deploy 6.10 copies Qt module libraries into the APK, but its
 # generated recipe does not promote QML plug-ins out of the extracted Python
-# bundle. Android's native loader cannot reliably load those plug-ins from the
-# writable app-data tree, so QML fails before the first window is created.
+# bundle. Promote the plug-ins into Android's native library directory, while
+# leaving their initialization to QML instead of forcing Java to load every
+# plug-in before Python starts.
 QML_PLUGIN_PATHS = {
     "qml_QtQml_qmlplugin": "QtQml",
     "qml_QtQml_Models_modelsplugin": "QtQml/Models",
@@ -111,32 +118,37 @@ def _elf_load_alignments(header: bytes) -> tuple[int, ...]:
     return tuple(alignments)
 
 
-def _verify_apk(path: Path) -> None:
+def _verify_apk(path: Path, *, arch: str = ANDROID_ARCH) -> None:
     if path.stat().st_size < 1_000_000:
         raise RuntimeError(f"Android package is unexpectedly small: {path}")
     with zipfile.ZipFile(path) as archive:
         names = set(archive.namelist())
         if "AndroidManifest.xml" not in names or "classes.dex" not in names:
             raise RuntimeError("Android package is missing its manifest or Java bytecode.")
-        native_prefix = f"lib/{ANDROID_ARCH}/"
+        native_prefix = f"lib/{arch}/"
         native_libraries = sorted(
             name
             for name in names
             if name.startswith(native_prefix) and name.endswith(".so")
         )
         if not native_libraries:
-            raise RuntimeError("Android package does not contain an ARM64 native payload.")
+            raise RuntimeError(
+                f"Android package does not contain a {arch} native payload."
+            )
 
         missing_qml = [
-            f"{native_prefix}lib{plugin}_{ANDROID_ARCH}.so"
+            f"{native_prefix}lib{plugin}_{arch}.so"
             for plugin in QML_PLUGIN_PATHS
-            if f"{native_prefix}lib{plugin}_{ANDROID_ARCH}.so" not in names
+            if f"{native_prefix}lib{plugin}_{arch}.so" not in names
         ]
         if missing_qml:
             raise RuntimeError(
                 "Android package is missing required QML plug-ins: "
                 + ", ".join(missing_qml)
             )
+
+        if arch != ANDROID_ARCH:
+            return
 
         alignment_errors: list[str] = []
         compatibility_libraries: list[str] = []
@@ -168,14 +180,19 @@ def _verify_apk(path: Path) -> None:
             )
 
 
-def _extract_qml_plugins(wheel: Path, destination: Path) -> tuple[Path, ...]:
+def _extract_qml_plugins(
+    wheel: Path,
+    destination: Path,
+    *,
+    arch: str = ANDROID_ARCH,
+) -> tuple[Path, ...]:
     """Extract required QML plug-ins from the official Android PySide wheel."""
 
     destination.mkdir(parents=True, exist_ok=True)
     extracted: list[Path] = []
     with zipfile.ZipFile(wheel) as archive:
         for plugin, qml_path in QML_PLUGIN_PATHS.items():
-            filename = f"lib{plugin}_{ANDROID_ARCH}.so"
+            filename = f"lib{plugin}_{arch}.so"
             member = f"PySide6/Qt/qml/{qml_path}/{filename}"
             try:
                 payload = archive.read(member)
@@ -187,24 +204,6 @@ def _extract_qml_plugins(wheel: Path, destination: Path) -> tuple[Path, ...]:
             target.write_bytes(payload)
             extracted.append(target)
     return tuple(extracted)
-
-
-def _append_load_local_libraries(text: str, libraries: tuple[str, ...]) -> str:
-    pattern = re.compile(
-        r"(?m)^(?P<prefix>[ \t]*p4a\.extra_args[ \t]*=.*?"
-        r"--load-local-libs=)(?P<libraries>[^ \t\r\n]*)(?P<suffix>.*)$"
-    )
-    match = pattern.search(text)
-    if match is None:
-        raise RuntimeError("Generated buildozer.spec has no --load-local-libs argument.")
-    configured = [value for value in match.group("libraries").split(",") if value]
-    for library in libraries:
-        if library not in configured:
-            configured.append(library)
-    replacement = (
-        match.group("prefix") + ",".join(configured) + match.group("suffix")
-    )
-    return text[: match.start()] + replacement + text[match.end() :]
 
 
 def _set_buildozer_value(text: str, key: str, value: str) -> str:
@@ -221,7 +220,12 @@ def _set_buildozer_value(text: str, key: str, value: str) -> str:
     return text.replace(marker, f"{marker}\n{key} = {value}", 1)
 
 
-def configure_buildozer(path: Path, *, include_qml_plugins: bool = False) -> None:
+def configure_buildozer(
+    path: Path,
+    *,
+    arch: str = ANDROID_ARCH,
+    include_qml_plugins: bool = False,
+) -> None:
     """Pin tablet orientation and API levels after Qt creates Buildozer's file."""
 
     text = path.read_text(encoding="utf-8")
@@ -234,15 +238,16 @@ def configure_buildozer(path: Path, *, include_qml_plugins: bool = False) -> Non
         ("android.api", ANDROID_API),
         ("android.minapi", ANDROID_MIN_API),
         ("android.accept_sdk_license", "True"),
+        ("p4a.branch", P4A_BRANCH),
+        ("p4a.commit", P4A_COMMIT),
     ):
         text = _set_buildozer_value(text, key, value)
     if include_qml_plugins:
         text = _set_buildozer_value(
             text,
-            "android.add_libs_arm64_v8a",
-            "qml-libs/arm64-v8a/*.so",
+            f"android.add_libs_{arch.replace('-', '_')}",
+            f"qml-libs/{arch}/*.so",
         )
-        text = _append_load_local_libraries(text, tuple(QML_PLUGIN_PATHS))
     path.write_text(text, encoding="utf-8")
 
 
@@ -252,9 +257,14 @@ def main() -> int:
     parser.add_argument("--wheel-shiboken", type=Path, required=True)
     parser.add_argument("--ndk-path", type=Path, required=True)
     parser.add_argument("--sdk-path", type=Path, required=True)
+    parser.add_argument(
+        "--arch",
+        choices=tuple(DEPLOY_ARCHES),
+        default=ANDROID_ARCH,
+    )
     args = parser.parse_args()
 
-    stage = stage_android()
+    stage = stage_android(deploy_arch=DEPLOY_ARCHES[args.arch])
     deploy = shutil.which("pyside6-android-deploy")
     if not deploy:
         raise SystemExit("pyside6-android-deploy is not installed in this environment.")
@@ -285,9 +295,14 @@ def main() -> int:
         raise RuntimeError("Qt Android deployment did not create buildozer.spec.")
     _extract_qml_plugins(
         args.wheel_pyside.resolve(),
-        stage / "qml-libs" / ANDROID_ARCH,
+        stage / "qml-libs" / args.arch,
+        arch=args.arch,
     )
-    configure_buildozer(buildozer_spec, include_qml_plugins=True)
+    configure_buildozer(
+        buildozer_spec,
+        arch=args.arch,
+        include_qml_plugins=True,
+    )
     subprocess.run(
         [
             sys.executable,
@@ -309,10 +324,11 @@ def main() -> int:
 
     source = candidates[-1]
     DELIVERY_ROOT.mkdir(parents=True, exist_ok=True)
-    destination = DELIVERY_ROOT / f"{PRODUCT_NAME}.apk"
-    checksum = DELIVERY_ROOT / f"{PRODUCT_NAME}.sha256"
+    product_name = f"Dees-Fighting-Ships-Android-Tablet-{PRODUCT_VERSION}-{args.arch}"
+    destination = DELIVERY_ROOT / f"{product_name}.apk"
+    checksum = DELIVERY_ROOT / f"{product_name}.sha256"
     shutil.copy2(source, destination)
-    _verify_apk(destination)
+    _verify_apk(destination, arch=args.arch)
     checksum.write_text(f"{_sha256(destination)}  {destination.name}\n", encoding="ascii")
     print(f"Created {destination}")
     print(f"Created {checksum}")

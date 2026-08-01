@@ -17,9 +17,22 @@ permissions:
   contents: read
 
 jobs:
-  build-android-arm64:
+  build-android:
+    name: Build Android (${{ matrix.android_arch }})
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - android_arch: arm64-v8a
+            qt_arch: aarch64
+            run_emulator: false
+            publish: true
+          - android_arch: x86_64
+            qt_arch: x86_64
+            run_emulator: true
+            publish: false
 
     steps:
       - name: Check out source
@@ -101,32 +114,95 @@ jobs:
             "platforms;android-34" \
             "build-tools;35.0.0" \
             "ndk;28.2.13676358"
+          if [[ "${{ matrix.run_emulator }}" == "true" ]]; then
+            "$sdkmanager_bin" --install \
+              "emulator" \
+              "system-images;android-34;google_apis;x86_64"
+          fi
           mkdir -p "$sdk_root/tools/bin"
           ln -sfn "$sdkmanager_bin" "$sdk_root/tools/bin/sdkmanager"
           echo "DFS_ANDROID_SDK_ROOT=$sdk_root" >> "$GITHUB_ENV"
 
-      - name: Download official Qt for Python ARM64 wheels
+      - name: Download official Qt for Python Android wheels
         run: |
           mkdir -p Application/Python/android/wheels
           curl --fail --location --retry 3 \
-            --output Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
-            https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl
+            --output Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl
           curl --fail --location --retry 3 \
-            --output Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
-            https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl
+            --output Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl
 
-      - name: Build and verify ARM64 APK
+      - name: Build and verify Android APK
         run: |
           python Application/Python/android/build_android.py \
-            --wheel-pyside Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
-            --wheel-shiboken Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
+            --arch "${{ matrix.android_arch }}" \
+            --wheel-pyside Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
+            --wheel-shiboken Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_${{ matrix.qt_arch }}.whl \
             --sdk-path "$DFS_ANDROID_SDK_ROOT" \
             --ndk-path "$DFS_ANDROID_SDK_ROOT/ndk/28.2.13676358"
 
-      - name: Upload tablet alpha
+      - name: Start Android emulator
+        if: matrix.run_emulator
+        shell: bash
+        run: |
+          avdmanager_bin="$DFS_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager"
+          echo no | "$avdmanager_bin" create avd \
+            --force \
+            --name dfs-ci \
+            --package "system-images;android-34;google_apis;x86_64"
+          if [[ -e /dev/kvm ]]; then
+            sudo chmod 666 /dev/kvm
+          fi
+          nohup "$DFS_ANDROID_SDK_ROOT/emulator/emulator" \
+            -avd dfs-ci \
+            -no-window \
+            -noaudio \
+            -no-boot-anim \
+            -no-snapshot \
+            -gpu swiftshader_indirect \
+            > "$RUNNER_TEMP/dfs-emulator.log" 2>&1 &
+          adb wait-for-device
+          booted=false
+          for attempt in $(seq 1 120); do
+            if [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == "1" ]]; then
+              booted=true
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$booted" != "true" ]]; then
+            cat "$RUNNER_TEMP/dfs-emulator.log"
+            exit 1
+          fi
+          adb shell input keyevent 82
+
+      - name: Verify app startup on Android emulator
+        if: matrix.run_emulator
+        shell: bash
+        run: |
+          apk_path="$(find Application/Python/release/android -maxdepth 1 -name '*-x86_64.apk' -print -quit)"
+          python Application/Python/android/verify_emulator_startup.py \
+            --aapt "$DFS_ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" \
+            --apk "$apk_path" \
+            --diagnostics Application/Python/release/android-emulator-diagnostics
+
+      - name: Upload emulator diagnostics
+        if: always() && matrix.run_emulator
         uses: actions/upload-artifact@v4
         with:
-          name: DFS-Android-Tablet-0.1.0-alpha2-arm64-v8a
+          name: DFS-Android-Emulator-Diagnostics-alpha3
+          path: |
+            Application/Python/release/android-emulator-diagnostics/**
+            ${{ runner.temp }}/dfs-emulator.log
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload tablet alpha
+        if: matrix.publish
+        uses: actions/upload-artifact@v4
+        with:
+          name: DFS-Android-Tablet-0.1.0-alpha3-arm64-v8a
           path: |
             Application/Python/release/android/*.apk
             Application/Python/release/android/*.sha256

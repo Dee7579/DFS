@@ -2,14 +2,10 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import sys
 import traceback
-
-from PySide6.QtCore import QCoreApplication, QStandardPaths, QTimer, QUrl
-from PySide6.QtGui import QGuiApplication
-from PySide6.QtQml import QQmlApplicationEngine
-
 
 STARTUP_ERROR_QML = b"""
 import QtQuick
@@ -43,9 +39,31 @@ Window {
 """
 
 
-def _load_companion(engine: QQmlApplicationEngine, data_root: Path):
+def _write_startup_status(stage: str, detail: str = "") -> None:
+    """Leave a readable marker for Android launch verification and support."""
+
+    print(f"DFS_STARTUP_STAGE:{stage}", flush=True)
+    private_root = os.environ.get("ANDROID_PRIVATE")
+    if not private_root:
+        return
+    payload = stage if not detail else f"{stage}\n{detail}"
+    try:
+        (Path(private_root) / "dfs-startup-status.txt").write_text(
+            payload,
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        print(
+            f"DFS could not write its startup marker: {exc}",
+            file=sys.stderr,
+            flush=True,
+        )
+
+
+def _load_companion(engine, data_root: Path):
     """Create the shared DFS services lazily so bootstrap failures stay visible."""
 
+    from PySide6.QtCore import QUrl
     from PySide6.QtQuickControls2 import QQuickStyle
 
     from dfs.app_paths import DatabaseNotFoundError, find_database_path
@@ -80,14 +98,17 @@ def _load_companion(engine: QQmlApplicationEngine, data_root: Path):
 
 
 def _show_startup_error(
-    app: QGuiApplication,
+    app,
     detail: str,
     *,
     smoke_test: bool,
 ) -> int:
     """Keep a readable diagnostic on screen instead of returning to the launcher."""
 
-    print(detail, file=sys.stderr)
+    from PySide6.QtCore import QTimer, QUrl
+    from PySide6.QtQml import QQmlApplicationEngine
+
+    print(detail, file=sys.stderr, flush=True)
     engine = QQmlApplicationEngine()
     engine.rootContext().setContextProperty("dfsStartupError", detail[-12000:])
     engine.loadData(STARTUP_ERROR_QML, QUrl("inmemory:/DFSStartupError.qml"))
@@ -99,11 +120,25 @@ def _show_startup_error(
 
 
 def main() -> int:
-    QCoreApplication.setOrganizationName("DFS Project")
-    QCoreApplication.setOrganizationDomain("deesfightingships.local")
-    QCoreApplication.setApplicationName("DFS Companion")
-    app = QGuiApplication(sys.argv)
     smoke_test = "--mobile-smoke-test" in sys.argv
+    _write_startup_status("python-entry")
+
+    try:
+        from PySide6.QtCore import QCoreApplication, QStandardPaths, QTimer
+        from PySide6.QtGui import QGuiApplication
+        from PySide6.QtQml import QQmlApplicationEngine
+
+        _write_startup_status("pyside-imported")
+        QCoreApplication.setOrganizationName("DFS Project")
+        QCoreApplication.setOrganizationDomain("deesfightingships.local")
+        QCoreApplication.setApplicationName("DFS Companion")
+        app = QGuiApplication(sys.argv)
+        _write_startup_status("qt-application-created")
+    except BaseException:
+        detail = traceback.format_exc()
+        _write_startup_status("error", detail)
+        print(detail, file=sys.stderr, flush=True)
+        return 2
 
     data_root = Path(
         QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppDataLocation)
@@ -113,11 +148,14 @@ def main() -> int:
         engine = QQmlApplicationEngine()
         controller = _load_companion(engine, data_root)
     except Exception:
+        detail = traceback.format_exc()
+        _write_startup_status("error", detail)
         return _show_startup_error(
             app,
-            traceback.format_exc(),
+            detail,
             smoke_test=smoke_test,
         )
+    _write_startup_status("ready")
     if smoke_test:
         QTimer.singleShot(250, app.quit)
     return app.exec()
