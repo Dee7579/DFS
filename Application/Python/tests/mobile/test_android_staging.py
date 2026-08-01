@@ -4,8 +4,10 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import struct
 import subprocess
 import sys
+import zipfile
 
 from android.stage_android import (
     BUILD_ROOT,
@@ -13,7 +15,16 @@ from android.stage_android import (
     stage_android,
     validate_stage,
 )
-from android.build_android import configure_buildozer
+from android.build_android import (
+    ANDROID_ARCH,
+    ANDROID_PAGE_SIZE,
+    NON_ELF_NATIVE_PAYLOADS,
+    PAGE_ALIGNMENT_COMPAT_LIBRARIES,
+    QML_PLUGIN_PATHS,
+    _elf_load_alignments,
+    _extract_qml_plugins,
+    configure_buildozer,
+)
 
 
 def _run_python(source: str, *, python_path: Path) -> subprocess.CompletedProcess[str]:
@@ -81,6 +92,7 @@ orientation = portrait
 #android.api = 31
 #android.minapi = 21
 # android.accept_sdk_license = False
+p4a.extra_args = --qt-libs=Core --load-local-libs=plugins_platforms_qtforandroid --init-classes=
 
 [buildozer]
 log_level = 2
@@ -88,11 +100,48 @@ log_level = 2
         encoding="utf-8",
     )
 
-    configure_buildozer(spec)
+    configure_buildozer(spec, include_qml_plugins=True)
 
     configured = spec.read_text(encoding="utf-8")
     assert "orientation = landscape" in configured
     assert "requirements = python3==3.11.15,hostpython3==3.11.15,shiboken6,PySide6" in configured
     assert "android.api = 34" in configured
-    assert "android.minapi = 26" in configured
+    assert "android.minapi = 28" in configured
     assert "android.accept_sdk_license = True" in configured
+    assert "android.add_libs_arm64_v8a = qml-libs/arm64-v8a/*.so" in configured
+    for plugin in QML_PLUGIN_PATHS:
+        assert plugin in configured
+
+
+def test_qml_plugins_are_extracted_from_android_wheel(tmp_path: Path) -> None:
+    wheel = tmp_path / "PySide6-android.whl"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        for plugin, qml_path in QML_PLUGIN_PATHS.items():
+            filename = f"lib{plugin}_{ANDROID_ARCH}.so"
+            archive.writestr(f"PySide6/Qt/qml/{qml_path}/{filename}", plugin.encode())
+
+    extracted = _extract_qml_plugins(wheel, tmp_path / "qml-libs")
+
+    assert len(extracted) == len(QML_PLUGIN_PATHS)
+    assert {path.name for path in extracted} == {
+        f"lib{plugin}_{ANDROID_ARCH}.so" for plugin in QML_PLUGIN_PATHS
+    }
+
+
+def test_elf_alignment_reader_enforces_16_kb_load_segments() -> None:
+    header = bytearray(128)
+    header[:6] = b"\x7fELF\x02\x01"
+    struct.pack_into("<Q", header, 32, 64)
+    struct.pack_into("<H", header, 54, 56)
+    struct.pack_into("<H", header, 56, 1)
+    struct.pack_into("<I", header, 64, 1)
+    struct.pack_into("<Q", header, 64 + 48, ANDROID_PAGE_SIZE)
+
+    assert _elf_load_alignments(bytes(header)) == (ANDROID_PAGE_SIZE,)
+
+
+def test_alignment_exceptions_are_narrow_and_explicit() -> None:
+    assert PAGE_ALIGNMENT_COMPAT_LIBRARIES == {
+        f"lib/{ANDROID_ARCH}/libshiboken6.abi3.so"
+    }
+    assert NON_ELF_NATIVE_PAYLOADS == {f"lib/{ANDROID_ARCH}/libpybundle.so"}

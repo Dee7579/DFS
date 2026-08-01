@@ -53,6 +53,10 @@ Support.
   platform data, or development/reference material.
 - GitHub Actions produces an ARM64 APK and SHA-256 checksum using Qt's official
   Android deployment tool.
+- The APK includes all QML plug-ins required by the touch interface. Libraries
+  built in the release lane use native 16 KB alignment; Android 16's documented
+  compatibility mode covers the one 4 KB-aligned prebuilt in Qt's official
+  Shiboken 6.10.3 wheel.
 
 ## Follow-up after device proof
 

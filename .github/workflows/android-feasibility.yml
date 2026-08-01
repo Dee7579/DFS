@@ -81,6 +81,10 @@ jobs:
           pyside6-qmllint android/qml/Main.qml
           QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
             python android/main.py --mobile-smoke-test
+          python android/stage_android.py
+          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+            PYTHONPATH=build/android/staging \
+            python build/android/staging/main.py --mobile-smoke-test
 
       - name: Install pinned Android SDK and NDK components
         shell: bash
@@ -96,7 +100,7 @@ jobs:
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;35.0.0" \
-            "ndk;26.1.10909125"
+            "ndk;28.2.13676358"
           mkdir -p "$sdk_root/tools/bin"
           ln -sfn "$sdkmanager_bin" "$sdk_root/tools/bin/sdkmanager"
           echo "DFS_ANDROID_SDK_ROOT=$sdk_root" >> "$GITHUB_ENV"
@@ -117,12 +121,12 @@ jobs:
             --wheel-pyside Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
             --wheel-shiboken Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
             --sdk-path "$DFS_ANDROID_SDK_ROOT" \
-            --ndk-path "$DFS_ANDROID_SDK_ROOT/ndk/26.1.10909125"
+            --ndk-path "$DFS_ANDROID_SDK_ROOT/ndk/28.2.13676358"
 
       - name: Upload tablet alpha
         uses: actions/upload-artifact@v4
         with:
-          name: DFS-Android-Tablet-0.1.0-alpha1-arm64-v8a
+          name: DFS-Android-Tablet-0.1.0-alpha2-arm64-v8a
           path: |
             Application/Python/release/android/*.apk
             Application/Python/release/android/*.sha256
