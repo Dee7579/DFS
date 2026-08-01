@@ -72,6 +72,8 @@ jobs:
 
       - name: Run focused mobile safeguards
         working-directory: Application/Python
+        env:
+          PYTHONPATH: .
         run: |
           python -m pytest -q tests/mobile
           python -m compileall -q android dfs/mobile dfs/services/fleet/__init__.py
