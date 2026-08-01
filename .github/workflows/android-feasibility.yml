@@ -85,7 +85,13 @@ jobs:
         shell: bash
         run: |
           sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
-          sdkmanager --install \
+          sdkmanager_bin="$sdk_root/cmdline-tools/latest/bin/sdkmanager"
+          if [[ ! -x "$sdkmanager_bin" ]]; then
+            echo "Android sdkmanager was not found at $sdkmanager_bin" >&2
+            exit 1
+          fi
+          yes | "$sdkmanager_bin" --licenses >/dev/null || true
+          "$sdkmanager_bin" --install \
             "platform-tools" \
             "platforms;android-34" \
             "build-tools;35.0.0" \
