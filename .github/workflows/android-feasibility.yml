@@ -163,7 +163,23 @@ jobs:
             -no-snapshot \
             -gpu swiftshader_indirect \
             > "$RUNNER_TEMP/dfs-emulator.log" 2>&1 &
-          "$adb_bin" wait-for-device
+          emulator_pid=$!
+          connected=false
+          for attempt in $(seq 1 60); do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              cat "$RUNNER_TEMP/dfs-emulator.log"
+              exit 1
+            fi
+            if [[ "$("$adb_bin" get-state 2>/dev/null || true)" == "device" ]]; then
+              connected=true
+              break
+            fi
+            sleep 2
+          done
+          if [[ "$connected" != "true" ]]; then
+            cat "$RUNNER_TEMP/dfs-emulator.log"
+            exit 1
+          fi
           booted=false
           for attempt in $(seq 1 120); do
             if [[ "$("$adb_bin" shell getprop sys.boot_completed | tr -d '\r')" == "1" ]]; then
