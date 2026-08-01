@@ -147,6 +147,7 @@ jobs:
         shell: bash
         run: |
           avdmanager_bin="$DFS_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager"
+          adb_bin="$DFS_ANDROID_SDK_ROOT/platform-tools/adb"
           echo no | "$avdmanager_bin" create avd \
             --force \
             --name dfs-ci \
@@ -162,10 +163,10 @@ jobs:
             -no-snapshot \
             -gpu swiftshader_indirect \
             > "$RUNNER_TEMP/dfs-emulator.log" 2>&1 &
-          adb wait-for-device
+          "$adb_bin" wait-for-device
           booted=false
           for attempt in $(seq 1 120); do
-            if [[ "$(adb shell getprop sys.boot_completed | tr -d '\r')" == "1" ]]; then
+            if [[ "$("$adb_bin" shell getprop sys.boot_completed | tr -d '\r')" == "1" ]]; then
               booted=true
               break
             fi
@@ -175,7 +176,7 @@ jobs:
             cat "$RUNNER_TEMP/dfs-emulator.log"
             exit 1
           fi
-          adb shell input keyevent 82
+          "$adb_bin" shell input keyevent 82
 
       - name: Verify app startup on Android emulator
         if: matrix.run_emulator
@@ -183,6 +184,7 @@ jobs:
         run: |
           apk_path="$(find Application/Python/release/android -maxdepth 1 -name '*-x86_64.apk' -print -quit)"
           python Application/Python/android/verify_emulator_startup.py \
+            --adb "$DFS_ANDROID_SDK_ROOT/platform-tools/adb" \
             --aapt "$DFS_ANDROID_SDK_ROOT/build-tools/35.0.0/aapt" \
             --apk "$apk_path" \
             --diagnostics Application/Python/release/android-emulator-diagnostics
