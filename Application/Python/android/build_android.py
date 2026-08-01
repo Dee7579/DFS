@@ -187,8 +187,11 @@ def _patch_pyside_recipe(path: Path) -> None:
     sentinel = "_dfs_build_arch_with_qml_plugins"
     if sentinel in text:
         return
-    marker = "\n\nrecipe = PySideRecipe()\n"
-    if marker not in text:
+    marker = re.search(
+        r"(?m)^[ \t]*recipe[ \t]*=[ \t]*PySideRecipe\(\)[ \t]*$",
+        text,
+    )
+    if marker is None:
         raise RuntimeError(f"Generated PySide Android recipe has changed: {path}")
     plugin_entries = "\n".join(
         f"        ({plugin!r}, {qml_path!r}),"
@@ -216,7 +219,8 @@ def {sentinel}(self, arch):
 
 PySideRecipe.build_arch = {sentinel}
 '''
-    path.write_text(text.replace(marker, extension + marker, 1), encoding="utf-8")
+    patched = text[: marker.start()] + extension + "\n\n" + text[marker.start() :]
+    path.write_text(patched, encoding="utf-8")
 
 
 def _set_buildozer_value(text: str, key: str, value: str) -> str:
