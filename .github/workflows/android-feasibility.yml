@@ -96,6 +96,8 @@ jobs:
             "platforms;android-34" \
             "build-tools;35.0.0" \
             "ndk;26.1.10909125"
+          mkdir -p "$sdk_root/tools/bin"
+          ln -sfn "$sdkmanager_bin" "$sdk_root/tools/bin/sdkmanager"
           echo "DFS_ANDROID_SDK_ROOT=$sdk_root" >> "$GITHUB_ENV"
 
       - name: Download official Qt for Python ARM64 wheels
