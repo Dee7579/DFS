@@ -1,0 +1,119 @@
+name: Android Tablet Feasibility
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/android-feasibility.yml"
+      - "Application/Python/android/**"
+      - "Application/Python/dfs/mobile/**"
+      - "Application/Python/dfs/services/fleet/__init__.py"
+      - "Application/Python/tests/mobile/**"
+      - "Database/Data/dfs.db"
+
+permissions:
+  contents: read
+
+jobs:
+  build-android-arm64:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Application/Python/android/requirements-android.txt
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            autoconf \
+            automake \
+            build-essential \
+            ccache \
+            cmake \
+            libegl1 \
+            libffi-dev \
+            libssl-dev \
+            libtool \
+            libtool-bin \
+            pkg-config \
+            unzip \
+            zip \
+            zlib1g-dev
+
+      - name: Install Python and Android deployment tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install -r Application/Python/android/requirements-android.txt
+          deploy_requirements="$(python - <<'PY'
+          from pathlib import Path
+          import PySide6
+          print(Path(PySide6.__file__).resolve().parent / "scripts" / "requirements-android.txt")
+          PY
+          )"
+          python -m pip install -r "$deploy_requirements"
+          python -m pip install "buildozer==1.5.0" "cython==0.29.33"
+
+      - name: Run focused mobile safeguards
+        working-directory: Application/Python
+        run: |
+          python -m pytest -q tests/mobile
+          python -m compileall -q android dfs/mobile dfs/services/fleet/__init__.py
+          pyside6-qmllint android/qml/Main.qml
+          QT_QPA_PLATFORM=offscreen QT_QUICK_BACKEND=software \
+            python android/main.py --mobile-smoke-test
+
+      - name: Install pinned Android SDK and NDK components
+        shell: bash
+        run: |
+          sdk_root="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          sdkmanager --install \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;35.0.0" \
+            "ndk;26.1.10909125"
+          echo "DFS_ANDROID_SDK_ROOT=$sdk_root" >> "$GITHUB_ENV"
+
+      - name: Download official Qt for Python ARM64 wheels
+        run: |
+          mkdir -p Application/Python/android/wheels
+          curl --fail --location --retry 3 \
+            --output Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
+            https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl
+          curl --fail --location --retry 3 \
+            --output Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
+            https://download.qt.io/official_releases/QtForPython/shiboken6/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl
+
+      - name: Build and verify ARM64 APK
+        run: |
+          python Application/Python/android/build_android.py \
+            --wheel-pyside Application/Python/android/wheels/PySide6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
+            --wheel-shiboken Application/Python/android/wheels/shiboken6-6.10.3-6.10.3-cp311-cp311-android_aarch64.whl \
+            --sdk-path "$DFS_ANDROID_SDK_ROOT" \
+            --ndk-path "$DFS_ANDROID_SDK_ROOT/ndk/26.1.10909125"
+
+      - name: Upload tablet alpha
+        uses: actions/upload-artifact@v4
+        with:
+          name: DFS-Android-Tablet-0.1.0-alpha1-arm64-v8a
+          path: |
+            Application/Python/release/android/*.apk
+            Application/Python/release/android/*.sha256
+          if-no-files-found: error
+          retention-days: 14
