@@ -180,30 +180,43 @@ def _verify_apk(path: Path, *, arch: str = ANDROID_ARCH) -> None:
             )
 
 
-def _extract_qml_plugins(
-    wheel: Path,
-    destination: Path,
-    *,
-    arch: str = ANDROID_ARCH,
-) -> tuple[Path, ...]:
-    """Extract required QML plug-ins from the official Android PySide wheel."""
+def _patch_pyside_recipe(path: Path) -> None:
+    """Copy the required QML plug-ins through PySide's cross-architecture recipe."""
 
-    destination.mkdir(parents=True, exist_ok=True)
-    extracted: list[Path] = []
-    with zipfile.ZipFile(wheel) as archive:
-        for plugin, qml_path in QML_PLUGIN_PATHS.items():
-            filename = f"lib{plugin}_{arch}.so"
-            member = f"PySide6/Qt/qml/{qml_path}/{filename}"
-            try:
-                payload = archive.read(member)
-            except KeyError as exc:
-                raise RuntimeError(
-                    f"The PySide Android wheel is missing required QML plug-in {member}."
-                ) from exc
-            target = destination / filename
-            target.write_bytes(payload)
-            extracted.append(target)
-    return tuple(extracted)
+    text = path.read_text(encoding="utf-8")
+    sentinel = "_dfs_build_arch_with_qml_plugins"
+    if sentinel in text:
+        return
+    marker = "\n\nrecipe = PySideRecipe()\n"
+    if marker not in text:
+        raise RuntimeError(f"Generated PySide Android recipe has changed: {path}")
+    plugin_entries = "\n".join(
+        f"        ({plugin!r}, {qml_path!r}),"
+        for plugin, qml_path in QML_PLUGIN_PATHS.items()
+    )
+    extension = f'''\n\n_dfs_original_build_arch = PySideRecipe.build_arch
+
+
+def {sentinel}(self, arch):
+    _dfs_original_build_arch(self, arch)
+    qml_root = (
+        Path(self.ctx.get_python_install_dir(arch.arch)) / "PySide6" / "Qt" / "qml"
+    )
+    native_root = Path(self.ctx.get_libs_dir(arch.arch))
+    qml_plugins = (
+{plugin_entries}
+    )
+    for plugin_name, qml_path in qml_plugins:
+        filename = f"lib{{plugin_name}}_{{arch.arch}}.so"
+        source = qml_root / qml_path / filename
+        if not source.is_file():
+            raise FileNotFoundError(f"Required DFS QML plug-in is missing: {{source}}")
+        shutil.copyfile(source, native_root / filename)
+
+
+PySideRecipe.build_arch = {sentinel}
+'''
+    path.write_text(text.replace(marker, extension + marker, 1), encoding="utf-8")
 
 
 def _set_buildozer_value(text: str, key: str, value: str) -> str:
@@ -220,12 +233,7 @@ def _set_buildozer_value(text: str, key: str, value: str) -> str:
     return text.replace(marker, f"{marker}\n{key} = {value}", 1)
 
 
-def configure_buildozer(
-    path: Path,
-    *,
-    arch: str = ANDROID_ARCH,
-    include_qml_plugins: bool = False,
-) -> None:
+def configure_buildozer(path: Path) -> None:
     """Pin tablet orientation and API levels after Qt creates Buildozer's file."""
 
     text = path.read_text(encoding="utf-8")
@@ -242,12 +250,6 @@ def configure_buildozer(
         ("p4a.commit", P4A_COMMIT),
     ):
         text = _set_buildozer_value(text, key, value)
-    if include_qml_plugins:
-        text = _set_buildozer_value(
-            text,
-            f"android.add_libs_{arch.replace('-', '_')}",
-            f"qml-libs/{arch}/*.so",
-        )
     path.write_text(text, encoding="utf-8")
 
 
@@ -293,16 +295,10 @@ def main() -> int:
     buildozer_spec = stage / "buildozer.spec"
     if not buildozer_spec.is_file():
         raise RuntimeError("Qt Android deployment did not create buildozer.spec.")
-    _extract_qml_plugins(
-        args.wheel_pyside.resolve(),
-        stage / "qml-libs" / args.arch,
-        arch=args.arch,
+    _patch_pyside_recipe(
+        stage / "deployment" / "recipes" / "PySide6" / "__init__.py"
     )
-    configure_buildozer(
-        buildozer_spec,
-        arch=args.arch,
-        include_qml_plugins=True,
-    )
+    configure_buildozer(buildozer_spec)
     subprocess.run(
         [
             sys.executable,

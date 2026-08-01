@@ -7,11 +7,11 @@ from pathlib import Path
 import struct
 import subprocess
 import sys
-import zipfile
 
 from android.stage_android import (
     BUILD_ROOT,
     CANONICAL_DATABASE,
+    _write_deploy_spec,
     stage_android,
     validate_stage,
 )
@@ -24,11 +24,10 @@ from android.build_android import (
     PAGE_ALIGNMENT_COMPAT_LIBRARIES,
     QML_PLUGIN_PATHS,
     _elf_load_alignments,
-    _extract_qml_plugins,
+    _patch_pyside_recipe,
     configure_buildozer,
 )
 from android.main import _write_startup_status
-from android.stage_android import _write_deploy_spec
 from android.verify_emulator_startup import _badging_identity
 
 
@@ -108,7 +107,7 @@ log_level = 2
         encoding="utf-8",
     )
 
-    configure_buildozer(spec, include_qml_plugins=True)
+    configure_buildozer(spec)
 
     configured = spec.read_text(encoding="utf-8")
     assert "orientation = landscape" in configured
@@ -118,7 +117,6 @@ log_level = 2
     assert "android.accept_sdk_license = True" in configured
     assert f"p4a.branch = {P4A_BRANCH}" in configured
     assert f"p4a.commit = {P4A_COMMIT}" in configured
-    assert "android.add_libs_arm64_v8a = qml-libs/arm64-v8a/*.so" in configured
     extra_args = next(
         line for line in configured.splitlines() if line.startswith("p4a.extra_args")
     )
@@ -126,7 +124,7 @@ log_level = 2
         assert plugin not in extra_args
 
 
-def test_buildozer_configuration_supports_x86_emulator_package(tmp_path: Path) -> None:
+def test_buildozer_does_not_rely_on_unsupported_x86_add_libs(tmp_path: Path) -> None:
     spec = tmp_path / "buildozer.spec"
     spec.write_text(
         """[app]
@@ -137,11 +135,11 @@ p4a.extra_args = --qt-libs=Core --load-local-libs=plugins_platforms_qtforandroid
         encoding="utf-8",
     )
 
-    configure_buildozer(spec, arch="x86_64", include_qml_plugins=True)
+    configure_buildozer(spec)
 
     configured = spec.read_text(encoding="utf-8")
-    assert "android.add_libs_x86_64 = qml-libs/x86_64/*.so" in configured
     assert "--load-local-libs=plugins_platforms_qtforandroid" in configured
+    assert "android.add_libs_x86_64" not in configured
 
 
 def test_android_deploy_spec_supports_x86_emulator(tmp_path: Path) -> None:
@@ -152,37 +150,33 @@ def test_android_deploy_spec_supports_x86_emulator(tmp_path: Path) -> None:
     )
 
 
-def test_qml_plugins_are_extracted_from_android_wheel(tmp_path: Path) -> None:
-    wheel = tmp_path / "PySide6-android.whl"
-    with zipfile.ZipFile(wheel, "w") as archive:
-        for plugin, qml_path in QML_PLUGIN_PATHS.items():
-            filename = f"lib{plugin}_{ANDROID_ARCH}.so"
-            archive.writestr(f"PySide6/Qt/qml/{qml_path}/{filename}", plugin.encode())
+def test_qml_plugins_are_added_to_cross_architecture_pyside_recipe(
+    tmp_path: Path,
+) -> None:
+    recipe = tmp_path / "__init__.py"
+    recipe.write_text(
+        """from pathlib import Path
+import shutil
 
-    extracted = _extract_qml_plugins(wheel, tmp_path / "qml-libs")
-
-    assert len(extracted) == len(QML_PLUGIN_PATHS)
-    assert {path.name for path in extracted} == {
-        f"lib{plugin}_{ANDROID_ARCH}.so" for plugin in QML_PLUGIN_PATHS
-    }
+class PySideRecipe:
+    def build_arch(self, arch):
+        pass
 
 
-def test_qml_plugins_are_extracted_for_x86_emulator(tmp_path: Path) -> None:
-    wheel = tmp_path / "PySide6-android-x86.whl"
-    with zipfile.ZipFile(wheel, "w") as archive:
-        for plugin, qml_path in QML_PLUGIN_PATHS.items():
-            filename = f"lib{plugin}_x86_64.so"
-            archive.writestr(f"PySide6/Qt/qml/{qml_path}/{filename}", plugin.encode())
-
-    extracted = _extract_qml_plugins(
-        wheel,
-        tmp_path / "qml-libs",
-        arch="x86_64",
+recipe = PySideRecipe()
+""",
+        encoding="utf-8",
     )
 
-    assert {path.name for path in extracted} == {
-        f"lib{plugin}_x86_64.so" for plugin in QML_PLUGIN_PATHS
-    }
+    _patch_pyside_recipe(recipe)
+
+    patched = recipe.read_text(encoding="utf-8")
+    compile(patched, str(recipe), "exec")
+    assert "_dfs_build_arch_with_qml_plugins" in patched
+    assert "arch.arch" in patched
+    for plugin, qml_path in QML_PLUGIN_PATHS.items():
+        assert repr(plugin) in patched
+        assert repr(qml_path) in patched
 
 
 def test_elf_alignment_reader_enforces_16_kb_load_segments() -> None:
