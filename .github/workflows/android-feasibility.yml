@@ -148,10 +148,13 @@ jobs:
         run: |
           avdmanager_bin="$DFS_ANDROID_SDK_ROOT/cmdline-tools/latest/bin/avdmanager"
           adb_bin="$DFS_ANDROID_SDK_ROOT/platform-tools/adb"
+          export ANDROID_AVD_HOME="$RUNNER_TEMP/android-avd"
+          mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$avdmanager_bin" create avd \
             --force \
             --name dfs-ci \
             --package "system-images;android-34;google_apis;x86_64"
+          "$DFS_ANDROID_SDK_ROOT/emulator/emulator" -list-avds | grep -Fx dfs-ci
           if [[ -e /dev/kvm ]]; then
             sudo chmod 666 /dev/kvm
           fi
