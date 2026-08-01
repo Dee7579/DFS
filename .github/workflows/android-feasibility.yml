@@ -49,6 +49,7 @@ jobs:
             cmake \
             libegl1 \
             libffi-dev \
+            libltdl-dev \
             libssl-dev \
             libtool \
             libtool-bin \

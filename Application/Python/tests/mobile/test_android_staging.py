@@ -92,6 +92,7 @@ log_level = 2
 
     configured = spec.read_text(encoding="utf-8")
     assert "orientation = landscape" in configured
+    assert "requirements = python3==3.11.15,hostpython3==3.11.15,shiboken6,PySide6" in configured
     assert "android.api = 34" in configured
     assert "android.minapi = 26" in configured
     assert "android.accept_sdk_license = True" in configured

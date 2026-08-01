@@ -21,6 +21,7 @@ PRODUCT_NAME = "Dees-Fighting-Ships-Android-Tablet-0.1.0-alpha1-arm64-v8a"
 DELIVERY_ROOT = PYTHON_ROOT / "release" / "android"
 ANDROID_API = "34"
 ANDROID_MIN_API = "26"
+ANDROID_PYTHON = "3.11.15"
 
 
 def _sha256(path: Path) -> str:
@@ -61,6 +62,10 @@ def configure_buildozer(path: Path) -> None:
 
     text = path.read_text(encoding="utf-8")
     for key, value in (
+        (
+            "requirements",
+            f"python3=={ANDROID_PYTHON},hostpython3=={ANDROID_PYTHON},shiboken6,PySide6",
+        ),
         ("orientation", "landscape"),
         ("android.api", ANDROID_API),
         ("android.minapi", ANDROID_MIN_API),
