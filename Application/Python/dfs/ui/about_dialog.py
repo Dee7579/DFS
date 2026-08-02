@@ -12,7 +12,7 @@ from PySide6.QtWidgets import QDialog, QDialogButtonBox, QGridLayout, QLabel, QV
 from dfs.bootstrap import ApplicationServices
 
 
-APP_VERSION = "2.4.0-alpha25"
+APP_VERSION = "2.4.0-alpha26"
 
 
 class AboutDialog(QDialog):

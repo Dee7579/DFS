@@ -15,6 +15,7 @@ from PySide6.QtCore import QEvent, QObject, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QBoxLayout,
     QCheckBox,
     QComboBox,
     QDialog,
@@ -28,6 +29,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QInputDialog,
     QLabel,
+    QLayout,
     QLineEdit,
     QListWidget,
     QListWidgetItem,
@@ -798,6 +800,7 @@ class TacticalAssistantPage(QWidget):
         self._craft_group_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         self._quick_reference_dialog: _QuickReferenceDialog | None = None
         self._tooltip_filter = _PersistentToolTipFilter(self)
+        self._detail_groups_stacked = False
 
         self._build_ui()
         self._install_persistent_tooltips()
@@ -1004,7 +1007,7 @@ class TacticalAssistantPage(QWidget):
         self.roster_group = group
         return group
 
-    def _build_detail_panel(self) -> QWidget:
+    def _build_detail_panel(self) -> QScrollArea:
         self.unit_title = QLabel("Select a unit")
         self.unit_title.setObjectName("pageTitle")
         self.unit_subtitle = QLabel("")
@@ -1020,8 +1023,6 @@ class TacticalAssistantPage(QWidget):
         self.damage_editor = _TrackEditor("Damage", allow_negative=True)
         self.crew_editor = _TrackEditor("Crew")
         self.shields_editor = _TrackEditor("Shields")
-        for editor in (self.damage_editor, self.crew_editor, self.shields_editor):
-            editor.setMaximumHeight(102)
         tracks = QHBoxLayout()
         tracks.setSpacing(6)
         tracks.addWidget(self.damage_editor, 1)
@@ -1034,34 +1035,68 @@ class TacticalAssistantPage(QWidget):
         status_and_critical.setSpacing(6)
         status_and_critical.addWidget(self._build_status_group(), 1)
         status_and_critical.addWidget(self._build_critical_group(), 1)
-
-        self.combat_splitter = QSplitter(Qt.Orientation.Vertical)
-        self.combat_splitter.setChildrenCollapsible(False)
-        self.combat_splitter.addWidget(self._build_weapons_group())
-        self.combat_splitter.addWidget(status_and_critical_widget)
-        self.combat_splitter.setStretchFactor(0, 2)
-        self.combat_splitter.setStretchFactor(1, 3)
-        self.combat_splitter.setSizes([190, 300])
+        status_and_critical.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+        self.status_and_critical_layout = status_and_critical
+        self.status_and_critical_widget = status_and_critical_widget
 
         self.detail_tabs = QTabWidget()
         self.detail_tabs.addTab(self._build_traits_group(), "Traits")
         self.detail_tabs.addTab(self._build_source_notes_group(), "Source Notes")
         self.detail_tabs.addTab(self._build_unit_notes_group(), "Unit Notes")
-        self.detail_tabs.setMinimumHeight(130)
-        self.detail_tabs.setMaximumHeight(175)
+        self.detail_tabs.setMinimumHeight(165)
+        self.detail_tabs.setMaximumHeight(190)
 
         self.unit_detail_widget = QWidget()
         detail_layout = QVBoxLayout(self.unit_detail_widget)
         detail_layout.setContentsMargins(6, 4, 6, 4)
         detail_layout.setSpacing(4)
+        detail_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
         detail_layout.addWidget(self.unit_title)
         detail_layout.addWidget(self.unit_subtitle)
         detail_layout.addWidget(self.unit_reference_label)
         detail_layout.addWidget(self.unit_effects_label)
         detail_layout.addLayout(tracks)
-        detail_layout.addWidget(self.combat_splitter, 1)
+        detail_layout.addWidget(self._build_weapons_group())
+        detail_layout.addWidget(status_and_critical_widget)
         detail_layout.addWidget(self.detail_tabs)
-        return self.unit_detail_widget
+        detail_layout.addStretch(1)
+
+        # The original Tactical Assistant deliberately used a scrollable detail
+        # pane.  Removing it forced Qt to shrink the Disposition and Critical
+        # Results forms below their layout minimums, which made their controls
+        # overlap on a real Windows display.  Preserve the compact tabs and
+        # side-by-side combat groups, but let the page grow to its natural
+        # height and scroll whenever the available viewport is shorter.
+        self.detail_scroll = QScrollArea()
+        self.detail_scroll.setWidgetResizable(True)
+        self.detail_scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.detail_scroll.setWidget(self.unit_detail_widget)
+        self.detail_scroll.viewport().installEventFilter(self)
+        return self.detail_scroll
+
+    def eventFilter(self, watched: QObject, event) -> bool:  # type: ignore[override]
+        if (
+            hasattr(self, "detail_scroll")
+            and watched is self.detail_scroll.viewport()
+            and event.type() == QEvent.Type.Resize
+        ):
+            self._set_detail_groups_stacked(event.size().width() < 760)
+        return super().eventFilter(watched, event)
+
+    def _set_detail_groups_stacked(self, stacked: bool) -> None:
+        resolved = bool(stacked)
+        if resolved == self._detail_groups_stacked:
+            return
+        self._detail_groups_stacked = resolved
+        direction = (
+            QBoxLayout.Direction.TopToBottom
+            if resolved
+            else QBoxLayout.Direction.LeftToRight
+        )
+        self.status_and_critical_layout.setDirection(direction)
+        self.status_and_critical_layout.invalidate()
+        self.status_and_critical_widget.updateGeometry()
+        self.unit_detail_widget.updateGeometry()
 
     def _build_status_group(self) -> QGroupBox:
         self.destroyed_checkbox = QCheckBox("Destroyed / Lost")
@@ -1085,7 +1120,6 @@ class TacticalAssistantPage(QWidget):
         )
         self.disposition_description_label.setWordWrap(True)
         self.disposition_description_label.setObjectName("pageSubtitle")
-        self.disposition_description_label.setMaximumHeight(72)
         self.crew_quality_edit = QLineEdit()
         self.special_action_combo = QComboBox()
         self.special_action_combo.setMaxVisibleItems(24)
@@ -1180,8 +1214,8 @@ class TacticalAssistantPage(QWidget):
         self.critical_tree.setHeaderLabels(("Critical", "Effect", "Status"))
         self.critical_tree.setRootIsDecorated(False)
         self.critical_tree.setAlternatingRowColors(True)
-        self.critical_tree.setMinimumHeight(105)
-        self.critical_tree.setMaximumHeight(130)
+        self.critical_tree.setMinimumHeight(130)
+        self.critical_tree.setMaximumHeight(160)
         crit_header = self.critical_tree.header()
         crit_header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         crit_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
@@ -1213,6 +1247,7 @@ class TacticalAssistantPage(QWidget):
         self.weapon_tree.setRootIsDecorated(False)
         self.weapon_tree.setAlternatingRowColors(True)
         self.weapon_tree.setMinimumHeight(105)
+        self.weapon_tree.setMaximumHeight(160)
         weapon_header = self.weapon_tree.header()
         weapon_header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         weapon_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)

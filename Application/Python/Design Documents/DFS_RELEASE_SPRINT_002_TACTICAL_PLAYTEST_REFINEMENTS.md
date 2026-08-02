@@ -9,7 +9,11 @@ existing `.dfs-game.json` saves.
 ## Compact combat workspace
 
 - Keep the core statistics, Damage/Crew/Shields, Weapons, Disposition, and
-  Critical Results visible together without an outer page scrollbar.
+  Critical Results close together in a compact, scrollable detail pane.
+- Preserve each section's natural minimum height so controls never overlap;
+  scrolling is preferred whenever the available height is insufficient.
+- Show Disposition and Critical Results side by side on wide displays and stack
+  them vertically on narrow workspaces to avoid horizontal crowding.
 - Move Traits, Source Notes, and Unit Notes into compact tabs.
 - Represent carried fighters with one row per fighter type and carrier, using
   linked Ready, Launched, and Destroyed counts while retaining individual flight

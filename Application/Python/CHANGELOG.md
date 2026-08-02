@@ -1,5 +1,16 @@
 # DFS Changelog
 
+## 2.4.0-alpha26
+
+- Restored the Tactical Assistant's scrollable platform-detail pane so combat
+  controls retain their natural height instead of overlapping.
+- Kept the Sprint 002 compact tracks, tabbed notes, and condensed fighter roster
+  while limiting Weapons, Criticals, and detail tabs to practical heights.
+- Stack Disposition and Critical Results vertically on narrow workspaces to
+  prevent horizontal crowding; wider displays continue to show them side by side.
+- Added regression coverage for overlapping controls, responsive stacking,
+  vertical scrolling, and both ship and fighter selections.
+
 ## 2.4.0-alpha25
 
 - Condensed the Tactical Assistant combat workspace and grouped carried fighters

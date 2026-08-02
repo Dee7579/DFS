@@ -24,7 +24,7 @@ from dfs.bootstrap import build_application_context
 from dfs.framework.settings_service import SettingsService
 from dfs.ui.main_window import MainWindow
 
-APP_VERSION = "2.4.0-alpha25"
+APP_VERSION = "2.4.0-alpha26"
 
 
 def _run_release_smoke_test() -> int:

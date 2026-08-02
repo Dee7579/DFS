@@ -9,7 +9,8 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QApplication, QTabWidget
+from PySide6.QtCore import QPoint
+from PySide6.QtWidgets import QApplication, QScrollArea, QTabWidget
 
 from dfs.domain.tactical import (
     ATTACK_TABLE_HELP,
@@ -124,7 +125,7 @@ def test_compact_detail_and_context_buttons_share_reference_text(page) -> None:
 
 
 @pytest.mark.parametrize("width,height", ((1100, 700), (1500, 900), (1920, 1080)))
-def test_compact_workspace_keeps_combat_controls_visible(
+def test_scrollable_workspace_keeps_combat_controls_visible(
     page,
     qapp,
     width: int,
@@ -139,7 +140,63 @@ def test_compact_workspace_keeps_combat_controls_visible(
     assert page.status_group.isVisible()
     assert page.critical_group.isVisible()
     assert page.detail_tabs.isVisible()
+    assert isinstance(page.detail_scroll, QScrollArea)
+    assert page.detail_scroll.widget() is page.unit_detail_widget
+    assert page.detail_scroll.horizontalScrollBar().maximum() == 0
+    assert page._detail_groups_stacked is (
+        page.detail_scroll.viewport().width() < 760
+    )
     assert all(size > 0 for size in page.main_splitter.sizes())
+
+
+def test_detail_forms_keep_natural_height_without_overlapping(page, qapp) -> None:
+    page.resize(1500, 900)
+    page.show()
+    qapp.processEvents()
+
+    def vertical_span(widget) -> tuple[int, int]:
+        top = widget.mapTo(page, QPoint(0, 0)).y()
+        return top, top + widget.height()
+
+    def assert_separate(widgets) -> None:
+        spans = [vertical_span(widget) for widget in widgets if widget.isVisible()]
+        assert all(upper[1] <= lower[0] for upper, lower in zip(spans, spans[1:]))
+
+    def assert_forms_do_not_overlap() -> None:
+        assert_separate(
+            (
+                page.disposition_combo,
+                page.disposition_description_label,
+                page.crew_quality_edit,
+                page.special_action_combo,
+                page.special_action_rules_label,
+                page.threshold_status_label,
+                page.correct_crippled_button,
+                page.damage_control_label,
+            )
+        )
+        assert_separate(
+            (
+                page.critical_rule_combo,
+                page.critical_damage_edit,
+                page.critical_target_combo,
+                page.critical_preview_label,
+                page.critical_multiplier_combo,
+                page.critical_tree,
+                page.repair_critical_button,
+            )
+        )
+
+    assert_forms_do_not_overlap()
+
+    craft_item = page.unit_tree.topLevelItem(0).child(0).child(0)
+    page.unit_tree.setCurrentItem(craft_item)
+    qapp.processEvents()
+    assert_forms_do_not_overlap()
+
+    # The normal 900-pixel workspace may scroll, but the forms must never be
+    # forced shorter than their layout minimum just to keep every section in view.
+    assert page.detail_scroll.verticalScrollBar().maximum() > 0
 
 
 def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -> None:
