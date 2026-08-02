@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import sys
 
 
@@ -7,6 +8,23 @@ PACKAGING_ROOT = APP_ROOT / "packaging"
 sys.path.insert(0, str(PACKAGING_ROOT))
 
 from verify_portable_layout import validate_bundle  # noqa: E402
+
+
+def test_release_version_is_consistent_across_desktop_surfaces():
+    expected = "2.4.0-alpha25"
+    sources = (
+        APP_ROOT / "dfs_desktop.py",
+        APP_ROOT / "dfs" / "__init__.py",
+        APP_ROOT / "dfs" / "ui" / "about_dialog.py",
+    )
+
+    for source in sources:
+        match = re.search(
+            r'(?:APP_VERSION|__version__)\s*=\s*"([^"]+)"',
+            source.read_text(encoding="utf-8"),
+        )
+        assert match is not None, source
+        assert match.group(1) == expected, source
 
 
 def test_release_dependencies_are_declared():

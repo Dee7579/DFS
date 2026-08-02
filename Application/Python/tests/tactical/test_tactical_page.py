@@ -127,9 +127,12 @@ def test_page_loads_every_individual_unit_and_edits_tracks(
     assert page.unit_tree.topLevelItemCount() == 1
     ship_item = page.unit_tree.topLevelItem(0)
     assert ship_item.childCount() == 1
-    assert ship_item.text(0) == "Test Cruiser"
+    assert ship_item.text(0) == "Resolute — Test Cruiser"
     assert "Resolute" in ship_item.toolTip(0)
-    assert ship_item.child(0).text(0) == "Aurora Starfury flight"
+    fighter_group = ship_item.child(0)
+    assert fighter_group.text(0) == "Aurora Starfury flight x1"
+    assert fighter_group.childCount() == 1
+    assert fighter_group.child(0).text(0) == "Aurora Starfury flight"
 
     page.unit_tree.setCurrentItem(ship_item)
     page.damage_editor.current_spin.setValue(24)

@@ -127,7 +127,7 @@ def test_scenario_selector_has_none_random_and_all_groups(page, game, qapp) -> N
 
 def test_roster_uses_platform_name_and_groups_purchased_flights(page, game) -> None:
     page.load_game_state(game)
-    assert page.unit_tree.topLevelItem(0).text(0) == "White Star"
+    assert page.unit_tree.topLevelItem(0).text(0) == "White Star One — White Star"
     assert "White Star One" in page.unit_tree.topLevelItem(0).toolTip(0)
     group = page.unit_tree.topLevelItem(1)
     assert group.text(0) == "Nial Heavy Fighter Flight x2"
