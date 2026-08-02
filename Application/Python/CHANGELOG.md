@@ -1,5 +1,17 @@
 # DFS Changelog
 
+## 2.4.0-alpha27
+
+- Moved Traits into a full-width panel above Disposition and Critical Results.
+- Show all traits without an inner scrollbar, using two columns on normal
+  desktop widths and one column on narrow workspaces.
+- Replaced the high-DPI-sensitive fighter spin boxes with separate Ready,
+  Launched, and Lost columns using horizontal minus/value/plus controls.
+- Moved New from Fleet, Open Game, and Quick Reference onto the Tactical
+  Assistant title row and removed the redundant descriptive subtitle.
+- Added responsive header, auto-sizing Traits, and counter regression coverage;
+  visually verified the layouts at 100% and 150% display scaling.
+
 ## 2.4.0-alpha26
 
 - Restored the Tactical Assistant's scrollable platform-detail pane so combat

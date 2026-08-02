@@ -154,9 +154,9 @@ def test_carried_fighter_status_changes_in_battle_roster(
 ) -> None:
     page.load_game_state(game)
     fighter_group = page.unit_tree.topLevelItem(0).child(0)
-    editor = page.unit_tree.itemWidget(fighter_group, 2)
-    assert isinstance(editor, page_module._CraftGroupEditor)
-    editor.launched_spin.setValue(1)
+    launched = page.unit_tree.itemWidget(fighter_group, 4)
+    assert isinstance(launched, page_module._CraftCountEditor)
+    launched.increment_button.click()
     qapp.processEvents()
     assert page.current_game.get_unit("fighter-1").effective_craft_status == "launched"
 

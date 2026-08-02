@@ -11,7 +11,7 @@ from verify_portable_layout import validate_bundle  # noqa: E402
 
 
 def test_release_version_is_consistent_across_desktop_surfaces():
-    expected = "2.4.0-alpha26"
+    expected = "2.4.0-alpha27"
     sources = (
         APP_ROOT / "dfs_desktop.py",
         APP_ROOT / "dfs" / "__init__.py",

@@ -41,6 +41,7 @@ from PySide6.QtWidgets import (
     QSplitter,
     QTabWidget,
     QTextEdit,
+    QToolButton,
     QToolTip,
     QTreeWidget,
     QTreeWidgetItem,
@@ -234,8 +235,75 @@ class _PersistentToolTipFilter(QObject):
         return super().eventFilter(watched, event)
 
 
+class _CraftCountEditor(QWidget):
+    """High-DPI-safe horizontal ``minus / value / plus`` counter."""
+
+    valueChanged = Signal(int)
+
+    def __init__(
+        self,
+        label: str,
+        tooltip: str,
+        parent: QWidget | None = None,
+    ) -> None:
+        super().__init__(parent)
+        self._minimum = 0
+        self._maximum = 0
+        self._value = 0
+
+        self.decrement_button = QToolButton()
+        self.decrement_button.setText("−")
+        self.decrement_button.setAccessibleName(f"Decrease {label}")
+        self.increment_button = QToolButton()
+        self.increment_button.setText("+")
+        self.increment_button.setAccessibleName(f"Increase {label}")
+        for button in (self.decrement_button, self.increment_button):
+            button.setFixedSize(22, 26)
+            button.setToolTip(tooltip)
+
+        self.value_label = QLabel("0")
+        self.value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.value_label.setMinimumWidth(20)
+        self.value_label.setAccessibleName(f"{label} flights")
+        self.value_label.setToolTip(tooltip)
+
+        layout = QHBoxLayout(self)
+        layout.setContentsMargins(1, 0, 1, 0)
+        layout.setSpacing(1)
+        layout.addWidget(self.decrement_button)
+        layout.addWidget(self.value_label, 1)
+        layout.addWidget(self.increment_button)
+        self.setFixedWidth(68)
+        self.setToolTip(tooltip)
+
+        self.decrement_button.clicked.connect(lambda: self.setValue(self._value - 1))
+        self.increment_button.clicked.connect(lambda: self.setValue(self._value + 1))
+        self._update_buttons()
+
+    def setRange(self, minimum: int, maximum: int) -> None:
+        self._minimum = int(minimum)
+        self._maximum = max(self._minimum, int(maximum))
+        self.setValue(self._value)
+
+    def value(self) -> int:
+        return self._value
+
+    def setValue(self, value: int) -> None:
+        resolved = max(self._minimum, min(self._maximum, int(value)))
+        changed = resolved != self._value
+        self._value = resolved
+        self.value_label.setText(str(resolved))
+        self._update_buttons()
+        if changed and not self.signalsBlocked():
+            self.valueChanged.emit(resolved)
+
+    def _update_buttons(self) -> None:
+        self.decrement_button.setEnabled(self._value > self._minimum)
+        self.increment_button.setEnabled(self._value < self._maximum)
+
+
 class _CraftGroupEditor(QWidget):
-    """Three linked counters that always preserve a carrier's complement."""
+    """Coordinate three linked counters while each occupies its own column."""
 
     counts_changed = Signal(int, int, int)
 
@@ -243,33 +311,31 @@ class _CraftGroupEditor(QWidget):
         super().__init__(parent)
         self._total = 0
         self._loading = False
-        self.ready_spin = QSpinBox()
-        self.launched_spin = QSpinBox()
-        self.lost_spin = QSpinBox()
-        for spin in (self.ready_spin, self.launched_spin, self.lost_spin):
-            spin.setButtonSymbols(QSpinBox.ButtonSymbols.PlusMinus)
-            spin.setFixedWidth(42)
-        self.ready_spin.setToolTip("Flights aboard the carrier and ready to launch.")
-        self.launched_spin.setToolTip("Flights currently launched on the table.")
-        self.lost_spin.setToolTip("Flights destroyed or otherwise lost.")
+        self.ready_spin = _CraftCountEditor(
+            "Ready",
+            "Flights aboard the carrier and ready to launch.",
+        )
+        self.launched_spin = _CraftCountEditor(
+            "Launched",
+            "Flights currently launched on the table.",
+        )
+        self.lost_spin = _CraftCountEditor(
+            "Lost",
+            "Flights destroyed or otherwise lost.",
+        )
 
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(2)
-        for label, spin in (
-            ("R", self.ready_spin),
-            ("L", self.launched_spin),
-            ("X", self.lost_spin),
-        ):
-            caption = QLabel(label)
-            caption.setFixedWidth(9)
-            caption.setToolTip({"R": "Ready", "L": "Launched", "X": "Destroyed"}[label])
-            layout.addWidget(caption)
-            layout.addWidget(spin)
+        # This object coordinates the three controls, but the controls are
+        # installed into separate Battle Roster columns. The coordinator itself
+        # remains hidden and owned by the tree for the lifetime of the row.
+        self.hide()
 
         self.ready_spin.valueChanged.connect(lambda value: self._changed("ready", value))
         self.launched_spin.valueChanged.connect(lambda value: self._changed("launched", value))
         self.lost_spin.valueChanged.connect(lambda value: self._changed("lost", value))
+
+    @property
+    def controls(self) -> tuple[_CraftCountEditor, _CraftCountEditor, _CraftCountEditor]:
+        return self.ready_spin, self.launched_spin, self.lost_spin
 
     def set_counts(self, ready: int, launched: int, lost: int) -> None:
         self._total = max(0, int(ready) + int(launched) + int(lost))
@@ -798,9 +864,12 @@ class TacticalAssistantPage(QWidget):
         self._loading_controls = False
         self._unit_items: dict[str, QTreeWidgetItem] = {}
         self._craft_group_items: dict[tuple[str, str], QTreeWidgetItem] = {}
+        self._craft_group_editors: list[_CraftGroupEditor] = []
         self._quick_reference_dialog: _QuickReferenceDialog | None = None
         self._tooltip_filter = _PersistentToolTipFilter(self)
         self._detail_groups_stacked = False
+        self._traits_two_column = True
+        self._header_wrapped: bool | None = None
 
         self._build_ui()
         self._install_persistent_tooltips()
@@ -819,13 +888,8 @@ class TacticalAssistantPage(QWidget):
         return self._dirty
 
     def _build_ui(self) -> None:
-        title = QLabel("Tactical Assistant")
-        title.setObjectName("pageTitle")
-        subtitle = QLabel(
-            "Track live ship and fighter status without changing the certified DFS database or platform files."
-        )
-        subtitle.setObjectName("pageSubtitle")
-        subtitle.setWordWrap(True)
+        self.page_title = QLabel("Tactical Assistant")
+        self.page_title.setObjectName("pageTitle")
 
         self.dirty_label = QLabel("")
         self.dirty_label.setObjectName("pageSubtitle")
@@ -841,14 +905,12 @@ class TacticalAssistantPage(QWidget):
         self.save_as_button.clicked.connect(lambda: self.save_game(save_as=True))
         self.quick_reference_button.clicked.connect(self._show_quick_reference)
 
-        file_row = QHBoxLayout()
-        file_row.addWidget(self.new_from_fleet_button)
-        file_row.addWidget(self.open_game_button)
-        file_row.addWidget(self.quick_reference_button)
-        file_row.addStretch(1)
-        file_row.addWidget(self.dirty_label)
-        file_row.addWidget(self.save_button)
-        file_row.addWidget(self.save_as_button)
+        self.header_widget = QWidget()
+        self.header_layout = QGridLayout(self.header_widget)
+        self.header_layout.setContentsMargins(0, 0, 0, 0)
+        self.header_layout.setHorizontalSpacing(8)
+        self.header_layout.setVerticalSpacing(4)
+        self._set_header_wrapped(False)
 
         game_group = self._build_game_state_group()
         roster_group = self._build_roster_group()
@@ -871,12 +933,57 @@ class TacticalAssistantPage(QWidget):
         layout = QVBoxLayout(self)
         layout.setContentsMargins(16, 12, 16, 12)
         layout.setSpacing(7)
-        layout.addWidget(title)
-        layout.addWidget(subtitle)
-        layout.addLayout(file_row)
+        layout.addWidget(self.header_widget)
         layout.addWidget(self.main_splitter, 1)
 
         self._connect_signals()
+
+    def resizeEvent(self, event) -> None:  # type: ignore[override]
+        super().resizeEvent(event)
+        if hasattr(self, "header_layout"):
+            self._set_header_wrapped(event.size().width() < 1180)
+
+    def _set_header_wrapped(self, wrapped: bool) -> None:
+        resolved = bool(wrapped)
+        if resolved == self._header_wrapped:
+            return
+        self._header_wrapped = resolved
+
+        widgets = (
+            self.page_title,
+            self.new_from_fleet_button,
+            self.open_game_button,
+            self.quick_reference_button,
+            self.dirty_label,
+            self.save_button,
+            self.save_as_button,
+        )
+        for widget in widgets:
+            self.header_layout.removeWidget(widget)
+        for column in range(8):
+            self.header_layout.setColumnStretch(column, 0)
+
+        center = Qt.AlignmentFlag.AlignVCenter
+        if not resolved:
+            self.header_layout.addWidget(self.page_title, 0, 0, alignment=center)
+            self.header_layout.addWidget(self.new_from_fleet_button, 0, 1, alignment=center)
+            self.header_layout.addWidget(self.open_game_button, 0, 2, alignment=center)
+            self.header_layout.addWidget(self.quick_reference_button, 0, 3, alignment=center)
+            self.header_layout.setColumnStretch(4, 1)
+            self.header_layout.addWidget(self.dirty_label, 0, 5, alignment=center)
+            self.header_layout.addWidget(self.save_button, 0, 6, alignment=center)
+            self.header_layout.addWidget(self.save_as_button, 0, 7, alignment=center)
+            return
+
+        self.header_layout.addWidget(self.page_title, 0, 0, 1, 4, alignment=center)
+        self.header_layout.setColumnStretch(4, 1)
+        self.header_layout.addWidget(self.dirty_label, 0, 5, 1, 2, alignment=center)
+        self.header_layout.addWidget(self.new_from_fleet_button, 1, 0, alignment=center)
+        self.header_layout.addWidget(self.open_game_button, 1, 1, alignment=center)
+        self.header_layout.addWidget(self.quick_reference_button, 1, 2, alignment=center)
+        self.header_layout.setColumnStretch(3, 1)
+        self.header_layout.addWidget(self.save_button, 1, 5, alignment=center)
+        self.header_layout.addWidget(self.save_as_button, 1, 6, alignment=center)
 
     def _build_game_state_group(self) -> QGroupBox:
         self.game_name_edit = QLineEdit()
@@ -986,8 +1093,10 @@ class TacticalAssistantPage(QWidget):
 
     def _build_roster_group(self) -> QGroupBox:
         self.unit_tree = QTreeWidget()
-        self.unit_tree.setColumnCount(3)
-        self.unit_tree.setHeaderLabels(("Unit", "Type", "Status"))
+        self.unit_tree.setColumnCount(6)
+        self.unit_tree.setHeaderLabels(
+            ("Unit", "Type", "Status", "Ready", "Launched", "Lost")
+        )
         self.unit_tree.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.unit_tree.setRootIsDecorated(True)
         self.unit_tree.setAlternatingRowColors(True)
@@ -996,6 +1105,12 @@ class TacticalAssistantPage(QWidget):
         header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        for column in (3, 4, 5):
+            header.setSectionResizeMode(column, QHeaderView.ResizeMode.Fixed)
+        self.unit_tree.setColumnWidth(3, 72)
+        self.unit_tree.setColumnWidth(4, 88)
+        self.unit_tree.setColumnWidth(5, 72)
+        self.unit_tree.viewport().installEventFilter(self)
         self.unit_summary_label = QLabel("No game loaded")
         self.unit_summary_label.setWordWrap(True)
 
@@ -1039,8 +1154,9 @@ class TacticalAssistantPage(QWidget):
         self.status_and_critical_layout = status_and_critical
         self.status_and_critical_widget = status_and_critical_widget
 
+        self.traits_group = self._build_traits_group()
+
         self.detail_tabs = QTabWidget()
-        self.detail_tabs.addTab(self._build_traits_group(), "Traits")
         self.detail_tabs.addTab(self._build_source_notes_group(), "Source Notes")
         self.detail_tabs.addTab(self._build_unit_notes_group(), "Unit Notes")
         self.detail_tabs.setMinimumHeight(165)
@@ -1057,6 +1173,7 @@ class TacticalAssistantPage(QWidget):
         detail_layout.addWidget(self.unit_effects_label)
         detail_layout.addLayout(tracks)
         detail_layout.addWidget(self._build_weapons_group())
+        detail_layout.addWidget(self.traits_group)
         detail_layout.addWidget(status_and_critical_widget)
         detail_layout.addWidget(self.detail_tabs)
         detail_layout.addStretch(1)
@@ -1080,8 +1197,19 @@ class TacticalAssistantPage(QWidget):
             and watched is self.detail_scroll.viewport()
             and event.type() == QEvent.Type.Resize
         ):
-            self._set_detail_groups_stacked(event.size().width() < 760)
+            narrow = event.size().width() < 760
+            self._set_detail_groups_stacked(narrow)
+            self._set_traits_two_column(not narrow)
+        elif (
+            hasattr(self, "unit_tree")
+            and watched is self.unit_tree.viewport()
+            and event.type() == QEvent.Type.Resize
+        ):
+            self._set_roster_columns_compact(event.size().width() < 600)
         return super().eventFilter(watched, event)
+
+    def _set_roster_columns_compact(self, compact: bool) -> None:
+        self.unit_tree.setColumnHidden(1, bool(compact))
 
     def _set_detail_groups_stacked(self, stacked: bool) -> None:
         resolved = bool(stacked)
@@ -1097,6 +1225,20 @@ class TacticalAssistantPage(QWidget):
         self.status_and_critical_layout.invalidate()
         self.status_and_critical_widget.updateGeometry()
         self.unit_detail_widget.updateGeometry()
+
+    def _set_traits_two_column(self, enabled: bool) -> None:
+        resolved = bool(enabled)
+        if resolved == self._traits_two_column:
+            return
+        selected_key = self._selected_trait_key()
+        self._traits_two_column = resolved
+        self.trait_tree.clear()
+        self._configure_trait_columns()
+        unit = self._selected_unit()
+        if unit is not None:
+            self._refresh_traits(unit, selected_key=selected_key)
+        else:
+            self._resize_trait_tree()
 
     def _build_status_group(self) -> QGroupBox:
         self.destroyed_checkbox = QCheckBox("Destroyed / Lost")
@@ -1271,13 +1413,11 @@ class TacticalAssistantPage(QWidget):
 
     def _build_traits_group(self) -> QGroupBox:
         self.trait_tree = QTreeWidget()
-        self.trait_tree.setColumnCount(2)
-        self.trait_tree.setHeaderLabels(("Trait", "Status"))
         self.trait_tree.setRootIsDecorated(False)
         self.trait_tree.setAlternatingRowColors(True)
-        trait_header = self.trait_tree.header()
-        trait_header.setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
-        trait_header.setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
+        self.trait_tree.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectItems)
+        self.trait_tree.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._configure_trait_columns()
         self.trait_disable_button = QPushButton("Disable / Enable")
         self.trait_destroy_button = QPushButton("Destroy / Restore")
         button_row = QHBoxLayout()
@@ -1291,6 +1431,35 @@ class TacticalAssistantPage(QWidget):
         group.setLayout(layout)
         self.traits_group = group
         return group
+
+    def _configure_trait_columns(self) -> None:
+        if self._traits_two_column:
+            self.trait_tree.setColumnCount(4)
+            self.trait_tree.setHeaderLabels(("Trait", "Status", "Trait", "Status"))
+        else:
+            self.trait_tree.setColumnCount(2)
+            self.trait_tree.setHeaderLabels(("Trait", "Status"))
+        header = self.trait_tree.header()
+        for column in range(self.trait_tree.columnCount()):
+            mode = (
+                QHeaderView.ResizeMode.Stretch
+                if column % 2 == 0
+                else QHeaderView.ResizeMode.ResizeToContents
+            )
+            header.setSectionResizeMode(column, mode)
+
+    def _resize_trait_tree(self) -> None:
+        rows = self.trait_tree.topLevelItemCount()
+        row_height = self.trait_tree.sizeHintForRow(0) if rows else -1
+        if row_height <= 0:
+            row_height = self.trait_tree.fontMetrics().height() + 12
+        header_height = max(28, self.trait_tree.header().sizeHint().height())
+        frame = self.trait_tree.frameWidth() * 2
+        height = header_height + max(1, rows) * row_height + frame + 4
+        self.trait_tree.setFixedHeight(height)
+        self.traits_group.updateGeometry()
+        if hasattr(self, "unit_detail_widget"):
+            self.unit_detail_widget.updateGeometry()
 
     def _build_source_notes_group(self) -> QGroupBox:
         self.source_notes_box = QTextEdit()
@@ -1474,6 +1643,7 @@ class TacticalAssistantPage(QWidget):
             self.damage_control_label.clear()
             self.weapon_tree.clear()
             self.trait_tree.clear()
+            self._resize_trait_tree()
             self.critical_tree.clear()
             self.critical_damage_edit.clear()
             self.critical_crew_edit.clear()
@@ -1641,6 +1811,9 @@ class TacticalAssistantPage(QWidget):
     def _populate_unit_tree(self, selected_unit_id: str | None = None) -> None:
         self.unit_tree.blockSignals(True)
         try:
+            for editor in self._craft_group_editors:
+                editor.deleteLater()
+            self._craft_group_editors.clear()
             self.unit_tree.clear()
             self._unit_items.clear()
             self._craft_group_items.clear()
@@ -1785,9 +1958,13 @@ class TacticalAssistantPage(QWidget):
                 lost_count,
             )
         )
-        self.unit_tree.setItemWidget(item, 2, editor)
-        for spin in (editor.ready_spin, editor.launched_spin, editor.lost_spin):
-            self._tooltip_filter.install_widget(spin)
+        self._craft_group_editors.append(editor)
+        for column, control in zip((3, 4, 5), editor.controls):
+            self.unit_tree.setItemWidget(item, column, control)
+            self._tooltip_filter.install_widget(control)
+            self._tooltip_filter.install_widget(control.decrement_button)
+            self._tooltip_filter.install_widget(control.value_label)
+            self._tooltip_filter.install_widget(control.increment_button)
 
     def _set_craft_group_counts(
         self,
@@ -1854,7 +2031,7 @@ class TacticalAssistantPage(QWidget):
         item.setToolTip(0, tooltip)
         font = item.font(0)
         font.setStrikeOut(unit.is_destroyed or unit.is_surrendered or unit.is_withdrawn)
-        for column in range(3):
+        for column in range(self.unit_tree.columnCount()):
             item.setFont(column, font)
             if unit.is_destroyed or unit.is_surrendered or unit.is_withdrawn:
                 item.setForeground(column, _MUTED)
@@ -2196,31 +2373,51 @@ class TacticalAssistantPage(QWidget):
         self.weapon_disable_button.setEnabled(bool(unit.weapons))
         self.weapon_destroy_button.setEnabled(bool(unit.weapons))
 
-    def _refresh_traits(self, unit: TacticalUnitState) -> None:
-        selected_key = self._selected_tree_key(self.trait_tree)
+    def _refresh_traits(
+        self,
+        unit: TacticalUnitState,
+        *,
+        selected_key: str | None = None,
+    ) -> None:
+        if selected_key is None:
+            selected_key = self._selected_trait_key()
         self.trait_tree.clear()
-        selected_item = None
-        for trait in unit.traits:
+        selected_cell: tuple[QTreeWidgetItem, int] | None = None
+        column_pairs = 2 if self._traits_two_column else 1
+        for index in range(0, len(unit.traits), column_pairs):
             item = QTreeWidgetItem(self.trait_tree)
-            item.setData(0, Qt.ItemDataRole.UserRole, trait.trait_key)
-            item.setText(0, trait.name)
-            status = unit.trait_status(trait.trait_key)
-            item.setText(1, status)
-            inactive = unit.trait_is_inactive(trait.trait_key) or status.startswith("Offline")
-            font = item.font(0)
-            font.setStrikeOut(inactive)
-            for column in range(2):
-                item.setFont(column, font)
-                if inactive:
-                    item.setForeground(column, _MUTED)
-            tooltip = self._trait_tooltip(trait.name)
-            if tooltip:
-                item.setToolTip(0, tooltip)
-                item.setToolTip(1, tooltip)
-            if selected_key == trait.trait_key:
-                selected_item = item
-        if selected_item is not None:
-            self.trait_tree.setCurrentItem(selected_item)
+            for pair in range(column_pairs):
+                trait_index = index + pair
+                if trait_index >= len(unit.traits):
+                    break
+                trait = unit.traits[trait_index]
+                name_column = pair * 2
+                status_column = name_column + 1
+                for column in (name_column, status_column):
+                    item.setData(column, Qt.ItemDataRole.UserRole, trait.trait_key)
+                item.setText(name_column, trait.name)
+                status = unit.trait_status(trait.trait_key)
+                item.setText(status_column, status)
+                inactive = (
+                    unit.trait_is_inactive(trait.trait_key)
+                    or status.startswith("Offline")
+                )
+                font = item.font(name_column)
+                font.setStrikeOut(inactive)
+                for column in (name_column, status_column):
+                    item.setFont(column, font)
+                    if inactive:
+                        item.setForeground(column, _MUTED)
+                tooltip = self._trait_tooltip(trait.name)
+                if tooltip:
+                    item.setToolTip(name_column, tooltip)
+                    item.setToolTip(status_column, tooltip)
+                if selected_key == trait.trait_key:
+                    selected_cell = item, name_column
+        if selected_cell is not None:
+            item, column = selected_cell
+            self.trait_tree.setCurrentItem(item, column)
+        self._resize_trait_tree()
         self.trait_disable_button.setEnabled(bool(unit.traits))
         self.trait_destroy_button.setEnabled(bool(unit.traits))
 
@@ -2530,7 +2727,7 @@ class TacticalAssistantPage(QWidget):
 
     def _toggle_trait_disabled(self) -> None:
         unit = self._selected_unit()
-        key = self._selected_tree_key(self.trait_tree)
+        key = self._selected_trait_key()
         if unit is None or not key:
             return
         trait = next(item for item in unit.traits if item.trait_key == key)
@@ -2538,11 +2735,18 @@ class TacticalAssistantPage(QWidget):
 
     def _toggle_trait_destroyed(self) -> None:
         unit = self._selected_unit()
-        key = self._selected_tree_key(self.trait_tree)
+        key = self._selected_trait_key()
         if unit is None or not key:
             return
         trait = next(item for item in unit.traits if item.trait_key == key)
         self._replace_selected_unit(unit.set_trait_destroyed(key, not trait.destroyed), reload_controls=True)
+
+    def _selected_trait_key(self) -> str:
+        item = self.trait_tree.currentItem()
+        if item is None:
+            return ""
+        column = max(0, self.trait_tree.currentColumn())
+        return str(item.data(column, Qt.ItemDataRole.UserRole) or "")
 
     @staticmethod
     def _selected_tree_key(tree: QTreeWidget) -> str:

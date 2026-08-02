@@ -19,6 +19,7 @@ from dfs.domain.tactical import (
     TacticalGameState,
     TacticalUnitState,
     TrackState,
+    TraitState,
     UnitDisposition,
     UnitKind,
     WeaponState,
@@ -77,6 +78,21 @@ def game() -> TacticalGameState:
         crew=TrackState.create(40, threshold=10),
         crew_quality="4",
         weapons=(WeaponState("laser", "Heavy Laser Cannon", "B", "30", "6", "Beam"),),
+        traits=tuple(
+            TraitState(f"trait-{index}", name)
+            for index, name in enumerate(
+                (
+                    "Advanced Jump Engine",
+                    "Anti-Fighter 2",
+                    "Carrier 2",
+                    "Command +1",
+                    "Interceptors 4",
+                    "Lumbering",
+                    "Shields 6/1",
+                ),
+                start=1,
+            )
+        ),
     )
     fighters = tuple(
         TacticalUnitState(
@@ -117,7 +133,9 @@ def page(qapp: QApplication, tmp_path: Path, game: TacticalGameState):
 
 def test_compact_detail_and_context_buttons_share_reference_text(page) -> None:
     assert isinstance(page.detail_tabs, QTabWidget)
-    assert page.detail_tabs.count() == 3
+    assert page.detail_tabs.count() == 2
+    assert page.detail_tabs.tabText(0) == "Source Notes"
+    assert page.detail_tabs.tabText(1) == "Unit Notes"
     assert page.turn_order_button.toolTip() == TURN_SEQUENCE_HELP
     assert page.weapons_group.toolTip() == ATTACK_TABLE_HELP
     assert "ⓘ" in page.weapons_group.title()
@@ -199,6 +217,61 @@ def test_detail_forms_keep_natural_height_without_overlapping(page, qapp) -> Non
     assert page.detail_scroll.verticalScrollBar().maximum() > 0
 
 
+def test_traits_are_full_width_auto_sized_and_responsive(page, qapp) -> None:
+    page.resize(1500, 900)
+    page.show()
+    qapp.processEvents()
+
+    assert page._traits_two_column is True
+    assert page.trait_tree.columnCount() == 4
+    assert page.trait_tree.topLevelItemCount() == 4
+    assert page.trait_tree.verticalScrollBar().maximum() == 0
+    assert page.trait_tree.viewport().height() >= (
+        page.trait_tree.visualItemRect(page.trait_tree.topLevelItem(3)).bottom()
+    )
+    assert page.traits_group.mapTo(page, QPoint(0, 0)).y() < (
+        page.status_and_critical_widget.mapTo(page, QPoint(0, 0)).y()
+    )
+
+    second_column_item = page.trait_tree.topLevelItem(0)
+    page.trait_tree.setCurrentItem(second_column_item, 2)
+    page.trait_disable_button.click()
+    qapp.processEvents()
+    selected_unit = page.current_game.get_unit("ship-1")
+    second_trait = next(
+        trait for trait in selected_unit.traits if trait.trait_key == "trait-2"
+    )
+    assert second_trait.disabled is True
+
+    page.resize(1100, 700)
+    qapp.processEvents()
+    assert page._traits_two_column is False
+    assert page.trait_tree.columnCount() == 2
+    assert page.trait_tree.topLevelItemCount() == 7
+    assert page.trait_tree.verticalScrollBar().maximum() == 0
+
+
+def test_header_is_single_line_at_desktop_width_and_wraps_safely(page, qapp) -> None:
+    page.resize(1500, 900)
+    page.show()
+    qapp.processEvents()
+
+    assert page._header_wrapped is False
+    title_center = page.page_title.mapTo(page, page.page_title.rect().center()).y()
+    action_center = page.new_from_fleet_button.mapTo(
+        page,
+        page.new_from_fleet_button.rect().center(),
+    ).y()
+    assert abs(title_center - action_center) <= 4
+
+    page.resize(1100, 700)
+    qapp.processEvents()
+    assert page._header_wrapped is True
+    assert page.new_from_fleet_button.mapTo(page, QPoint(0, 0)).y() > (
+        page.page_title.mapTo(page, QPoint(0, 0)).y()
+    )
+
+
 def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -> None:
     carrier = page.unit_tree.topLevelItem(0)
     assert carrier.childCount() == 1
@@ -208,10 +281,18 @@ def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -
     assert group.childCount() == 3
     assert group.isExpanded() is False
 
-    editor = page.unit_tree.itemWidget(group, 2)
-    assert isinstance(editor, page_module._CraftGroupEditor)
-    assert editor.ready_spin.value() == 3
-    editor.launched_spin.setValue(1)
+    ready = page.unit_tree.itemWidget(group, 3)
+    launched = page.unit_tree.itemWidget(group, 4)
+    lost = page.unit_tree.itemWidget(group, 5)
+    assert isinstance(ready, page_module._CraftCountEditor)
+    assert isinstance(launched, page_module._CraftCountEditor)
+    assert isinstance(lost, page_module._CraftCountEditor)
+    assert page.unit_tree.columnWidth(4) >= page.unit_tree.header().sectionSizeHint(4)
+    assert ready.value() == 3
+    assert launched.value() == 0
+    assert lost.value() == 0
+    assert ready.value_label.text() == "3"
+    launched.increment_button.click()
     qapp.processEvents()
     statuses = [
         page.current_game.get_unit(f"fighter-{index}").effective_craft_status

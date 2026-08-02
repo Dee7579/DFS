@@ -14,10 +14,14 @@ existing `.dfs-game.json` saves.
   scrolling is preferred whenever the available height is insufficient.
 - Show Disposition and Critical Results side by side on wide displays and stack
   them vertically on narrow workspaces to avoid horizontal crowding.
-- Move Traits, Source Notes, and Unit Notes into compact tabs.
+- Show Traits in a full-width auto-sizing panel above Disposition and Critical
+  Results. Use two trait columns on normal desktop widths and one on narrow
+  workspaces, while keeping Source Notes and Unit Notes in compact tabs.
 - Represent carried fighters with one row per fighter type and carrier, using
-  linked Ready, Launched, and Destroyed counts while retaining individual flight
-  records below the summary row.
+  separate high-DPI-safe Ready, Launched, and Lost counter columns while
+  retaining individual flight records below the summary row.
+- Keep the primary file and Quick Reference controls on the Tactical Assistant
+  title row, with a safe second-row layout on narrow windows.
 - Let the application navigation collapse into a persistent icon rail, with
   automatic collapse at narrow window sizes.
 
