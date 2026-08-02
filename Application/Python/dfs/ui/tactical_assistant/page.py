@@ -12,7 +12,7 @@ import random
 import re
 
 from PySide6.QtCore import QEvent, QObject, QRect, Qt, Signal
-from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtGui import QBrush, QColor, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QBoxLayout,
@@ -86,8 +86,10 @@ from dfs.domain.tactical import (
 
 
 _USER_ROLE = int(Qt.ItemDataRole.UserRole)
+_CRAFT_GROUP_IDS_ROLE = _USER_ROLE + 20
 _MUTED = QColor(128, 128, 128)
 _MODIFIED_RED = "#c62828"
+_TRAIT_DIVIDER = QColor("#4b5563")
 
 
 class _ArithmeticSpinBox(QLineEdit):
@@ -865,9 +867,11 @@ class TacticalAssistantPage(QWidget):
         self._unit_items: dict[str, QTreeWidgetItem] = {}
         self._craft_group_items: dict[tuple[str, str], QTreeWidgetItem] = {}
         self._craft_group_editors: list[_CraftGroupEditor] = []
+        self._active_craft_unit_ids: tuple[str, ...] = ()
         self._quick_reference_dialog: _QuickReferenceDialog | None = None
         self._tooltip_filter = _PersistentToolTipFilter(self)
         self._detail_groups_stacked = False
+        self._fighter_detail_mode = False
         self._traits_two_column = True
         self._header_wrapped: bool | None = None
 
@@ -1138,11 +1142,21 @@ class TacticalAssistantPage(QWidget):
         self.damage_editor = _TrackEditor("Damage", allow_negative=True)
         self.crew_editor = _TrackEditor("Crew")
         self.shields_editor = _TrackEditor("Shields")
-        tracks = QHBoxLayout()
+        self.tracks_widget = QWidget()
+        tracks = QHBoxLayout(self.tracks_widget)
+        tracks.setContentsMargins(0, 0, 0, 0)
         tracks.setSpacing(6)
         tracks.addWidget(self.damage_editor, 1)
         tracks.addWidget(self.crew_editor, 1)
         tracks.addWidget(self.shields_editor, 1)
+
+        self.fighter_overview_label = QLabel("")
+        self.fighter_overview_label.setWordWrap(True)
+        fighter_overview_layout = QVBoxLayout()
+        fighter_overview_layout.addWidget(self.fighter_overview_label)
+        self.fighter_overview_group = QGroupBox("Fighter Flight Status")
+        self.fighter_overview_group.setLayout(fighter_overview_layout)
+        self.fighter_overview_group.hide()
 
         status_and_critical_widget = QWidget()
         status_and_critical = QHBoxLayout(status_and_critical_widget)
@@ -1171,7 +1185,8 @@ class TacticalAssistantPage(QWidget):
         detail_layout.addWidget(self.unit_subtitle)
         detail_layout.addWidget(self.unit_reference_label)
         detail_layout.addWidget(self.unit_effects_label)
-        detail_layout.addLayout(tracks)
+        detail_layout.addWidget(self.fighter_overview_group)
+        detail_layout.addWidget(self.tracks_widget)
         detail_layout.addWidget(self._build_weapons_group())
         detail_layout.addWidget(self.traits_group)
         detail_layout.addWidget(status_and_critical_widget)
@@ -1190,6 +1205,46 @@ class TacticalAssistantPage(QWidget):
         self.detail_scroll.setWidget(self.unit_detail_widget)
         self.detail_scroll.viewport().installEventFilter(self)
         return self.detail_scroll
+
+    def _set_detail_mode(
+        self,
+        fighter: bool,
+        craft_units: tuple[TacticalUnitState, ...] = (),
+    ) -> None:
+        """Switch between the full ship workspace and a fighter reference."""
+
+        is_fighter = bool(fighter)
+        self._fighter_detail_mode = is_fighter
+        self._active_craft_unit_ids = tuple(unit.unit_id for unit in craft_units)
+        self.fighter_overview_group.setVisible(is_fighter)
+        self.tracks_widget.setVisible(not is_fighter)
+        self.status_and_critical_widget.setVisible(not is_fighter)
+        self.weapon_actions_widget.setVisible(not is_fighter)
+        self.trait_actions_widget.setVisible(not is_fighter)
+        self.detail_tabs.setTabVisible(1, not is_fighter)
+        self._set_fighter_profile_columns(is_fighter)
+        if is_fighter:
+            self.detail_tabs.setCurrentIndex(0)
+            ready = sum(unit.effective_craft_status == "ready" for unit in craft_units)
+            launched = sum(unit.effective_craft_status == "launched" for unit in craft_units)
+            lost = sum(unit.effective_craft_status == "lost" for unit in craft_units)
+            total = len(craft_units)
+            noun = "flight" if total == 1 else "flights"
+            self.fighter_overview_label.setText(
+                f"{total} {noun}  |  Ready {ready}  |  Launched {launched}  |  Lost {lost}"
+            )
+        else:
+            self.fighter_overview_label.clear()
+
+    def _set_fighter_profile_columns(self, fighter: bool) -> None:
+        """Hide ship-only operational status columns in fighter references."""
+
+        if hasattr(self, "weapon_tree"):
+            self.weapon_tree.setColumnHidden(5, bool(fighter))
+        if hasattr(self, "trait_tree") and self.trait_tree.columnCount() >= 2:
+            self.trait_tree.setColumnHidden(1, bool(fighter))
+        if hasattr(self, "trait_tree") and self.trait_tree.columnCount() >= 5:
+            self.trait_tree.setColumnHidden(4, bool(fighter))
 
     def eventFilter(self, watched: QObject, event) -> bool:  # type: ignore[override]
         if (
@@ -1326,7 +1381,8 @@ class TacticalAssistantPage(QWidget):
             self.critical_multiplier_combo.addItem(f"x{multiplier}", multiplier)
         self.critical_multiplier_combo.setMaximumWidth(70)
         self.critical_multiplier_combo.setToolTip(
-            "Multiply the Solid Hit and all critical Damage and Crew losses."
+            "Multiply only the critical table's extra Damage and Crew. "
+            "Record the attack's normal hit before applying this result."
         )
         self.critical_preview_label = QLabel("")
         self.critical_preview_label.setWordWrap(True)
@@ -1346,7 +1402,7 @@ class TacticalAssistantPage(QWidget):
         loss_row.addStretch(1)
 
         apply_row = QHBoxLayout()
-        apply_row.addWidget(QLabel("Multiplier"))
+        apply_row.addWidget(QLabel("Critical Multiplier"))
         apply_row.addWidget(self.critical_multiplier_combo)
         apply_row.addWidget(self.apply_critical_button, 1)
         apply_row.addWidget(self.undo_critical_button)
@@ -1388,8 +1444,7 @@ class TacticalAssistantPage(QWidget):
         self.weapon_tree.setHeaderLabels(("Arc", "Weapon", "Range", "AD", "Traits", "Status"))
         self.weapon_tree.setRootIsDecorated(False)
         self.weapon_tree.setAlternatingRowColors(True)
-        self.weapon_tree.setMinimumHeight(105)
-        self.weapon_tree.setMaximumHeight(160)
+        self.weapon_tree.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         weapon_header = self.weapon_tree.header()
         weapon_header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         weapon_header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
@@ -1399,13 +1454,15 @@ class TacticalAssistantPage(QWidget):
         weapon_header.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
         self.weapon_disable_button = QPushButton("Disable / Enable")
         self.weapon_destroy_button = QPushButton("Destroy / Restore")
-        button_row = QHBoxLayout()
+        self.weapon_actions_widget = QWidget()
+        button_row = QHBoxLayout(self.weapon_actions_widget)
+        button_row.setContentsMargins(0, 0, 0, 0)
         button_row.addWidget(self.weapon_disable_button)
         button_row.addWidget(self.weapon_destroy_button)
         button_row.addStretch(1)
         layout = QVBoxLayout()
         layout.addWidget(self.weapon_tree)
-        layout.addLayout(button_row)
+        layout.addWidget(self.weapon_actions_widget)
         group = _HelpGroupBox("Weapons", "Attack Table", ATTACK_TABLE_HELP)
         group.setLayout(layout)
         self.weapons_group = group
@@ -1420,13 +1477,15 @@ class TacticalAssistantPage(QWidget):
         self._configure_trait_columns()
         self.trait_disable_button = QPushButton("Disable / Enable")
         self.trait_destroy_button = QPushButton("Destroy / Restore")
-        button_row = QHBoxLayout()
+        self.trait_actions_widget = QWidget()
+        button_row = QHBoxLayout(self.trait_actions_widget)
+        button_row.setContentsMargins(0, 0, 0, 0)
         button_row.addWidget(self.trait_disable_button)
         button_row.addWidget(self.trait_destroy_button)
         button_row.addStretch(1)
         layout = QVBoxLayout()
         layout.addWidget(self.trait_tree)
-        layout.addLayout(button_row)
+        layout.addWidget(self.trait_actions_widget)
         group = QGroupBox("Traits - hover for rules")
         group.setLayout(layout)
         self.traits_group = group
@@ -1434,19 +1493,45 @@ class TacticalAssistantPage(QWidget):
 
     def _configure_trait_columns(self) -> None:
         if self._traits_two_column:
-            self.trait_tree.setColumnCount(4)
-            self.trait_tree.setHeaderLabels(("Trait", "Status", "Trait", "Status"))
+            self.trait_tree.setColumnCount(5)
+            self.trait_tree.setHeaderLabels(("Trait", "Status", "", "Trait", "Status"))
+            name_columns = {0, 3}
+            divider_column = 2
         else:
             self.trait_tree.setColumnCount(2)
             self.trait_tree.setHeaderLabels(("Trait", "Status"))
+            name_columns = {0}
+            divider_column = None
         header = self.trait_tree.header()
+        header.setMinimumSectionSize(4)
         for column in range(self.trait_tree.columnCount()):
-            mode = (
-                QHeaderView.ResizeMode.Stretch
-                if column % 2 == 0
-                else QHeaderView.ResizeMode.ResizeToContents
-            )
+            if column == divider_column:
+                mode = QHeaderView.ResizeMode.Fixed
+            elif column in name_columns:
+                mode = QHeaderView.ResizeMode.Stretch
+            else:
+                mode = QHeaderView.ResizeMode.ResizeToContents
             header.setSectionResizeMode(column, mode)
+        if divider_column is not None:
+            header.resizeSection(divider_column, 6)
+            self.trait_tree.headerItem().setBackground(
+                divider_column,
+                QBrush(_TRAIT_DIVIDER),
+            )
+        self._set_fighter_profile_columns(self._fighter_detail_mode)
+
+    def _resize_weapon_tree(self) -> None:
+        rows = self.weapon_tree.topLevelItemCount()
+        row_height = self.weapon_tree.sizeHintForRow(0) if rows else -1
+        if row_height <= 0:
+            row_height = self.weapon_tree.fontMetrics().height() + 12
+        header_height = max(28, self.weapon_tree.header().sizeHint().height())
+        frame = self.weapon_tree.frameWidth() * 2
+        height = header_height + max(1, rows) * row_height + frame + 4
+        self.weapon_tree.setFixedHeight(height)
+        self.weapons_group.updateGeometry()
+        if hasattr(self, "unit_detail_widget"):
+            self.unit_detail_widget.updateGeometry()
 
     def _resize_trait_tree(self) -> None:
         rows = self.trait_tree.topLevelItemCount()
@@ -1504,6 +1589,7 @@ class TacticalAssistantPage(QWidget):
         self.disposition_combo.currentIndexChanged.connect(self._update_disposition_description)
         self.correct_crippled_button.clicked.connect(self._correct_crippled_status)
         self.correct_skeleton_button.clicked.connect(self._correct_skeleton_status)
+        self.crew_quality_edit.textChanged.connect(self._crew_quality_preview_changed)
         self.crew_quality_edit.editingFinished.connect(self._crew_quality_changed)
         self.special_action_combo.currentIndexChanged.connect(self._special_action_changed)
         self.special_action_combo.currentIndexChanged.connect(self._update_special_action_rules)
@@ -1609,6 +1695,7 @@ class TacticalAssistantPage(QWidget):
     def _show_empty_state(self) -> None:
         self._game = None
         self._current_path = None
+        self._set_detail_mode(False)
         self._unit_items.clear()
         self._craft_group_items.clear()
         self.unit_tree.clear()
@@ -1626,6 +1713,7 @@ class TacticalAssistantPage(QWidget):
             self.unit_subtitle.setText("Fleet Builder files create independent per-unit battle state.")
             self.unit_reference_label.clear()
             self.unit_effects_label.clear()
+            self.unit_effects_label.hide()
             self.damage_editor.set_track(TrackState())
             self.crew_editor.set_track(TrackState())
             self.shields_editor.set_track(TrackState())
@@ -1642,6 +1730,7 @@ class TacticalAssistantPage(QWidget):
             self.threshold_status_label.setText("Operational")
             self.damage_control_label.clear()
             self.weapon_tree.clear()
+            self._resize_weapon_tree()
             self.trait_tree.clear()
             self._resize_trait_tree()
             self.critical_tree.clear()
@@ -1839,20 +1928,16 @@ class TacticalAssistantPage(QWidget):
                             and item.platform_name == unit.platform_name
                         ]
                         group = QTreeWidgetItem(self.unit_tree)
-                        group.setText(0, f"{unit.platform_name} x{len(siblings)}")
-                        group.setText(1, "Purchased Craft")
-                        group.setText(2, "")
-                        group.setToolTip(
-                            0,
-                            "One purchased fighter type. Use the linked counters or expand "
-                            "to track individual flights.",
+                        self._configure_craft_group_item(
+                            group,
+                            siblings,
+                            "Purchased Craft",
                         )
                         self._install_craft_group_editor(group, siblings)
                         purchased_craft_groups[key] = group
                         self._craft_group_items[("", unit.platform_name)] = group
-                    item = QTreeWidgetItem(group)
-                    self._configure_unit_item(item, unit)
-                    self._unit_items[unit.unit_id] = item
+                        for sibling in siblings:
+                            self._unit_items[sibling.unit_id] = group
                     continue
 
                 item = QTreeWidgetItem(self.unit_tree)
@@ -1895,28 +1980,16 @@ class TacticalAssistantPage(QWidget):
                 parent_id, platform_name = key
                 parent = self._unit_items.get(parent_id)
                 group = QTreeWidgetItem(parent if parent is not None else self.unit_tree)
-                group.setText(0, f"{platform_name} x{len(siblings)}")
-                group.setText(1, "Carried Craft")
-                group.setText(2, "")
-                group.setToolTip(
-                    0,
-                    "Use Ready, Launched, and Destroyed counts here. Expand only when "
-                    "an individual flight must be selected.",
-                )
+                self._configure_craft_group_item(group, siblings, "Carried Craft")
                 self._craft_group_items[key] = group
                 self._install_craft_group_editor(group, siblings)
                 for unit in siblings:
-                    item = QTreeWidgetItem(group)
-                    self._configure_unit_item(item, unit)
-                    self._unit_items[unit.unit_id] = item
+                    self._unit_items[unit.unit_id] = group
 
-            # Keep carriers open so their one-line fighter groups are visible,
-            # while the individual flight rows remain collapsed by default.
+            # Keep carriers open so their one-line fighter groups are visible.
             for index in range(self.unit_tree.topLevelItemCount()):
                 top = self.unit_tree.topLevelItem(index)
                 top.setExpanded(bool(top.data(0, Qt.ItemDataRole.UserRole)))
-            for group in (*purchased_craft_groups.values(), *self._craft_group_items.values()):
-                group.setExpanded(False)
 
             target = self._unit_items.get(selected_unit_id or "")
             if target is None and self._game.units:
@@ -1938,6 +2011,37 @@ class TacticalAssistantPage(QWidget):
         launched = sum(unit.effective_craft_status == "launched" for unit in units)
         lost = sum(unit.effective_craft_status == "lost" for unit in units)
         return f"{ready} ready / {launched} launched / {lost} lost"
+
+    def _configure_craft_group_item(
+        self,
+        item: QTreeWidgetItem,
+        units: list[TacticalUnitState],
+        type_label: str,
+    ) -> None:
+        """Make one selectable roster row represent every same-type flight."""
+
+        if not units:
+            return
+        representative = units[0]
+        unit_ids = tuple(unit.unit_id for unit in units)
+        item.setData(0, Qt.ItemDataRole.UserRole, representative.unit_id)
+        item.setData(0, _CRAFT_GROUP_IDS_ROLE, unit_ids)
+        item.setText(0, f"{representative.platform_name} x{len(units)}")
+        item.setText(1, type_label)
+        item.setText(2, "")
+        item.setToolTip(
+            0,
+            f"{representative.platform_name}\n"
+            "Select this row to open the fighter reference. Use the Ready, "
+            "Launched, and Lost controls to track individual flights.",
+        )
+        all_lost = all(unit.effective_craft_status == "lost" for unit in units)
+        font = item.font(0)
+        font.setStrikeOut(all_lost)
+        for column in range(self.unit_tree.columnCount()):
+            item.setFont(column, font)
+            if all_lost:
+                item.setForeground(column, _MUTED)
 
     def _install_craft_group_editor(
         self,
@@ -2144,13 +2248,52 @@ class TacticalAssistantPage(QWidget):
             unit = self._game.get_unit(str(unit_id))
         except KeyError:
             return
-        self._load_unit_controls(unit)
+        self._load_unit_controls(
+            unit,
+            craft_units=self._craft_units_for_item(current),
+        )
 
-    def _load_unit_controls(self, unit: TacticalUnitState) -> None:
+    def _craft_units_for_item(
+        self,
+        item: QTreeWidgetItem | None,
+    ) -> tuple[TacticalUnitState, ...]:
+        if self._game is None or item is None:
+            return ()
+        raw_ids = item.data(0, _CRAFT_GROUP_IDS_ROLE)
+        if not isinstance(raw_ids, (tuple, list)):
+            return ()
+        units: list[TacticalUnitState] = []
+        for unit_id in raw_ids:
+            try:
+                unit = self._game.get_unit(str(unit_id))
+            except KeyError:
+                continue
+            if unit.kind is UnitKind.CRAFT:
+                units.append(unit)
+        return tuple(units)
+
+    def _load_unit_controls(
+        self,
+        unit: TacticalUnitState,
+        *,
+        craft_units: tuple[TacticalUnitState, ...] = (),
+    ) -> None:
+        if unit.kind is UnitKind.CRAFT and not craft_units:
+            craft_units = self._craft_units_for_item(self.unit_tree.currentItem())
+        if unit.kind is UnitKind.CRAFT and not craft_units:
+            craft_units = (unit,)
+        self._set_detail_mode(unit.kind is UnitKind.CRAFT, craft_units)
         self._loading_controls = True
         try:
-            self.unit_title.setText(self._unit_display_label(unit))
-            subtitle_parts = [unit.platform_name]
+            if unit.kind is UnitKind.CRAFT:
+                count = len(craft_units)
+                self.unit_title.setText(
+                    f"{unit.platform_name} x{count}" if count > 1 else unit.platform_name
+                )
+                subtitle_parts = ["Fighter reference"]
+            else:
+                self.unit_title.setText(self._unit_display_label(unit))
+                subtitle_parts = [unit.platform_name]
             if unit.faction_name:
                 subtitle_parts.append(unit.faction_name)
             if unit.fleet_name:
@@ -2258,7 +2401,9 @@ class TacticalAssistantPage(QWidget):
                 f'{unit.adrift_movement}" straight in the End Phase.'
             )
         effects.extend(unit.firing_restrictions)
-        self.unit_effects_label.setText("  ".join(dict.fromkeys(effects)))
+        text = "  ".join(dict.fromkeys(effects))
+        self.unit_effects_label.setText(text)
+        self.unit_effects_label.setVisible(bool(text))
 
     def _set_threshold_status(self, unit: TacticalUnitState) -> None:
         flags = []
@@ -2323,8 +2468,13 @@ class TacticalAssistantPage(QWidget):
         if not isinstance(data, dict):
             self.special_action_rules_label.clear()
             return
+        check = str(data.get("check", "-"))
+        check_text = self._crew_quality_check_equation(
+            check,
+            self.crew_quality_edit.text(),
+        )
         text = (
-            f"<b>Crew Quality Check:</b> {escape(str(data.get('check', '-')))}<br>"
+            f"<b>Crew Quality Check:</b> {escape(check_text)}<br>"
             f"{escape(str(data.get('effect', '')))}"
         )
         if not data.get("allowed", True):
@@ -2333,6 +2483,28 @@ class TacticalAssistantPage(QWidget):
                 f"{escape(str(data.get('reason', '')))}</span>"
             )
         self.special_action_rules_label.setText(text)
+
+    @staticmethod
+    def _crew_quality_check_equation(check: str, crew_quality: str) -> str:
+        """Expand numeric CQ checks with the entered score and die target."""
+
+        target_match = re.fullmatch(r"\s*(\d+)\+?\s*", str(check or ""))
+        if target_match is None:
+            return str(check or "-")
+        target = int(target_match.group(1))
+        cq_text = str(crew_quality or "").strip()
+        equation = f"Roll 1D6 + CQ {cq_text or '?'}; {target}+ succeeds"
+        cq_match = re.search(r"-?\d+", cq_text)
+        if cq_match is None:
+            return equation + "."
+        required = target - int(cq_match.group())
+        if required <= 1:
+            die_note = "need 1+ on the die"
+        elif required <= 6:
+            die_note = f"need {required}+ on the die"
+        else:
+            die_note = f"need {required}+ on the die; another modifier is required"
+        return f"{equation} ({die_note})."
 
     def _refresh_weapons(self, unit: TacticalUnitState) -> None:
         selected_key = self._selected_tree_key(self.weapon_tree)
@@ -2370,6 +2542,7 @@ class TacticalAssistantPage(QWidget):
                 selected_item = item
         if selected_item is not None:
             self.weapon_tree.setCurrentItem(selected_item)
+        self._resize_weapon_tree()
         self.weapon_disable_button.setEnabled(bool(unit.weapons))
         self.weapon_destroy_button.setEnabled(bool(unit.weapons))
 
@@ -2386,12 +2559,14 @@ class TacticalAssistantPage(QWidget):
         column_pairs = 2 if self._traits_two_column else 1
         for index in range(0, len(unit.traits), column_pairs):
             item = QTreeWidgetItem(self.trait_tree)
+            if self._traits_two_column:
+                item.setBackground(2, QBrush(_TRAIT_DIVIDER))
             for pair in range(column_pairs):
                 trait_index = index + pair
                 if trait_index >= len(unit.traits):
                     break
                 trait = unit.traits[trait_index]
-                name_column = pair * 2
+                name_column = 0 if pair == 0 else 3
                 status_column = name_column + 1
                 for column in (name_column, status_column):
                     item.setData(column, Qt.ItemDataRole.UserRole, trait.trait_key)
@@ -2545,11 +2720,11 @@ class TacticalAssistantPage(QWidget):
                 "Enter or roll the critical Damage and Crew values to preview the total."
             )
             return
-        total_damage = (1 + max(0, extra_damage)) * multiplier
-        total_crew = (1 + max(0, extra_crew)) * multiplier
+        total_damage = max(0, extra_damage) * multiplier
+        total_crew = max(0, extra_crew) * multiplier
         self.critical_preview_label.setText(
-            f"Total applied: {total_damage} Damage and {total_crew} Crew "
-            f"(Solid Hit plus critical result, x{multiplier})."
+            f"Critical applied: {total_damage} Damage and {total_crew} Crew "
+            f"(critical result only, x{multiplier}; normal hit recorded separately)."
         )
 
     @staticmethod
@@ -2605,7 +2780,7 @@ class TacticalAssistantPage(QWidget):
                 target_labels=target_labels,
                 applied_turn=self._game.turn_number,
                 damage_multiplier=self._critical_multiplier(),
-                include_solid_hit=True,
+                include_solid_hit=False,
             )
         except ValueError as exc:
             QMessageBox.warning(self, "Apply Critical", str(exc))
@@ -2832,6 +3007,17 @@ class TacticalAssistantPage(QWidget):
             self.destroyed_checkbox.setChecked(unit.is_destroyed)
         finally:
             self.destroyed_checkbox.blockSignals(False)
+
+    def _crew_quality_preview_changed(self, value: str) -> None:
+        if self._loading_controls:
+            return
+        unit = self._selected_unit()
+        if unit is None or unit.kind is UnitKind.CRAFT:
+            return
+        preview = unit.set_crew_quality(value)
+        current_turn = self._game.turn_number if self._game is not None else 1
+        self.damage_control_label.setText(preview.damage_control_equation(current_turn))
+        self._update_special_action_rules(self.special_action_combo.currentIndex())
 
     def _crew_quality_changed(self) -> None:
         if self._loading_controls:

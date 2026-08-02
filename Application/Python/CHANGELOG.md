@@ -1,5 +1,24 @@
 # DFS Changelog
 
+## 2.4.0-alpha28
+
+- Made each aggregate fighter-type roster row open a dedicated fighter
+  reference; removed the duplicate per-flight dropdown rows while preserving
+  every individual flight in tactical save state.
+- Tailored fighter references to show aggregate Ready/Launched/Lost status,
+  fighter statistics, Weapons, Traits, and source notes without ship-only
+  tracks, Disposition, criticals, or operational-status controls.
+- Made Weapons auto-size to their full row count so short weapon lists no longer
+  waste space and long lists use the outer platform scrollbar rather than an
+  inner weapon scrollbar.
+- Added a dark divider between the two desktop Traits columns.
+- Corrected Apply Critical so its multiplier affects only the critical table's
+  extra Damage and Crew; the normal hit is recorded separately on the tracks.
+- Made Damage Control and numeric Special Action equations update immediately
+  as Crew Quality is typed, including the required die result.
+- Added fighter-reference, Weapons sizing, trait divider, multiplier, live Crew
+  Quality, desktop, and 150%-scaling regression coverage.
+
 ## 2.4.0-alpha27
 
 - Moved Traits into a full-width panel above Disposition and Critical Results.

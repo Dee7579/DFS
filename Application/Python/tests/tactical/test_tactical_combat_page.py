@@ -239,8 +239,8 @@ def test_critical_dropdown_applies_losses_and_effective_stat_change(
     qapp.processEvents()
 
     unit = page.current_game.get_unit("ship-1")
-    assert unit.damage.current == 30
-    assert unit.crew.current == 39
+    assert unit.damage.current == 31
+    assert unit.crew.current == 40
     assert unit.effective_speed == "10"
     assert len(unit.active_critical_hits) == 1
     assert page.critical_tree.topLevelItemCount() == 1

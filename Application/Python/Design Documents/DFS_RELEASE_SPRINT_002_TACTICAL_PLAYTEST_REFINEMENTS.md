@@ -15,11 +15,17 @@ existing `.dfs-game.json` saves.
 - Show Disposition and Critical Results side by side on wide displays and stack
   them vertically on narrow workspaces to avoid horizontal crowding.
 - Show Traits in a full-width auto-sizing panel above Disposition and Critical
-  Results. Use two trait columns on normal desktop widths and one on narrow
-  workspaces, while keeping Source Notes and Unit Notes in compact tabs.
+  Results. Use two trait columns with a dark divider on normal desktop widths
+  and one on narrow workspaces, while keeping Source Notes and Unit Notes in
+  compact tabs.
+- Auto-size Weapons to show the complete weapon list without an inner
+  scrollbar; the outer platform pane handles any additional page height.
 - Represent carried fighters with one row per fighter type and carrier, using
   separate high-DPI-safe Ready, Launched, and Lost counter columns while
-  retaining individual flight records below the summary row.
+  retaining individual flight records in tactical state without duplicate
+  child rows. Selecting the aggregate row opens a dedicated fighter reference
+  containing fighter statistics, Weapons, Traits, aggregate status, and source
+  notes rather than ship-only combat controls.
 - Keep the primary file and Quick Reference controls on the Tactical Assistant
   title row, with a safe second-row layout on narrow windows.
 - Let the application navigation collapse into a persistent icon rail, with
@@ -33,7 +39,8 @@ existing `.dfs-game.json` saves.
 - Keep hover descriptions open until the pointer leaves or moves to another item.
 - Explain Disposition choices both while choosing and after selection.
 - Show the live Damage Control calculation, modifiers, required die result, and
-  any condition that blocks a repair attempt.
+  any condition that blocks a repair attempt. Recalculate Damage Control and
+  numeric Special Action equations immediately as Crew Quality is typed.
 - Provide a modeless, searchable Quick Reference window. Contextual help and the
   Quick Reference use the same catalogue so their wording cannot drift apart.
 
@@ -45,9 +52,10 @@ existing `.dfs-game.json` saves.
   the following turn. Permanent and Repaired states remain explicit.
 - Display current Speed and compulsory half-current-Speed movement while Running
   Adrift.
-- Resolve Double, Triple, and Quad Damage criticals by multiplying both the normal
-  Solid Hit and the critical table's extra Damage/Crew values. Reset the selector
-  to x1 after application and retain exact undo behavior.
+- Record the normal hit on the Damage and Crew tracks before using Apply
+  Critical. Its x1-x4 selector multiplies only the critical table's extra
+  Damage/Crew values, resets to x1 after application, and retains exact undo
+  behavior.
 
 ## Save compatibility
 

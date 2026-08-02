@@ -1,2 +1,2 @@
 
-__version__ = "2.4.0-alpha27"
+__version__ = "2.4.0-alpha28"

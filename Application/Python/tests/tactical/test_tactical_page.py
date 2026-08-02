@@ -131,8 +131,11 @@ def test_page_loads_every_individual_unit_and_edits_tracks(
     assert "Resolute" in ship_item.toolTip(0)
     fighter_group = ship_item.child(0)
     assert fighter_group.text(0) == "Aurora Starfury flight x1"
-    assert fighter_group.childCount() == 1
-    assert fighter_group.child(0).text(0) == "Aurora Starfury flight"
+    assert fighter_group.childCount() == 0
+    page.unit_tree.setCurrentItem(fighter_group)
+    qapp.processEvents()
+    assert page.unit_title.text() == "Aurora Starfury flight"
+    assert page.fighter_overview_group.isHidden() is False
 
     page.unit_tree.setCurrentItem(ship_item)
     page.damage_editor.current_spin.setValue(24)

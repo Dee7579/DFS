@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,7 +10,7 @@ import pytest
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QPoint
+from PySide6.QtCore import QPoint, Qt
 from PySide6.QtWidgets import QApplication, QScrollArea, QTabWidget
 
 from dfs.domain.tactical import (
@@ -103,6 +104,17 @@ def game() -> TacticalGameState:
             kind=UnitKind.CRAFT,
             platform_name="Aurora Starfury Flight",
             instance_number=index,
+            speed="14",
+            turn="SM",
+            hull="4",
+            source_notes=("Dogfight: +2", "Fighter flight reference note."),
+            weapons=(
+                WeaponState("fighter-guns", "Particle Guns", "T", "2", "2", "Dogfight"),
+            ),
+            traits=(
+                TraitState("fighter", "Fighter"),
+                TraitState("dodge", "Dodge 2+"),
+            ),
         )
         for index in range(1, 4)
     )
@@ -207,13 +219,17 @@ def test_detail_forms_keep_natural_height_without_overlapping(page, qapp) -> Non
 
     assert_forms_do_not_overlap()
 
-    craft_item = page.unit_tree.topLevelItem(0).child(0).child(0)
+    craft_item = page.unit_tree.topLevelItem(0).child(0)
     page.unit_tree.setCurrentItem(craft_item)
     qapp.processEvents()
+    assert page.tracks_widget.isHidden() is True
+    assert page.status_and_critical_widget.isHidden() is True
     assert_forms_do_not_overlap()
 
     # The normal 900-pixel workspace may scroll, but the forms must never be
     # forced shorter than their layout minimum just to keep every section in view.
+    page.unit_tree.setCurrentItem(page.unit_tree.topLevelItem(0))
+    qapp.processEvents()
     assert page.detail_scroll.verticalScrollBar().maximum() > 0
 
 
@@ -223,9 +239,11 @@ def test_traits_are_full_width_auto_sized_and_responsive(page, qapp) -> None:
     qapp.processEvents()
 
     assert page._traits_two_column is True
-    assert page.trait_tree.columnCount() == 4
+    assert page.trait_tree.columnCount() == 5
     assert page.trait_tree.topLevelItemCount() == 4
     assert page.trait_tree.verticalScrollBar().maximum() == 0
+    assert page.trait_tree.columnWidth(2) <= 8
+    assert page.trait_tree.topLevelItem(0).background(2).color().name() == "#4b5563"
     assert page.trait_tree.viewport().height() >= (
         page.trait_tree.visualItemRect(page.trait_tree.topLevelItem(3)).bottom()
     )
@@ -234,7 +252,7 @@ def test_traits_are_full_width_auto_sized_and_responsive(page, qapp) -> None:
     )
 
     second_column_item = page.trait_tree.topLevelItem(0)
-    page.trait_tree.setCurrentItem(second_column_item, 2)
+    page.trait_tree.setCurrentItem(second_column_item, 3)
     page.trait_disable_button.click()
     qapp.processEvents()
     selected_unit = page.current_game.get_unit("ship-1")
@@ -278,8 +296,8 @@ def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -
     group = carrier.child(0)
     assert group.text(0) == "Aurora Starfury Flight x3"
     assert group.text(1) == "Carried Craft"
-    assert group.childCount() == 3
-    assert group.isExpanded() is False
+    assert group.childCount() == 0
+    assert group.data(0, Qt.ItemDataRole.UserRole) == "fighter-1"
 
     ready = page.unit_tree.itemWidget(group, 3)
     launched = page.unit_tree.itemWidget(group, 4)
@@ -292,6 +310,20 @@ def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -
     assert launched.value() == 0
     assert lost.value() == 0
     assert ready.value_label.text() == "3"
+    page.unit_tree.setCurrentItem(group)
+    qapp.processEvents()
+    assert page.unit_title.text() == "Aurora Starfury Flight x3"
+    assert "Ready 3" in page.fighter_overview_label.text()
+    assert page.fighter_overview_group.isHidden() is False
+    assert page.tracks_widget.isHidden() is True
+    assert page.status_and_critical_widget.isHidden() is True
+    assert page.weapon_actions_widget.isHidden() is True
+    assert page.trait_actions_widget.isHidden() is True
+    assert page.weapon_tree.topLevelItemCount() == 1
+    assert page.trait_tree.topLevelItemCount() == 1
+    assert page.weapon_tree.isColumnHidden(5) is True
+    assert page.trait_tree.isColumnHidden(1) is True
+    assert page.trait_tree.isColumnHidden(4) is True
     launched.increment_button.click()
     qapp.processEvents()
     statuses = [
@@ -301,6 +333,15 @@ def test_carried_fighters_are_one_compact_group_with_linked_counts(page, qapp) -
     assert statuses.count("ready") == 2
     assert statuses.count("launched") == 1
     assert statuses.count("lost") == 0
+
+    carrier = page.unit_tree.topLevelItem(0)
+    page.unit_tree.setCurrentItem(carrier)
+    qapp.processEvents()
+    assert page.tracks_widget.isHidden() is False
+    assert page.status_and_critical_widget.isHidden() is False
+    assert page.weapon_tree.isColumnHidden(5) is False
+    assert page.trait_tree.isColumnHidden(1) is False
+    assert page.trait_tree.isColumnHidden(4) is False
 
 
 def test_disposition_selection_keeps_the_active_rule_visible(page, qapp) -> None:
@@ -321,6 +362,8 @@ def test_tactical_ship_rename_updates_only_the_game_copy(page) -> None:
 
 
 def test_critical_multiplier_preview_and_next_turn_repair_status(page, qapp) -> None:
+    page.damage_editor.current_spin.setValue(29)
+    page.crew_editor.current_spin.setValue(39)
     page.critical_rule_combo.setCurrentIndex(
         page.critical_rule_combo.findData("engines-thrusters")
     )
@@ -328,13 +371,14 @@ def test_critical_multiplier_preview_and_next_turn_repair_status(page, qapp) -> 
         page.critical_multiplier_combo.findData(2)
     )
     qapp.processEvents()
-    assert "4 Damage and 2 Crew" in page.critical_preview_label.text()
+    assert "2 Damage and 0 Crew" in page.critical_preview_label.text()
+    assert "normal hit recorded separately" in page.critical_preview_label.text()
 
     page.apply_critical_button.click()
     qapp.processEvents()
     unit = page.current_game.get_unit("ship-1")
-    assert unit.damage.current == 26
-    assert unit.crew.current == 38
+    assert unit.damage.current == 27
+    assert unit.crew.current == 39
     assert unit.critical_hits[-1].damage_multiplier == 2
     assert page.critical_tree.topLevelItem(0).text(2) == "New"
     assert page.repair_critical_button.isEnabled() is False
@@ -346,6 +390,54 @@ def test_critical_multiplier_preview_and_next_turn_repair_status(page, qapp) -> 
     page.critical_tree.setCurrentItem(page.critical_tree.topLevelItem(0))
     qapp.processEvents()
     assert page.repair_critical_button.isEnabled() is True
+
+
+def test_weapons_grow_to_show_every_row_without_an_inner_scrollbar(page, qapp) -> None:
+    page.resize(1500, 900)
+    page.show()
+    qapp.processEvents()
+    one_row_height = page.weapon_tree.height()
+
+    ship = page.current_game.get_unit("ship-1")
+    weapons = tuple(
+        WeaponState(
+            f"weapon-{index}",
+            f"Weapon {index}",
+            "F",
+            str(10 + index),
+            str(index),
+            "Beam",
+        )
+        for index in range(1, 9)
+    )
+    expanded = replace(ship, weapons=weapons)
+    page._game = page.current_game.replace_unit(expanded)
+    page._load_unit_controls(expanded)
+    qapp.processEvents()
+
+    assert page.weapon_tree.topLevelItemCount() == 8
+    assert page.weapon_tree.height() > one_row_height
+    assert page.weapon_tree.verticalScrollBar().maximum() == 0
+    assert page.weapon_tree.viewport().height() >= (
+        page.weapon_tree.visualItemRect(page.weapon_tree.topLevelItem(7)).bottom()
+    )
+
+
+def test_crew_quality_equations_update_while_the_score_is_typed(page, qapp) -> None:
+    page.crew_quality_edit.clear()
+    qapp.processEvents()
+    assert "CQ ?" in page.damage_control_label.text()
+
+    page.crew_quality_edit.setText("5")
+    qapp.processEvents()
+    assert "CQ 5" in page.damage_control_label.text()
+    assert "Need 4+ on the die" in page.damage_control_label.text()
+
+    action_index = page.special_action_combo.findData("Come About!")
+    page.special_action_combo.setCurrentIndex(action_index)
+    qapp.processEvents()
+    assert "CQ 5" in page.special_action_rules_label.text()
+    assert "need 4+ on the die" in page.special_action_rules_label.text()
 
 
 def test_quick_reference_is_modeless_and_searchable(page, qapp) -> None:

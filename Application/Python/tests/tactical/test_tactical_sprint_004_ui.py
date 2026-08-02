@@ -161,10 +161,11 @@ def test_carried_fighter_status_changes_in_battle_roster(
     assert page.current_game.get_unit("fighter-1").effective_craft_status == "launched"
 
     fighter_group = page.unit_tree.topLevelItem(0).child(0)
-    fighter_item = fighter_group.child(0)
-    page.unit_tree.setCurrentItem(fighter_item)
+    assert fighter_group.childCount() == 0
+    page.unit_tree.setCurrentItem(fighter_group)
     assert page.weapon_tree.topLevelItemCount() == 1
     assert page.trait_tree.topLevelItemCount() == 1
+    assert page.fighter_overview_group.isHidden() is False
 
 
 def test_special_action_rules_display_below_selector(
@@ -203,7 +204,7 @@ def test_critical_panel_roll_random_and_undo(
     qapp.processEvents()
     updated = page.current_game.get_unit("ship-1")
     assert len(updated.critical_hits[-1].target_keys) == 2
-    assert updated.damage.current == 18
+    assert updated.damage.current == 19
     assert page.undo_critical_button.isEnabled() is True
 
     page.undo_critical_button.click()
