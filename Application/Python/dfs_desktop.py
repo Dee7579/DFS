@@ -1,6 +1,7 @@
 """Launch the DFS desktop application."""
 from __future__ import annotations
 
+import sqlite3
 import sys
 import time
 
@@ -14,12 +15,48 @@ except ModuleNotFoundError as exc:
         "    python -m pip install PySide6"
     ) from exc
 
-from dfs.app_paths import DatabaseNotFoundError, find_database_path
+from dfs.app_paths import (
+    DatabaseNotFoundError,
+    build_application_paths,
+    find_database_path,
+)
 from dfs.bootstrap import build_application_context
 from dfs.framework.settings_service import SettingsService
 from dfs.ui.main_window import MainWindow
 
-APP_VERSION = "2.4.0-alpha24"
+APP_VERSION = "2.4.0-alpha28"
+
+
+def _run_release_smoke_test() -> int:
+    """Verify that a packaged build can read every required runtime payload."""
+
+    try:
+        database_path = find_database_path()
+        paths = build_application_paths(__file__)
+        if not paths.resources_root.joinpath("scenario_maps").is_dir():
+            raise FileNotFoundError("Packaged scenario maps are missing.")
+        if not any(paths.resources_root.joinpath("scenario_maps").glob("*.png")):
+            raise FileNotFoundError("Packaged scenario map images are missing.")
+        if not paths.reference_sheets_root.is_dir():
+            raise FileNotFoundError("Packaged master reference sheets are missing.")
+        if not any(paths.reference_sheets_root.rglob("*.pdf")):
+            raise FileNotFoundError("Packaged master reference sheet PDFs are missing.")
+
+        connection = sqlite3.connect(
+            f"file:{database_path.as_posix()}?mode=ro",
+            uri=True,
+        )
+        try:
+            result = connection.execute("PRAGMA integrity_check").fetchone()
+        finally:
+            connection.close()
+        if result is None or result[0] != "ok":
+            raise OSError("Packaged DFS database failed its integrity check.")
+    except (DatabaseNotFoundError, OSError, sqlite3.Error) as exc:
+        if sys.stderr is not None:
+            print(f"DFS release smoke test failed: {exc}", file=sys.stderr)
+        return 1
+    return 0
 
 
 def _make_splash(system_name: str) -> QSplashScreen:
@@ -40,6 +77,9 @@ def _make_splash(system_name: str) -> QSplashScreen:
 
 
 def main() -> int:
+    if "--release-smoke-test" in sys.argv:
+        return _run_release_smoke_test()
+
     app = QApplication(sys.argv)
     app.setApplicationName("Dee's Fighting Ships")
     app.setApplicationVersion(APP_VERSION)

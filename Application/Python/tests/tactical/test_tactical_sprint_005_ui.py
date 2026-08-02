@@ -127,13 +127,14 @@ def test_scenario_selector_has_none_random_and_all_groups(page, game, qapp) -> N
 
 def test_roster_uses_platform_name_and_groups_purchased_flights(page, game) -> None:
     page.load_game_state(game)
-    assert page.unit_tree.topLevelItem(0).text(0) == "White Star"
+    assert page.unit_tree.topLevelItem(0).text(0) == "White Star One — White Star"
     assert "White Star One" in page.unit_tree.topLevelItem(0).toolTip(0)
     group = page.unit_tree.topLevelItem(1)
     assert group.text(0) == "Nial Heavy Fighter Flight x2"
-    assert group.childCount() == 2
-    assert group.child(0).text(0) == "Nial Heavy Fighter Flight"
-    assert group.child(1).text(0) == "Nial Heavy Fighter Flight #2"
+    assert group.childCount() == 0
+    page.unit_tree.setCurrentItem(group)
+    assert page.unit_title.text() == "Nial Heavy Fighter Flight x2"
+    assert page.fighter_overview_group.isHidden() is False
 
 
 def test_disposition_selector_adds_running_adrift(page, game, qapp) -> None:

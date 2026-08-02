@@ -4,7 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from dfs.app_paths import find_output_path
+from dfs.app_paths import build_application_paths
 from dfs.framework import (
     CommandService,
     LoggingService,
@@ -76,7 +76,8 @@ def build_application_context(
 ) -> ApplicationContext:
     source_database_path = Path(database_path).resolve()
     database_path = prepare_runtime_database(source_database_path)
-    project_root = Path(__file__).resolve().parents[1]
+    paths = build_application_paths(__file__)
+    paths.ensure_user_directories()
     settings_service = settings or SettingsService()
     connections = SQLiteConnectionFactory(database_path)
     platforms = SQLitePlatformRepository(connections)
@@ -86,9 +87,15 @@ def build_application_context(
     fleet_service = FleetConstructionService(platforms)
     fleet_store = JSONFleetStore()
     documents = DocumentService(
-        styles=(DocumentStyle("dfs_standard", "DFS Standard", find_output_path(__file__)),)
+        styles=(
+            DocumentStyle(
+                "dfs_standard",
+                "DFS Standard",
+                paths.reference_sheets_root,
+            ),
+        )
     )
-    logging_service = LoggingService(project_root / "logs" / "dfs.log")
+    logging_service = LoggingService(paths.log_file)
     tactical_service = TacticalGameService(
         TacticalGameBuilder(
             CatalogTacticalProfileResolver(catalog_service, detail_service)
@@ -108,7 +115,7 @@ def build_application_context(
         notifications=NotificationService(),
         logging=logging_service,
         commands=CommandService(),
-        resources=ResourceService(project_root),
+        resources=ResourceService(paths),
         fleets=fleet_service,
         fleet_files=fleet_store,
         fleet_prints=FleetPrintPlanner(catalog_service, detail_service),
