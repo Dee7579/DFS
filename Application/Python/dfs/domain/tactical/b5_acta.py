@@ -258,12 +258,20 @@ def apply_critical_rule(
     target_keys: Iterable[str] = (),
     target_labels: Iterable[str] = (),
     applied_turn: int = 1,
+    damage_multiplier: int = 1,
+    include_solid_hit: bool = False,
 ) -> TacticalUnitState:
     rule = CRITICAL_RULE_BY_KEY[rule_key]
     resolved_damage = rule.fixed_damage if damage_loss is None else int(damage_loss)
     resolved_crew = rule.fixed_crew if crew_loss is None else int(crew_loss)
     if resolved_damage is None or resolved_crew is None:
         raise ValueError("rolled critical Damage and Crew totals must be entered")
+    multiplier = int(damage_multiplier)
+    if multiplier not in {1, 2, 3, 4}:
+        raise ValueError("critical damage multiplier must be x1, x2, x3, or x4")
+    solid_hit_loss = 1 if include_solid_hit else 0
+    total_damage = (solid_hit_loss + max(0, resolved_damage)) * multiplier
+    total_crew = (solid_hit_loss + max(0, resolved_crew)) * multiplier
     resolved_targets = tuple(str(item) for item in target_keys if str(item))
     resolved_labels = tuple(str(item) for item in target_labels if str(item))
     if rule.target_count and len(resolved_targets) < rule.target_count:
@@ -274,8 +282,8 @@ def apply_critical_rule(
         rule_key=rule.key,
         system=rule.system,
         roll=rule.roll,
-        damage_loss=max(0, resolved_damage),
-        crew_loss=max(0, resolved_crew),
+        damage_loss=total_damage,
+        crew_loss=total_crew,
         speed_penalty=rule.speed_penalty,
         weapon_ad_penalty=rule.weapon_ad_penalty,
         no_special_actions=rule.no_special_actions,
@@ -289,6 +297,7 @@ def apply_critical_rule(
         target_labels=resolved_labels[: rule.target_count or None],
         repairable=rule.repairable,
         applied_turn=max(1, int(applied_turn)),
+        damage_multiplier=multiplier,
         before_damage=unit.damage.current,
         before_crew=unit.crew.current,
         before_crippled=unit.crippled,

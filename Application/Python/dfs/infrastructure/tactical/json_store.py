@@ -213,6 +213,7 @@ class JSONTacticalGameStore:
                     "target_labels": list(critical.target_labels),
                     "repairable": critical.repairable,
                     "applied_turn": critical.applied_turn,
+                    "damage_multiplier": critical.damage_multiplier,
                     "before_damage": critical.before_damage,
                     "before_crew": critical.before_crew,
                     "before_crippled": critical.before_crippled,
@@ -319,6 +320,7 @@ class JSONTacticalGameStore:
                     target_labels=tuple(str(value) for value in item.get("target_labels", [])),
                     repairable=bool(item.get("repairable", True)),
                     applied_turn=max(1, int(item.get("applied_turn", 1))),
+                    damage_multiplier=max(1, min(4, int(item.get("damage_multiplier", 1)))),
                     before_damage=(
                         int(item["before_damage"])
                         if item.get("before_damage") is not None

@@ -153,16 +153,19 @@ def test_carried_fighter_status_changes_in_battle_roster(
     qapp: QApplication,
 ) -> None:
     page.load_game_state(game)
-    fighter_item = page.unit_tree.topLevelItem(0).child(0)
-    combo = page.unit_tree.itemWidget(fighter_item, 2)
-    assert isinstance(combo, QComboBox)
-    combo.setCurrentIndex(combo.findData("launched"))
+    fighter_group = page.unit_tree.topLevelItem(0).child(0)
+    launched = page.unit_tree.itemWidget(fighter_group, 4)
+    assert isinstance(launched, page_module._CraftCountEditor)
+    launched.increment_button.click()
     qapp.processEvents()
     assert page.current_game.get_unit("fighter-1").effective_craft_status == "launched"
 
-    page.unit_tree.setCurrentItem(fighter_item)
+    fighter_group = page.unit_tree.topLevelItem(0).child(0)
+    assert fighter_group.childCount() == 0
+    page.unit_tree.setCurrentItem(fighter_group)
     assert page.weapon_tree.topLevelItemCount() == 1
     assert page.trait_tree.topLevelItemCount() == 1
+    assert page.fighter_overview_group.isHidden() is False
 
 
 def test_special_action_rules_display_below_selector(
@@ -217,8 +220,8 @@ def test_critical_header_exposes_first_roll_chart(
     game: TacticalGameState,
 ) -> None:
     page.load_game_state(game)
-    assert "1-2  Engines" in page.critical_group.toolTip()
-    assert "6     Vital Systems" in page.critical_group.toolTip()
+    assert "Systems roll: 1-2 Engines" in page.critical_group.toolTip()
+    assert "6 Vital Systems" in page.critical_group.toolTip()
 
 
 def test_end_game_button_records_battle_report(

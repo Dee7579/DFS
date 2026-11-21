@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QAction, QCloseEvent, QKeySequence
+from PySide6.QtGui import QAction, QCloseEvent, QKeySequence, QResizeEvent
 from PySide6.QtWidgets import (
     QComboBox, QHBoxLayout, QLabel, QListWidget, QListWidgetItem, QMainWindow,
-    QMessageBox, QStackedWidget, QVBoxLayout, QWidget,
+    QMessageBox, QPushButton, QStackedWidget, QStyle, QVBoxLayout, QWidget,
 )
 
 from dfs.bootstrap import ApplicationContext
@@ -53,11 +53,24 @@ class MainWindow(QMainWindow):
         self.navigation = QListWidget()
         self.navigation.setObjectName("navigation")
         self.navigation.setFixedWidth(190)
-        for text in (
+        self._navigation_labels = (
             "Dashboard", "Platform Explorer", "Fleet Builder", "Tactical Assistant",
             "Codex Browser", "Campaign Manager", "Platform Editor", "Settings",
-        ):
+        )
+        standard_icons = (
+            QStyle.StandardPixmap.SP_DesktopIcon,
+            QStyle.StandardPixmap.SP_FileDialogContentsView,
+            QStyle.StandardPixmap.SP_DirIcon,
+            QStyle.StandardPixmap.SP_ComputerIcon,
+            QStyle.StandardPixmap.SP_MessageBoxInformation,
+            QStyle.StandardPixmap.SP_DriveNetIcon,
+            QStyle.StandardPixmap.SP_FileDialogDetailedView,
+            QStyle.StandardPixmap.SP_FileDialogListView,
+        )
+        for text, icon_type in zip(self._navigation_labels, standard_icons):
             item = QListWidgetItem(text)
+            item.setIcon(self.style().standardIcon(icon_type))
+            item.setToolTip(text)
             if text not in (
                 "Dashboard", "Platform Explorer", "Fleet Builder", "Tactical Assistant", "Settings"
             ):
@@ -77,31 +90,39 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(self.tactical_assistant)
         self.pages.addWidget(self.settings_page)
 
-        app_name = QLabel("DFS")
-        app_name.setObjectName("appName")
-        app_tagline = QLabel("Tactical Reference System")
-        app_tagline.setObjectName("appTagline")
-        system_caption = QLabel("Game System")
-        system_caption.setObjectName("gameSystemCaption")
-        database = QLabel(database_label)
-        database.setObjectName("databaseLabel")
-        database.setWordWrap(True)
+        self.app_name = QLabel("DFS")
+        self.app_name.setObjectName("appName")
+        self.app_tagline = QLabel("Tactical Reference System")
+        self.app_tagline.setObjectName("appTagline")
+        self.system_caption = QLabel("Game System")
+        self.system_caption.setObjectName("gameSystemCaption")
+        self.database_label = QLabel(database_label)
+        self.database_label.setObjectName("databaseLabel")
+        self.database_label.setWordWrap(True)
+        self.sidebar_toggle_button = QPushButton("◀")
+        self.sidebar_toggle_button.setFixedWidth(34)
+        self.sidebar_toggle_button.setToolTip("Collapse navigation")
+        self.sidebar_toggle_button.clicked.connect(self._toggle_sidebar)
 
-        sidebar = QWidget()
-        sidebar.setObjectName("sidebar")
-        sidebar_layout = QVBoxLayout(sidebar)
-        sidebar_layout.addWidget(app_name)
-        sidebar_layout.addWidget(app_tagline)
-        sidebar_layout.addWidget(system_caption)
+        sidebar_header = QHBoxLayout()
+        sidebar_header.addWidget(self.app_name, 1)
+        sidebar_header.addWidget(self.sidebar_toggle_button)
+
+        self.sidebar = QWidget()
+        self.sidebar.setObjectName("sidebar")
+        sidebar_layout = QVBoxLayout(self.sidebar)
+        sidebar_layout.addLayout(sidebar_header)
+        sidebar_layout.addWidget(self.app_tagline)
+        sidebar_layout.addWidget(self.system_caption)
         sidebar_layout.addWidget(self.system_combo)
         sidebar_layout.addSpacing(8)
         sidebar_layout.addWidget(self.navigation, 1)
-        sidebar_layout.addWidget(database)
+        sidebar_layout.addWidget(self.database_label)
 
         central = QWidget()
         layout = QHBoxLayout(central)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(sidebar)
+        layout.addWidget(self.sidebar)
         layout.addWidget(self.pages, 1)
         self.setCentralWidget(central)
 
@@ -120,6 +141,16 @@ class MainWindow(QMainWindow):
         if state:
             self.restoreState(state)
 
+        self._sidebar_collapsed = False
+        self._sidebar_manual_override = False
+        saved_sidebar = self._settings.value("main_window/sidebar_collapsed", None)
+        collapsed = (
+            self._settings.get_bool("main_window/sidebar_collapsed", False)
+            if saved_sidebar is not None
+            else self.width() < 1250
+        )
+        self._set_sidebar_collapsed(collapsed, persist=False)
+
         saved_page = self._settings.get_int("main_window/page", 0)
         startup_page = self._settings.startup_page
         if startup_page == "platform_explorer":
@@ -127,6 +158,56 @@ class MainWindow(QMainWindow):
         elif startup_page == "dashboard":
             saved_page = self.PAGE_DASHBOARD
         self.navigation.setCurrentRow(saved_page if saved_page in (0, 1, 2, 3, 7) else 0)
+
+    def _toggle_sidebar(self) -> None:
+        self._sidebar_manual_override = True
+        self._set_sidebar_collapsed(not self._sidebar_collapsed, persist=True)
+
+    def _set_sidebar_collapsed(self, collapsed: bool, *, persist: bool) -> None:
+        self._sidebar_collapsed = bool(collapsed)
+        if self._sidebar_collapsed:
+            self.sidebar.setFixedWidth(58)
+            self.navigation.setFixedWidth(42)
+            self.app_name.hide()
+            self.app_tagline.hide()
+            self.system_caption.hide()
+            self.system_combo.hide()
+            self.database_label.hide()
+            self.sidebar_toggle_button.setText("▶")
+            self.sidebar_toggle_button.setToolTip("Expand navigation")
+        else:
+            self.sidebar.setFixedWidth(214)
+            self.navigation.setFixedWidth(190)
+            self.app_name.show()
+            self.app_tagline.show()
+            self.system_caption.show()
+            self.system_combo.show()
+            self.database_label.show()
+            self.sidebar_toggle_button.setText("◀")
+            self.sidebar_toggle_button.setToolTip("Collapse navigation")
+
+        for index, label in enumerate(self._navigation_labels):
+            item = self.navigation.item(index)
+            if item is not None:
+                item.setText("" if self._sidebar_collapsed else label)
+                item.setToolTip(label)
+        if persist:
+            self._settings.set_value(
+                "main_window/sidebar_collapsed",
+                self._sidebar_collapsed,
+            )
+            self._settings.sync()
+
+    def resizeEvent(self, event: QResizeEvent) -> None:  # noqa: N802
+        super().resizeEvent(event)
+        if (
+            hasattr(self, "sidebar")
+            and hasattr(self, "_sidebar_collapsed")
+            and event.size().width() < 1250
+            and not self._sidebar_collapsed
+            and not self._sidebar_manual_override
+        ):
+            self._set_sidebar_collapsed(True, persist=False)
 
     def _build_menu(self) -> None:
         view_menu = self.menuBar().addMenu("&View")

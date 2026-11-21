@@ -157,6 +157,7 @@ class CriticalHitState:
     target_labels: tuple[str, ...] = ()
     repairable: bool = True
     applied_turn: int = 1
+    damage_multiplier: int = 1
     before_damage: int | None = None
     before_crew: int | None = None
     before_crippled: bool = False
@@ -179,6 +180,24 @@ class CriticalHitState:
             notes=notes,
             **kwargs,
         )
+
+    def can_repair_on_turn(self, turn_number: int) -> bool:
+        """Return whether Damage Control may repair this result now."""
+
+        return bool(
+            self.repairable
+            and not self.repaired
+            and int(turn_number) > self.applied_turn
+        )
+
+    def repair_status(self, turn_number: int) -> str:
+        if self.repaired:
+            return "Repaired"
+        if not self.repairable:
+            return "Permanent"
+        if int(turn_number) <= self.applied_turn:
+            return "New"
+        return "Repairable"
 
 
 _SPEED_PATTERN = re.compile(r"^\s*(\d+(?:\.\d+)?)\s*(?:\"|in)?\s*$", re.IGNORECASE)
@@ -326,8 +345,6 @@ class TacticalUnitState:
 
     @property
     def effective_speed(self) -> str:
-        if self.is_adrift:
-            return "Adrift"
         original = _parse_speed(self.speed)
         if original is None:
             return self.speed
@@ -339,6 +356,15 @@ class TacticalUnitState:
             current -= Decimal(max(penalties))
         current = max(Decimal(0), current)
         return _format_decimal(current)
+
+    @property
+    def adrift_movement(self) -> str:
+        """Compulsory End Phase movement at half the current Speed."""
+
+        current = _parse_speed(self.effective_speed)
+        if current is None:
+            return self.effective_speed
+        return _format_decimal(max(Decimal(0), current / Decimal(2)))
 
     @property
     def effective_turn(self) -> str:
@@ -420,6 +446,17 @@ class TacticalUnitState:
             for critical in self.active_critical_hits
         )
 
+    def damage_control_block_reason(self, turn_number: int) -> str:
+        if any(critical.no_damage_control for critical in self.active_critical_hits):
+            return "Not permitted - an active critical prevents Damage Control."
+        if any(
+            critical.no_damage_control_this_turn
+            and critical.applied_turn == int(turn_number)
+            for critical in self.active_critical_hits
+        ):
+            return "Not permitted this turn - an active Hull Breach prevents Damage Control."
+        return ""
+
     @property
     def damage_control_penalty(self) -> int:
         critical_penalty = sum(
@@ -429,6 +466,68 @@ class TacticalUnitState:
         )
         skeleton_penalty = 0 if self.has_flight_computer else (2 if self.is_skeleton_crew else 0)
         return critical_penalty + skeleton_penalty
+
+    @property
+    def has_self_repairing(self) -> bool:
+        for trait in self.traits:
+            normalized = trait.name.casefold().replace("‑", "-").replace("–", "-")
+            if not (normalized.startswith("self-repairing") or normalized.startswith("self repairing")):
+                continue
+            if not self.trait_is_inactive(trait.trait_key):
+                return True
+        return False
+
+    @property
+    def damage_control_modifiers(self) -> tuple[tuple[str, int], ...]:
+        modifiers: list[tuple[str, int]] = []
+        if self.is_skeleton_crew and not self.has_flight_computer:
+            modifiers.append(("Skeleton Crew", -2))
+        multiple_fires = sum(
+            1
+            for critical in self.active_critical_hits
+            if critical.rule_key == "crew-multiple-fires"
+        )
+        if multiple_fires:
+            modifiers.append((
+                "Multiple Fires" if multiple_fires == 1 else f"Multiple Fires x{multiple_fires}",
+                -multiple_fires,
+            ))
+        if self.has_self_repairing:
+            modifiers.append(("Self-Repairing", 1))
+        if self.special_action.casefold() == "all hands on deck!".casefold():
+            modifiers.append(("All Hands on Deck!", 2))
+        return tuple(modifiers)
+
+    def damage_control_equation(self, turn_number: int) -> str:
+        blocked = self.damage_control_block_reason(turn_number)
+        if blocked:
+            return blocked
+
+        crew_quality = str(self.crew_quality or "?").strip() or "?"
+        terms = ["1D6", f"+ CQ {crew_quality}"]
+        for label, modifier in self.damage_control_modifiers:
+            sign = "+" if modifier >= 0 else "-"
+            terms.append(f"{sign} {abs(modifier)} {label}")
+        equation = " ".join(terms)
+
+        match = re.search(r"-?\d+", crew_quality)
+        required_note = ""
+        if match:
+            fixed = int(match.group()) + sum(value for _label, value in self.damage_control_modifiers)
+            required = 9 - fixed
+            if required <= 1:
+                required_note = " Need 1+ on the die."
+            elif required <= 6:
+                required_note = f" Need {required}+ on the die."
+            else:
+                required_note = f" Need {required}+ on the die; another modifier is required."
+
+        flight_computer_note = (
+            " Flight Computer ignores the Skeleton Crew -2 penalty."
+            if self.is_skeleton_crew and self.has_flight_computer
+            else ""
+        )
+        return f"Roll {equation}; 9+ repairs one eligible critical.{required_note}{flight_computer_note}"
 
     @property
     def firing_restrictions(self) -> tuple[str, ...]:
@@ -645,6 +744,11 @@ class TacticalUnitState:
     def set_crew_quality(self, crew_quality: str) -> "TacticalUnitState":
         return replace(self, crew_quality=crew_quality.strip())
 
+    def set_vessel_name(self, vessel_name: str) -> "TacticalUnitState":
+        if self.kind is not UnitKind.PLATFORM:
+            raise ValueError("only platforms can be assigned a vessel name")
+        return replace(self, vessel_name=str(vessel_name or "").strip())
+
     def set_special_action(self, action: str) -> "TacticalUnitState":
         return replace(self, special_action=action.strip())
 
@@ -707,13 +811,27 @@ class TacticalUnitState:
             updated = replace(updated, special_action="")
         return updated
 
-    def set_critical_repaired(self, critical_id: str, repaired: bool = True) -> "TacticalUnitState":
+    def set_critical_repaired(
+        self,
+        critical_id: str,
+        repaired: bool = True,
+        *,
+        current_turn: int | None = None,
+    ) -> "TacticalUnitState":
         found = False
         updated: list[CriticalHitState] = []
         for critical in self.critical_hits:
             if critical.critical_id == critical_id:
                 if repaired and not critical.repairable:
                     raise ValueError("Vital Systems critical hits cannot be repaired")
+                if (
+                    repaired
+                    and current_turn is not None
+                    and not critical.can_repair_on_turn(current_turn)
+                ):
+                    raise ValueError(
+                        "A critical hit cannot be repaired in the same turn it was suffered"
+                    )
                 updated.append(replace(critical, repaired=bool(repaired)))
                 found = True
             else:

@@ -40,6 +40,19 @@ from dfs.domain.tactical.scenarios import (
     random_priority_level,
     random_player_role,
 )
+from dfs.domain.tactical.quick_reference import (
+    ATTACK_TABLE_HELP,
+    COMMON_CODEX_RULE_NAMES,
+    CONDITIONS_HELP,
+    CRITICAL_TABLES_HELP,
+    DAMAGE_CONTROL_HELP,
+    DISPOSITION_DAMAGE_TABLE_HELP,
+    DISPOSITION_DESCRIPTIONS,
+    REFERENCE_ENTRIES,
+    SPECIAL_ACTIONS_HELP,
+    TURN_SEQUENCE_HELP,
+    ReferenceEntry,
+)
 
 __all__ = [
     "CriticalHitState",
@@ -77,4 +90,15 @@ __all__ = [
     "random_scenario",
     "random_priority_level",
     "random_player_role",
+    "ATTACK_TABLE_HELP",
+    "COMMON_CODEX_RULE_NAMES",
+    "CONDITIONS_HELP",
+    "CRITICAL_TABLES_HELP",
+    "DAMAGE_CONTROL_HELP",
+    "DISPOSITION_DAMAGE_TABLE_HELP",
+    "DISPOSITION_DESCRIPTIONS",
+    "REFERENCE_ENTRIES",
+    "SPECIAL_ACTIONS_HELP",
+    "TURN_SEQUENCE_HELP",
+    "ReferenceEntry",
 ]

@@ -118,7 +118,7 @@ def test_disposition_is_an_active_rules_header(page) -> None:
     assert "ⓘ" in page.disposition_group.title()
     assert "1-6 - Running Adrift" in page.disposition_group.toolTip()
     assert "18+ - Ship Explodes" in page.disposition_group.toolTip()
-    assert "Rulebook p. 9" in page.disposition_group.toolTip()
+    assert "Rulebook, p. 9" in page.disposition_group.toolTip()
 
 
 def test_active_headers_use_silent_rules_dialog(page, monkeypatch) -> None:
